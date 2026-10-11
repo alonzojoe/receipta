@@ -13,6 +13,7 @@ Scaffolding only. None of it decides what the app does.
 - TanStack Router and TanStack Form installed
 - react-icons, react-hot-toast
 - Vite template styles, markup, and assets removed
+- Vitest + React Testing Library, with the `cn()` helper covered
 - `CLAUDE.md` conventions, `docs/product/`, `docs/specs/`
 
 ## Phase 1 — Receipt builder

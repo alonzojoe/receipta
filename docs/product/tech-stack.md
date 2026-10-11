@@ -19,6 +19,7 @@ drift: `CLAUDE.md` tells an agent what to use, this tells a human why.
 | Class merging | `clsx` + `tailwind-merge` | Wrapped in `cn()` in `src/lib/utils.ts`. Conflicting utilities resolve last-wins, which is what makes component overrides work. |
 | Variants | `class-variance-authority` | What shadcn components are built on. |
 | Currency | `Intl.NumberFormat('en-PH')` | Native, zero dependency, and correct: `₱1,234.56`. Never hand-roll money formatting. |
+| Testing | Vitest + React Testing Library | Vitest shares Vite's transform pipeline, so the `@/*` alias and TypeScript config work with no duplicate setup. jsdom environment, `@testing-library/jest-dom` matchers. |
 | Architecture | Feature Sliced Design v1 | Layer import rules keep the receipt entity, the builder feature, and the export feature from tangling. |
 
 ## Decisions with a caveat
@@ -91,6 +92,4 @@ cleanly, item images appear, and the receipt fits its page bounds.
 
 ## Still open
 
-**No test runner.** Nothing is installed. The money math — subtotals, discount, total,
-rounding — is exactly the kind of logic that deserves tests, so this should be settled
-before Phase 1 implementation rather than after.
+Nothing. Every stack decision needed for Phase 1 is settled.

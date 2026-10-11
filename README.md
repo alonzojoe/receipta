@@ -19,6 +19,7 @@ A receipt generation system. Build a receipt, preview it, and export it as a **P
 | Build tool | Vite |
 | Package manager | npm |
 | Linting | ESLint |
+| Testing | Vitest + React Testing Library |
 | Architecture | [Feature Sliced Design v1](https://feature-sliced.design/) |
 
 ## Getting Started
@@ -39,6 +40,8 @@ npm run dev          # Start development server
 npm run build        # Type-check and build for production
 npm run preview      # Preview the production build locally
 npm run lint         # Lint the project with ESLint
+npm test             # Run tests once
+npm run test:watch   # Run tests in watch mode
 ```
 
 ## Architecture
