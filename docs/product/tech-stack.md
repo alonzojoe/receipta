@@ -46,23 +46,50 @@ of repo consistency over tooling convenience. The cost: after
 `npx shadcn@latest add <component>`, multi-word files need renaming by hand
 (`dropdown-menu.tsx` → `dropdown_menu.tsx`) and their imports fixed.
 
+## Export: html2canvas-pro + jsPDF
+
+Decided 2026-10-11. Not installed yet — it lands with Phase 2, since nothing consumes it
+before then.
+
+The receipt preview is rasterised by `html2canvas-pro`, which gives the PNG directly.
+`jsPDF` then wraps that raster into a PDF sized to the receipt. One pipeline, two outputs.
+
+**Why rasterise instead of a real PDF renderer.** Both PNG and PDF ship in v1, and PNG
+needs a rasteriser regardless. Choosing `@react-pdf/renderer` would not replace that
+pipeline, it would add a second one, and the receipt layout would be written twice in two
+different styling systems. For a single-page receipt that guarantees drift between the
+preview and the export. One source of truth beats selectable text here.
+
+**Why `html2canvas-pro` and not the alternatives.**
+
+| Candidate | Why not |
+| --- | --- |
+| `html2canvas` | Abandoned at 1.4.1. Fails on modern CSS colour functions. |
+| `html-to-image` | Last published April 2025. |
+| `modern-screenshot` | Actively maintained and a genuine option. Kept as the fallback: it renders via SVG `foreignObject`, a different failure profile, so it is what we reach for if fidelity problems appear. |
+| `jsPDF.html()` | Wraps html2canvas internally, inheriting its colour bugs with less control. |
+
+`html2canvas-pro` is the maintained fork that explicitly added `oklch()`, `lab()`, and
+`lch()` support — exactly the Tailwind v4 risk. Zero dependencies, published within the
+last week.
+
+**The accepted tradeoff.** The PDF is a high-resolution image, so its text is not
+selectable or searchable. For a proof-of-payment document viewed on a phone, that costs
+nothing real.
+
+**Two mitigations, both required.**
+
+1. **Render at 3× scale.** A ~600 px receipt at 3× is 1800 px, above the ~1748 px needed
+   for 300 dpi at A5 width. No visible blur in print.
+2. **The receipt preview uses fixed hex colours and never dark mode.** A receipt is a
+   document, not UI: black on white regardless of the app's theme. This is the correct
+   design call on its own, and it also removes the `oklch()` export risk entirely, since
+   no theme token reaches the rasterised node.
+
+Phase 2 must still verify in real output: the ₱ sign renders, Geist embeds or falls back
+cleanly, item images appear, and the receipt fits its page bounds.
+
 ## Still open
-
-**Export library — the one real gap.** Nothing is installed for PDF or image export yet,
-and it is the highest-risk choice left because it determines export fidelity. The
-candidates:
-
-- `html-to-image` or `html2canvas` to rasterise the preview, then `jsPDF` to wrap the
-  raster in a PDF. Simple, and the PDF is a picture of a receipt: no selectable text, and
-  it blurs when zoomed or printed large.
-- A real PDF renderer such as `@react-pdf/renderer`, which draws the PDF from its own
-  component tree. Sharp, selectable text at any zoom, but the receipt layout has to be
-  written twice: once in HTML for the preview, once for the PDF.
-- `jsPDF` with its HTML plugin. One codebase, but weak CSS support, and Tailwind v4's
-  `oklch()` colours are a known problem for it.
-
-This needs its own spec section in Phase 2, with the peso sign, embedded item images, and
-page bounds verified in real output before the choice is locked.
 
 **No test runner.** Nothing is installed. The money math — subtotals, discount, total,
 rounding — is exactly the kind of logic that deserves tests, so this should be settled

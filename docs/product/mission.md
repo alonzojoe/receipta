@@ -48,7 +48,7 @@ These are settled and the spec depends on them.
 | Item line | name + quantity × unit price → subtotal |
 | Item image | one per item, optional |
 | Totals | subtotal → optional discount → total. No VAT line. |
-| Payment modes | GCash, Maya, MariBank, Bank Transfer |
+| Payment modes | GCash, Maya, MariBank, Bank Transfer (confirmed 2026-10-11) |
 | Payment icons | local brand SVGs, since react-icons carries no PH fintech logos |
 | Receipt No. | auto-generated, `REF-YYYYMMDD-HHMMSS` |
 | Payment Reference No. | optional, typed in by the issuer from their payment app |
@@ -88,10 +88,19 @@ Recorded so they are visible and cheap to overturn.
   browser and embedded into the export. They will be downscaled before embedding so a
   few phone photos do not produce a bloated file.
 
-## Open questions
+## Brand logo sourcing
 
-- Is **MariBank** the intended provider, or **SeaBank**? MariBank operates in
-  Singapore; SeaBank is the Philippine digital bank under the same parent. Worth
-  confirming before logo assets are sourced.
-- Where do the brand logo SVGs come from, and are we comfortable displaying them as
-  payment-method indicators?
+Displaying the GCash, Maya, and MariBank marks to indicate accepted payment methods is
+nominative use: it identifies the real service and implies no endorsement, the same basis
+any checkout page uses.
+
+Assets come from each provider's official brand or media kit, saved locally as SVG under
+the shared layer. Not scraped PNGs, for three reasons:
+
+- **CORS breaks the export.** `html2canvas-pro` rasterises the preview, and a remote image
+  without permissive CORS headers renders blank. A hotlinked logo would look correct in the
+  preview and silently disappear from the exported PDF.
+- **PNG degrades at 3x scale.** The export renders at 3x for print; a small raster logo
+  upscales to mush.
+- **Scraped marks are usually wrong** - outdated wordmarks, baked-in backgrounds, or fan
+  recreations.
