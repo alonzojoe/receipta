@@ -12,6 +12,8 @@ A receipt generation system. Build a receipt, preview it, and export it as a **P
 | Routing | TanStack Router |
 | Language | TypeScript |
 | Styling | Tailwind CSS v4 |
+| UI components | shadcn/ui |
+| Forms | TanStack Form |
 | Icons | react-icons |
 | Toasts | react-hot-toast |
 | Build tool | Vite |

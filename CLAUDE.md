@@ -12,6 +12,8 @@ This is a receipt generation system that exports pdf/image to send the output to
 - Framework: Reactjs (Routing: TanStack Router)
 - Language: Typescript
 - Styling: Tailwind CSS v4^  https://tailwindcss.com/
+- UI Components: shadcn/ui  https://ui.shadcn.com/
+- Forms: TanStack Form  https://tanstack.com/form/
 - Icons: react-icons  https://react-icons.github.io/react-icons/
 - Toasts / Notifications: react-hot-toast  https://react-hot-toast.com/
 - Package Manager: npm
@@ -23,6 +25,11 @@ This is a receipt generation system that exports pdf/image to send the output to
 - colors in index.css
 - Use `react-icons` for all icons. Do not add another icon library.
 - Use `react-hot-toast` for all toast notifications. Do not add another toast library.
+- Use `shadcn/ui` for UI primitives. Compose and extend its components instead of hand-rolling equivalents.
+- Use `TanStack Form` for all form state and validation. Do not use uncontrolled ad-hoc form handling.
+- `lucide-react` is allowed only inside generated `shadcn/ui` primitives. All code we write uses `react-icons`.
+- snake_case applies to every file, including generated `shadcn/ui` components. After `npx shadcn@latest add <component>`, rename multi-word files to snake_case (`dropdown-menu.tsx` -> `dropdown_menu.tsx`) and fix the imports.
+- Format all money with `Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' })` -> `₱1,234.56`. Always two decimal places. Never hand-roll currency formatting.
 
 
 ## 🏗 Architecture
@@ -51,6 +58,7 @@ npm run dev          # Start development server
 
 ## Git Conventions
 
+- Never commit without the author's review. Make the changes, show what changed, and wait for explicit approval before running `git commit`.
 - Commit only in the `develop` branch.
 - Never add a Claude co-author trailer or any AI attribution to commits.
 - Use Conventional Commits for every message: `<prefix>: <message>`
