@@ -79,9 +79,20 @@ npm run test:watch   # Run tests in watch mode
 
 ### Pull requests
 
-- **The pull request title is the branch name, verbatim.** A branch named
-  `feature/receipt-builder` opens a PR titled `feature/receipt-builder`.
-- Feature branches target `develop`. Only `develop` targets `main`.
+Two kinds, with different title rules.
+
+**Feature PR (`feature/*` into `develop`)** - opened for spec-driven feature work.
+
+- **The title is the branch name, verbatim.** A branch named `feature/receipt-builder`
+  opens a PR titled `feature/receipt-builder`.
+
+**Release PR (`develop` into `main`)**
+
+- The title is a short generic description of what is being released, not the branch name.
+  `develop` as a title tells a reader nothing.
+  - Good: `chore: project setup and product specs`, `feat: receipt builder and export`
+  - Bad: `develop`
+- Only `develop` targets `main`.
 
 ### Commit messages
 
