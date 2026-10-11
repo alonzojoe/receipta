@@ -12,6 +12,8 @@ This is a receipt generation system that exports pdf/image to send the output to
 - Framework: Reactjs (Routing: TanStack Router)
 - Language: Typescript
 - Styling: Tailwind CSS v4^  https://tailwindcss.com/
+- Icons: react-icons  https://react-icons.github.io/react-icons/
+- Toasts / Notifications: react-hot-toast  https://react-hot-toast.com/
 - Package Manager: npm
 - Linting: EsLint
 - Architecture: Feature Sliced Design v1
@@ -19,6 +21,8 @@ This is a receipt generation system that exports pdf/image to send the output to
 ### Rules
 
 - colors in index.css
+- Use `react-icons` for all icons. Do not add another icon library.
+- Use `react-hot-toast` for all toast notifications. Do not add another toast library.
 
 
 ## 🏗 Architecture
