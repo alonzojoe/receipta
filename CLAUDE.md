@@ -52,11 +52,23 @@ npm run test:watch   # Run tests in watch mode
 ## Code Conventions
 
 - Use typescript for all new files .ts tsx
-- Prefer Type aliases over Interfaces
+- Prefer Type aliases over Interfaces. The one exception is TypeScript module
+  augmentation, which cannot augment a type alias - see the `Register` interface in
+  `src/app/router.tsx`.
 - Prefer functional components with hooks
 - Keep Components small, reusable, focused and single-purpose.
 - Always follow DRY and SOLID principles. Keep responsibilities explicit, depend on stable abstractions, and extract shared behavior instead of duplicating logic or UI.
 - Follow existing patterns and naming conventions snake_case
+- File names are snake_case: `home_page.tsx`, `root_route.tsx`, `payment_mode_select.tsx`.
+- **Component identifiers are PascalCase**, because JSX treats a lowercase tag as an HTML
+  element: `<home_page />` renders a literal `<home_page>` DOM node. So the file is
+  `home_page.tsx` and the export inside it is `HomePage`. This is a language constraint,
+  not a style preference.
+- Everything that is not a component stays snake_case: constants, functions, types, route
+  objects (`root_route`, `home_route`), config keys.
+- A file must not export both components and non-components. ESLint's
+  `react-refresh/only-export-components` enforces this: keep route objects and layout
+  components in separate files.
 - Use fluid sizing and responsive layout primitives such as `w-full`, percentages, flexbox, grid, responsive breakpoint variants, `h-auto`, and `aspect-*`. Maximum constraints such as `max-w-*` and `max-h-*` are allowed.
 - Fixed dimensions are allowed only for icons. Avoid arbitrary or exact Tailwind dimensions such as `w-[...]`, `h-[...]`, or `size-[...]` for non-icon elements.
 

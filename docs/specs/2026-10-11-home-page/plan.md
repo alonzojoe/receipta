@@ -13,11 +13,14 @@ here govern everything after it.
 ```
 src/
   app/
-    router.tsx              router instance and route tree
+    router.tsx              router instance, route tree, type registration
     routes/
-      root_route.tsx        shell: outlet + toaster
-      home_route.tsx        / -> home_page
+      root_route.tsx        route object only
+      home_route.tsx        / -> HomePage
       create_route.tsx      /create -> placeholder until Phase 1
+    ui/
+      root_layout.tsx       shell: outlet + toaster
+      not_found.tsx         404
   pages/
     home/
       ui/home_page.tsx      composes the widgets, owns nothing else
@@ -40,7 +43,7 @@ src/
     config/
       site.ts               author name, github url, nav items, payment mode labels
     lib/
-      utils.ts              existing cn()
+      utils.ts              cn(), moved here from src/lib/
 ```
 
 Import rule, enforced by review: `app` -> `pages` -> `widgets` -> `shared`. A widget
@@ -78,7 +81,7 @@ class string.
 
 ## Task 3 — Logo and favicon
 
-`src/shared/ui/logo.tsx` exporting `logo_mark`, `logo_wordmark`, and `logo`. The mark is a
+`src/shared/ui/logo.tsx` exporting `LogoMark`, `LogoWordmark`, and `Logo`. The mark is a
 rounded square with a receipt glyph and a zigzag torn bottom edge, drawn with
 `currentColor` so it themes automatically. No fixed pixel size inside the component; the
 caller sizes it, and icons are the one place fixed dimensions are allowed.

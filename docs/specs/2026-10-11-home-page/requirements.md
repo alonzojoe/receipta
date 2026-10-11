@@ -40,8 +40,9 @@ the wordmark "Receipta".
 
 - Built as an SVG React component, not an image file, so it inherits `currentColor` and
   theme correctly
-- Three exports: `<logo_mark />` (the square alone), `<logo_wordmark />` (text alone),
-  `<logo />` (both, for the nav)
+- Three exports: `LogoMark` (the square alone), `LogoWordmark` (text alone), `Logo`
+  (both, for the nav). File is `logo.tsx`; component identifiers are PascalCase because
+  JSX requires it.
 - The mark must stay legible at 16 px, which rules out interior detail finer than the
   zigzag
 - A standalone `public/favicon.svg` carries the same mark, replacing the Vite logo, and is
