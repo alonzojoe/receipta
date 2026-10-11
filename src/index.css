@@ -153,6 +153,15 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /*
+   * Smooth anchor scrolling, opt-out respected. Wrapped in no-preference rather than
+   * overridden later, so reduced motion never has to undo it.
+   */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
   body {
     @apply bg-background text-foreground;
   }

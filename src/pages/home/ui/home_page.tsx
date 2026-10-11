@@ -1,14 +1,29 @@
+import { HomeClosingCta } from '@/widgets/home_closing_cta'
+import { HomeFeatures } from '@/widgets/home_features'
+import { HomeHero } from '@/widgets/home_hero'
+import { HomePaymentModes } from '@/widgets/home_payment_modes'
+import { HomePrivacy } from '@/widgets/home_privacy'
+import { HomeSteps } from '@/widgets/home_steps'
+import { SiteFooter } from '@/widgets/site_footer'
+import { SiteHeader } from '@/widgets/site_header'
+
 /**
- * Home page. Composes the marketing widgets in order and owns no logic of its own.
- * Sections are added in the tasks that follow; this is the composition root.
+ * Composition root for the marketing page. Holds no logic and no styling beyond the
+ * order of the sections.
  */
 export function HomePage() {
   return (
-    <main className="flex min-h-svh w-full flex-col items-center justify-center gap-4 p-6 text-center">
-      <h1 className="text-3xl font-medium tracking-tight">Receipta</h1>
-      <p className="max-w-prose text-balance text-muted-foreground">
-        Send receipts, not screenshots.
-      </p>
-    </main>
+    <div className="flex min-h-svh w-full flex-col">
+      <SiteHeader />
+      <main className="flex w-full flex-1 flex-col">
+        <HomeHero />
+        <HomePaymentModes />
+        <HomeSteps />
+        <HomeFeatures />
+        <HomePrivacy />
+        <HomeClosingCta />
+      </main>
+      <SiteFooter />
+    </div>
   )
 }

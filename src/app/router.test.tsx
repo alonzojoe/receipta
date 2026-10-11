@@ -25,7 +25,10 @@ describe('router', () => {
     render_at('/')
 
     expect(
-      await screen.findByRole('heading', { name: 'Receipta' }),
+      await screen.findByRole('heading', {
+        level: 1,
+        name: /send receipts, not screenshots/i,
+      }),
     ).toBeInTheDocument()
   })
 
@@ -47,7 +50,7 @@ describe('router', () => {
 
   it('renders exactly one h1 per route', async () => {
     const { container } = render_at('/')
-    await screen.findByRole('heading', { name: 'Receipta' })
+    await screen.findByRole('heading', { level: 1 })
 
     expect(container.querySelectorAll('h1')).toHaveLength(1)
   })
