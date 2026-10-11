@@ -19,4 +19,17 @@ export default defineConfig([
       globals: globals.browser,
     },
   },
+  {
+    // Generated shadcn/ui primitives export a cva variants function alongside the
+    // component (buttonVariants, badgeVariants, ...). Splitting each one into its own
+    // file would have to be redone on every `shadcn add`, so the export is allowed
+    // here instead. Scoped to shared/ui so it cannot mask the rule elsewhere.
+    files: ['src/shared/ui/**/*.tsx'],
+    rules: {
+      'react-refresh/only-export-components': [
+        'error',
+        { allowExportNames: ['buttonVariants'] },
+      ],
+    },
+  },
 ])

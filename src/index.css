@@ -55,10 +55,18 @@
   --sidebar-ring: oklch(0.541 0.247 293);
 
   /*
-   * Easing. The built-in CSS curves are too weak to feel intentional.
-   * ease-out for entrances, ease-in-out for on-screen movement.
-   * ease-in is never used: it delays the first frame, which is exactly the
-   * moment the user is watching.
+   * Easing.
+   *
+   * These deliberately OVERRIDE Tailwind's built-in --ease-out and --ease-in-out.
+   * Tailwind ships cubic-bezier(0, 0, .2, 1) and cubic-bezier(.4, 0, .2, 1), which
+   * are too weak to feel intentional. Because this :root block is emitted after
+   * Tailwind's theme, every `ease-out` and `ease-in-out` utility in the codebase -
+   * including inside generated shadcn components - resolves to the stronger curve
+   * below. That is the point: one definition, applied everywhere, no opt-in needed.
+   *
+   * ease-out for entrances and exits. ease-in-out for on-screen movement.
+   * ease-in is never used: it delays the first frame, which is the exact moment the
+   * user is watching most closely.
    */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
@@ -132,8 +140,6 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --ease-out: var(--ease-out);
-  --ease-in-out: var(--ease-in-out);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
