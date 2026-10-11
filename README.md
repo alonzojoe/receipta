@@ -1,75 +1,64 @@
-# React + TypeScript + Vite
+# Receipta
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A receipt generation system. Build a receipt, preview it, and export it as a **PDF** or **image** to send to your customers.
 
-Currently, two official plugins are available:
+> **Status:** early setup. The project is scaffolded with Vite + React + TypeScript; receipt features are being specced before implementation.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
 
-## React Compiler
+| Concern | Choice |
+| --- | --- |
+| Framework | React |
+| Routing | TanStack Router |
+| Language | TypeScript |
+| Styling | Tailwind CSS v4 |
+| Icons | react-icons |
+| Toasts | react-hot-toast |
+| Build tool | Vite |
+| Package manager | npm |
+| Linting | ESLint |
+| Architecture | [Feature Sliced Design v1](https://feature-sliced.design/) |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Getting Started
 
-## Expanding the ESLint configuration
+Requires Node.js and npm.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+The dev server prints a local URL to open in your browser.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Scripts
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev          # Start development server
+npm run build        # Type-check and build for production
+npm run preview      # Preview the production build locally
+npm run lint         # Lint the project with ESLint
+```
+
+## Architecture
+
+The codebase follows **Feature Sliced Design v1**. Code is organized into layers, each layer into slices, and each slice into segments:
 
 ```
+src/
+  app/        # App-wide setup: providers, routing, global styles
+  pages/      # Route-level compositions
+  widgets/    # Self-contained blocks composed of features and entities
+  features/   # User-facing capabilities (e.g. build a receipt, export a receipt)
+  entities/   # Business entities (e.g. receipt, line item, customer)
+  shared/     # Reusable primitives: ui, lib, config, types
+```
+
+A layer may only import from the layers below it. See the [FSD documentation](https://feature-sliced.design/) for the full rules.
+
+Design tokens and colors live in `src/index.css`.
+
+## Conventions
+
+Contributor guidance — code conventions, styling rules, and commit format — lives in [`CLAUDE.md`](./CLAUDE.md).
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `chore:`, `perf:`, …) and land on the `develop` branch.
