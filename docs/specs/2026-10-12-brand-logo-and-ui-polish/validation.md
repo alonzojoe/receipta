@@ -15,10 +15,10 @@ Every check is a command, a test, or a rendered image that was actually looked a
 
 | Check | How | Expected | Result |
 | --- | --- | --- | --- |
-| Icons exist | `ls public/` | apple-touch-icon, icon-192, icon-512, favicon.svg, site.webmanifest | pass - plus logo_lockup.png |
+| Icons exist | `ls public/` | apple-touch-icon, icon-192, icon-512, favicon PNGs, favicon.ico, site.webmanifest | pass - plus logo_lockup.png. `favicon.svg` removed when the tab icon moved to the real artwork. |
 | Transparent corners | sample pixel (0,0) of each PNG | alpha 0 | pass - all five PNGs read `srgba(0,0,0,0)` |
 | Correct dimensions | `magick identify` | 180, 192, 512, 256 | pass - plus lockup at 1200x399 |
-| No stale asset | `grep -rn "favicon" index.html public/` | no reference to a deleted file | pass |
+| No stale asset | `grep -rn "favicon" index.html public/` | no reference to a deleted file | pass - every href in `index.html` resolves to a file on disk, checked by script |
 | Manifest valid | parse as JSON, resolve every icon path | parses, all paths exist | pass |
 
 ## Gate 2 — Favicon legibility
@@ -28,8 +28,8 @@ reasoning.
 
 | Size | Expected | Result |
 | --- | --- | --- |
-| 16px | receipt silhouette and badge distinguishable | pass - rasterised and inspected. The raw artwork at 16px is an unreadable smudge, which is why the favicon is redrawn rather than scaled. |
-| 32px | rules and badge clearly separated | pass |
+| 16px | receipt silhouette distinguishable | pass with a caveat - rasterised and inspected. The real artwork at 16px is soft: the receipt shape reads, the badge only faintly. Accepted so that the tab icon is the actual mark rather than a lookalike; retina displays use the 32px icon. |
+| 32px | rules and badge clearly separated | pass - real artwork, crisp. This is what retina tabs show. |
 | 180px (apple touch) | full artwork, including sparkle | pass - real artwork, not the simplified draw |
 
 ## Gate 3 — Contrast at hue 287

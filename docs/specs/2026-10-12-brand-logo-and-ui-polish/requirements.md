@@ -65,15 +65,21 @@ six degrees away, which is close enough to look accidental rather than intention
 
 ## Asset requirements
 
-**The artwork does not survive 16px.** Rasterised and inspected: at 32px the receipt,
-rules, badge and sparkle all read; at 16px it collapses into a white smudge on violet.
-So the favicon cannot simply be the artwork scaled down.
+**The artwork is soft at 16px.** Rasterised and inspected: at 32px and above the
+receipt, rules, badge and sparkle all read cleanly; at 16px it reduces to a white
+receipt shape on violet with the badge only faintly separate.
 
-Two tiers, by size:
+That is accepted rather than worked around. A redrawn SVG favicon was built first and
+read better at 16px, but it was a lookalike of the mark rather than the mark, and a
+brand should not have two slightly different faces. Browsers on retina displays - which
+is most of them - pick the 32px icon for the tab anyway, so the crisp version is what
+is usually shown. The 16px file exists for non-retina displays.
+
+A multi-size `.ico` is included for older browsers and for Windows pinning.
 
 | Asset | Source | Why |
 | --- | --- | --- |
-| `public/favicon.svg` | redrawn, simplified | Must read at 16px. Brand gradient, receipt, badge; sparkle and the third rule dropped as sub-pixel detail. |
+| `public/favicon-{16,32,48,96}.png`, `public/favicon.ico` | real artwork | The tab icon is the real mark. A redrawn SVG was tried first and rejected: it was a lookalike rather than the logo. |
 | `public/apple-touch-icon.png` (180) | real artwork | Home-screen icon, large enough for the full detail. |
 | `public/icon-192.png`, `public/icon-512.png` | real artwork | PWA and manifest. |
 | `src/shared/assets/logo_mark.png` (256) | real artwork | Nav and footer, served at 2x for a ~32px slot. |
