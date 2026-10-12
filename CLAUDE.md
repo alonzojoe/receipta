@@ -86,29 +86,30 @@ npm run test:watch   # Run tests in watch mode
 
 ### Branches
 
-- Feature work goes on a branch named `feature/<branch-name-here>` cut from `develop`.
+- Feature work goes on a branch named `feature/<branch-name-here>` cut from `main`.
 - Use lowercase and hyphens in the branch name. No spaces, no underscores.
   - Good: `feature/receipt-builder`, `feature/pdf-export`
   - Bad: `feature/Receipt_Builder`, `receipt-builder`, `feat/receipt-builder`
-- `develop` is the integration branch. `main` holds released work.
-- Never commit directly to `main`.
+- **The branch name and the PR title are chosen together, before work starts**, because
+  the PR title is the branch name verbatim. Pick the name the PR should carry.
+- Never commit directly to `main`. Every change reaches it through a pull request.
 
 ### Pull requests
 
-Two kinds, with different title rules.
-
-**Feature PR (`feature/*` into `develop`)** - opened for spec-driven feature work.
+**Feature PRs target `main` directly.** Do not route them through `develop`.
 
 - **The title is the branch name, verbatim.** A branch named `feature/receipt-builder`
   opens a PR titled `feature/receipt-builder`.
+- Base branch is `main`.
 
-**Release PR (`develop` into `main`)**
+**Release PR (`develop` into `main`)** - only when `develop` has accumulated work that
+has not reached `main` yet. This should become rare now that features go straight to
+`main`.
 
-- The title is a short generic description of what is being released, not the branch name.
-  `develop` as a title tells a reader nothing.
+- The title is a short generic description of what is being released, not the branch
+  name. `develop` as a title tells a reader nothing.
   - Good: `chore: project setup and product specs`, `feat: receipt builder and export`
   - Bad: `develop`
-- Only `develop` targets `main`.
 
 ### Commit messages
 
