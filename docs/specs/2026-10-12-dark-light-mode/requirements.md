@@ -21,7 +21,7 @@ Settled before implementation, recorded so they are not re-litigated.
 | Menu | shadcn `dropdown-menu`, each row an icon plus a label, current choice ticked |
 | Trigger icon | Reflects the active choice: sun, moon, or monitor |
 | Footer | **Follows the theme.** The forced dark is removed. |
-| Mock receipt | **Stays light in both themes.** |
+| Mock receipt | **Follows the theme**, like everything else. |
 
 ### Why the footer changes
 
@@ -29,12 +29,21 @@ It was forced dark so the page had an anchor. With a real toggle that becomes a 
 user picks Light, and part of the page ignores them. The control has to be believable,
 so the footer follows the theme like everything else.
 
-### Why the mock receipt does not
+### Why the mock receipt follows it too
 
-It is a preview of a printed document. White paper is what the exported PDF and image
-will contain, and `tech-stack.md` already requires the exported node to carry fixed
-colours rather than theme tokens. A preview that goes dark would be lying about the
-output.
+Author's call, against the initial recommendation. The argument for keeping it white
+was that it previews a printed document, so it should show what the export contains.
+The argument that won: the hero mock is marketing, not the product, and a page where
+one card stubbornly stays white makes the toggle look broken.
+
+This does **not** change the export decision. `tech-stack.md` still requires the real
+receipt - the one Phase 1 builds and `html2canvas-pro` rasterises - to carry fixed
+colours, because a theme token reaching the exported node means `oklch()` has to
+resolve at export time. The hero mock is a separate, throwaway component and is not
+the thing that gets exported.
+
+A useful side effect: the mock stops being the only file in `src/` holding colour
+literals.
 
 ## Behaviour
 
