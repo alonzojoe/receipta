@@ -5,15 +5,7 @@ import { Logo } from '@/shared/ui/logo'
 
 export function SiteFooter() {
   return (
-    <footer
-      /*
-       * The `dark` class scopes the dark token set to this subtree, so the footer is
-       * dark in both themes using the palette that already exists. No second set of
-       * colours, no literals: every child keeps using bg-background, text-foreground
-       * and border-border, and they simply resolve to their dark values here.
-       */
-      className="dark w-full border-t border-border bg-background text-foreground"
-    >
+    <footer className="w-full border-t border-border bg-muted/40">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-4 py-12 sm:px-6">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex flex-col gap-2">

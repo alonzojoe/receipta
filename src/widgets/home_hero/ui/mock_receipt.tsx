@@ -22,23 +22,26 @@ const subtotal = lines.reduce(
  * A rehearsal of the real receipt, not the real thing. It exists to show visitors
  * what they get, and to prove the peso formatting before the builder needs it.
  *
- * Colours are fixed, not theme tokens, and it never goes dark: a receipt is a
- * document, so it looks the same whatever theme the app is in. That is also what the
- * export pipeline requires - no theme token may reach the rasterised node, since
- * html2canvas-pro would otherwise have to resolve oklch() at export time.
+ * It follows the app theme, by decision: a page where one card stubbornly stays white
+ * makes the theme switch look broken.
+ *
+ * This does NOT apply to the real receipt. The component Phase 1 builds - the one
+ * html2canvas-pro rasterises - must carry fixed colours, because a theme token
+ * reaching the exported node means oklch() has to resolve at export time. See
+ * docs/product/tech-stack.md. This is marketing; that is the product.
  *
  * Phase 1 replaces this against the real data model. Nothing outside this widget may
  * import it.
  */
 export function MockReceipt() {
   return (
-    <div className="w-full max-w-sm rotate-1 rounded-xl bg-[#FFFFFF] p-6 shadow-2xl shadow-primary/10 ring-1 ring-black/5 transition-transform duration-300 ease-out hover:rotate-0">
-      <div className="flex items-start justify-between gap-4 border-b border-dashed border-[#E3E2E9] pb-4">
+    <div className="w-full max-w-sm rotate-1 rounded-xl bg-card p-6 shadow-2xl shadow-primary/10 ring-1 ring-border transition-transform duration-300 ease-out hover:rotate-0">
+      <div className="flex items-start justify-between gap-4 border-b border-dashed border-border pb-4">
         <div className="flex flex-col">
-          <span className="text-sm font-semibold text-[#14121C]">Juan Dela Cruz</span>
-          <span className="text-xs text-[#615E6E]">Receipt for Maria Santos</span>
+          <span className="text-sm font-semibold text-foreground">Juan Dela Cruz</span>
+          <span className="text-xs text-muted-foreground">Receipt for Maria Santos</span>
         </div>
-        <span className="shrink-0 rounded-md bg-[#F2F0F9] px-2 py-1 text-[0.625rem] font-medium tracking-wide text-[#615E6E]">
+        <span className="shrink-0 rounded-md bg-muted px-2 py-1 text-[0.625rem] font-medium tracking-wide text-muted-foreground">
           PAID
         </span>
       </div>
@@ -47,34 +50,34 @@ export function MockReceipt() {
         {lines.map((line) => (
           <div key={line.name} className="flex items-baseline justify-between gap-4">
             <dt className="flex min-w-0 flex-col">
-              <span className="truncate text-sm text-[#14121C]">{line.name}</span>
-              <span className="text-xs text-[#615E6E]">
+              <span className="truncate text-sm text-foreground">{line.name}</span>
+              <span className="text-xs text-muted-foreground">
                 {line.quantity} &times; {format_currency(line.unit_price)}
               </span>
             </dt>
-            <dd className="shrink-0 text-sm tabular-nums text-[#14121C]">
+            <dd className="shrink-0 text-sm tabular-nums text-foreground">
               {format_currency(line.quantity * line.unit_price)}
             </dd>
           </div>
         ))}
       </dl>
 
-      <div className="flex flex-col gap-2 border-t border-dashed border-[#E3E2E9] pt-4 text-sm">
-        <div className="flex items-baseline justify-between gap-4 text-[#615E6E]">
+      <div className="flex flex-col gap-2 border-t border-dashed border-border pt-4 text-sm">
+        <div className="flex items-baseline justify-between gap-4 text-muted-foreground">
           <span>Subtotal</span>
           <span className="tabular-nums">{format_currency(subtotal)}</span>
         </div>
-        <div className="flex items-baseline justify-between gap-4 text-[#615E6E]">
+        <div className="flex items-baseline justify-between gap-4 text-muted-foreground">
           <span>Discount</span>
           <span className="tabular-nums">-{format_currency(discount)}</span>
         </div>
-        <div className="flex items-baseline justify-between gap-4 pt-1 font-semibold text-[#14121C]">
+        <div className="flex items-baseline justify-between gap-4 pt-1 font-semibold text-foreground">
           <span>Total</span>
           <span className="tabular-nums">{format_currency(subtotal - discount)}</span>
         </div>
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-4 border-t border-[#E3E2E9] pt-4 text-xs text-[#615E6E]">
+      <div className="mt-4 flex items-center justify-between gap-4 border-t border-border pt-4 text-xs text-muted-foreground">
         <span>GCash</span>
         <span className="tabular-nums">REF-20261011-224818</span>
       </div>

@@ -29,6 +29,34 @@
     <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
+    <script>
+      /*
+       * Applies the theme before first paint.
+       *
+       * A React effect runs after the first paint, so without this a dark-mode user
+       * sees a white flash on every load. This is inline and blocking on purpose: an
+       * external file is not guaranteed to run before the page renders.
+       *
+       * The key is duplicated from src/shared/config/theme.ts because this script
+       * cannot import from the bundle. A test asserts the two match.
+       *
+       * localStorage access throws outright in some privacy modes rather than
+       * returning null, so the whole thing is wrapped and falls back to the device.
+       */
+      ;(function () {
+        try {
+          var stored = localStorage.getItem('receipta-theme')
+          var theme = stored ? JSON.parse(stored) : 'system'
+          var dark =
+            theme === 'dark' ||
+            (theme !== 'light' &&
+              window.matchMedia('(prefers-color-scheme: dark)').matches)
+          if (dark) document.documentElement.classList.add('dark')
+        } catch (error) {
+          /* No stored preference available. The app resolves the theme on mount. */
+        }
+      })()
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

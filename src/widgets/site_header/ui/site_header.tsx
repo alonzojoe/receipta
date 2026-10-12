@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 
+import { ThemeSwitcher } from '@/features/theme_switcher'
 import { nav_links, site } from '@/shared/config/site'
 import { cn } from '@/shared/lib/utils'
 import { useScrolledPast } from '@/shared/lib/use_scrolled_past'
@@ -43,9 +44,12 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          <Button className="h-auto px-4 py-2" asChild>
-            <Link to="/create">Create receipt</Link>
-          </Button>
+          <div className="flex items-center gap-1">
+            <ThemeSwitcher />
+            <Button className="h-auto px-4 py-2" asChild>
+              <Link to="/create">Create receipt</Link>
+            </Button>
+          </div>
         </div>
       </header>
     </>
