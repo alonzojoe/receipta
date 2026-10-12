@@ -31,8 +31,9 @@ export const nav_links: readonly NavLink[] = [
 ]
 
 export const footer_links: readonly NavLink[] = [
-  { label: 'Privacy Policy', href: '#' },
-  { label: 'Terms & Conditions', href: '#' },
+  { label: 'Privacy Policy', href: '/privacy' },
+  { label: 'Terms & Conditions', href: '/terms' },
+  { label: 'Cookie Policy', href: '/cookies' },
 ]
 
 /**

@@ -14,19 +14,26 @@ type SectionProps = {
  * Owns horizontal gutters, content width, and vertical rhythm so no widget
  * reinvents page padding. The gutter never collapses to zero, which is what keeps
  * the page from touching the screen edge at 320px.
+ *
+ * The padding sits INSIDE the max-w-5xl container, not outside it, so section content
+ * lines up with the header's logo. With the padding outside, the two disagree by the
+ * gutter width - 24px on desktop - and every page is subtly misaligned against its own
+ * navbar.
  */
 export function Section({ id, children, className, innerClassName }: SectionProps) {
   return (
     <section
       id={id}
       className={cn(
-        'w-full px-4 py-16 sm:px-6 sm:py-20',
+        'w-full py-16 sm:py-20',
         // Anchor targets must clear the sticky header, or the heading lands behind it.
         id && 'scroll-mt-16',
         className,
       )}
     >
-      <div className={cn('mx-auto w-full max-w-5xl', innerClassName)}>{children}</div>
+      <div className={cn('mx-auto w-full max-w-5xl px-4 sm:px-6', innerClassName)}>
+        {children}
+      </div>
     </section>
   )
 }
