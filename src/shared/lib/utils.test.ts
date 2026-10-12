@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/shared/lib/utils'
 
 describe('cn', () => {
   it('resolves conflicting tailwind utilities so the last one wins', () => {
