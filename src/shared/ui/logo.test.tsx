@@ -4,23 +4,34 @@ import { describe, expect, it } from 'vitest'
 import { Logo, LogoMark, LogoWordmark } from './logo'
 
 describe('Logo', () => {
-  it('hides the mark from assistive tech, since the wordmark carries the name', () => {
+  it('renders the brand artwork', () => {
     const { container } = render(<LogoMark />)
-    const svg = container.querySelector('svg')
+    const img = container.querySelector('img')
 
-    expect(svg).toHaveAttribute('aria-hidden', 'true')
+    expect(img).not.toBeNull()
+    expect(img?.getAttribute('src')).toBeTruthy()
   })
 
-  it('draws the mark with currentColor so it inherits the theme', () => {
+  it('hides the mark from assistive tech, since the wordmark carries the name', () => {
     const { container } = render(<LogoMark />)
+    const img = container.querySelector('img')
 
-    expect(container.innerHTML).toContain('currentColor')
+    expect(img).toHaveAttribute('aria-hidden', 'true')
+    expect(img).toHaveAttribute('alt', '')
+  })
+
+  it('reserves space so the header does not shift while the mark loads', () => {
+    const { container } = render(<LogoMark />)
+    const img = container.querySelector('img')
+
+    expect(img).toHaveAttribute('width')
+    expect(img).toHaveAttribute('height')
   })
 
   it('lets the caller override the mark size', () => {
     const { container } = render(<LogoMark className="size-5" />)
 
-    expect(container.querySelector('svg')?.getAttribute('class')).toContain('size-5')
+    expect(container.querySelector('img')?.getAttribute('class')).toContain('size-5')
   })
 
   it('renders the wordmark as readable text', () => {
@@ -32,7 +43,7 @@ describe('Logo', () => {
   it('combines mark and wordmark', () => {
     const { container } = render(<Logo />)
 
-    expect(container.querySelector('svg')).toBeInTheDocument()
+    expect(container.querySelector('img')).toBeInTheDocument()
     expect(screen.getByText('Receipta')).toBeInTheDocument()
   })
 })
