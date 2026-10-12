@@ -132,5 +132,24 @@ Two kinds, with different title rules.
   - Good: `feat: add pdf export to receipt preview`
   - Bad: `Feat: Added PDF Export.`
 
+## Subagents
+
+Project agents live in `.claude/agents/`. Each is scoped to this codebase and knows its
+rules, so prefer them over generic help.
+
+| Agent | Use for |
+| --- | --- |
+| `product-manager` | What a feature must do, acceptance criteria, whether work is actually done |
+| `planner` | Turning an approved spec into an ordered, checkable implementation plan |
+| `frontend-designer` | Any UI work: components, layout, colour, typography, motion |
+| `qa-tester` | Writing tests, running the suite, verifying acceptance, hostile input |
+| `code-reviewer` | Reviewing a diff or branch before merge. Read-only. |
+| `debugger` | A failing test, a stack trace, a build failure, behaviour that is wrong |
+| `performance-monitor` | Slowness, jank, dropped frames, bundle growth, console errors |
+
+A rough order for a feature: `product-manager` to settle what and when it is done,
+`planner` to sequence it, `frontend-designer` to build it, `qa-tester` to verify,
+`code-reviewer` before merge. `debugger` and `performance-monitor` are reactive.
+
 ## Notes
 - Claude continually update this file with important information.
