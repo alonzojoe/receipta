@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import { FaGithub } from 'react-icons/fa6'
 
 import { footer_links, site } from '@/shared/config/site'
@@ -15,15 +16,16 @@ export function SiteFooter() {
             </p>
           </div>
 
-          <nav className="flex flex-col gap-2 sm:items-end">
+          <nav aria-label="Legal" className="flex flex-col gap-3 sm:items-end">
+            <h2 className="text-sm font-medium text-foreground">Legal</h2>
             {footer_links.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
+                to={link.href}
                 className="text-sm text-muted-foreground underline-offset-4 transition-colors duration-150 ease-out hover:text-foreground hover:underline"
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
         </div>

@@ -25,7 +25,10 @@ describe('HomePage', () => {
     const { container } = render_home()
     await screen.findByRole('heading', { level: 1 })
 
-    const headings = [...container.querySelectorAll('h1, h2')].map((node) =>
+    // Scoped to <main>: the footer now carries its own "Legal" heading, which is not
+    // part of the page's section order.
+    const main = container.querySelector('main')
+    const headings = [...(main?.querySelectorAll('h1, h2') ?? [])].map((node) =>
       node.textContent?.trim(),
     )
 
@@ -87,12 +90,25 @@ describe('HomePage', () => {
     expect(link.getAttribute('rel')).toContain('noreferrer')
   })
 
-  it('renders Privacy and Terms as deliberate placeholders', async () => {
+  it('links the legal pages from the footer', async () => {
     render_home()
     await screen.findByRole('heading', { level: 1 })
 
-    for (const label of ['Privacy Policy', 'Terms & Conditions']) {
-      expect(screen.getByRole('link', { name: label })).toHaveAttribute('href', '#')
+    const expected = {
+      'Privacy Policy': '/privacy',
+      'Terms & Conditions': '/terms',
+      'Cookie Policy': '/cookies',
     }
+
+    for (const [label, href] of Object.entries(expected)) {
+      expect(screen.getByRole('link', { name: label })).toHaveAttribute('href', href)
+    }
+  })
+
+  it('leaves no placeholder links anywhere on the page', async () => {
+    const { container } = render_home()
+    await screen.findByRole('heading', { level: 1 })
+
+    expect(container.querySelectorAll('a[href="#"]')).toHaveLength(0)
   })
 })
