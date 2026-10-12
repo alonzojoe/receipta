@@ -1,3 +1,5 @@
+import logo_mark_src from '@/shared/assets/logo_mark.png'
+import { site } from '@/shared/config/site'
 import { cn } from '@/shared/lib/utils'
 
 type LogoProps = {
@@ -5,49 +7,31 @@ type LogoProps = {
 }
 
 /**
- * The Receipta mark: a rounded square holding a receipt with a torn zigzag bottom
- * edge.
+ * The Receipta mark, from the brand artwork.
  *
- * The geometry is tuned for 16px. An earlier version used four shallow teeth and
- * three thin rules; at favicon size the teeth fell below a pixel and the rules merged
- * into a smudge. Three deep teeth and two thick rules are what survive - verified by
- * rasterising at 16px, not by assumption.
+ * This is a raster rather than inline SVG on purpose: the mark carries a gradient
+ * squircle, a curled paper edge and a check badge, and a hand-written SVG would be an
+ * approximation of it rather than the thing itself. It is served at 256px for a ~32px
+ * slot, which covers ordinary and retina displays.
  *
- * Drawn with currentColor so it inherits text colour and themes for free. The caller
- * sizes it - icons are the one place fixed dimensions are permitted.
+ * It does not inherit currentColor and does not change between light and dark. A brand
+ * mark has one set of colours, the same way the receipt preview does.
  *
- * public/favicon.svg carries the same geometry but adds a vertical gradient and
- * hardcodes the brand violet, because a favicon cannot inherit a theme. This
- * component stays a flat currentColor fill: at nav and footer size the gradient is
- * invisible, and a flat fill is what keeps it themeable.
+ * Intrinsic width and height are set so the header does not shift while it loads, and
+ * it loads eagerly because it sits above the fold.
  */
 export function LogoMark({ className }: LogoProps) {
   return (
-    <svg
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      role="presentation"
+    <img
+      src={logo_mark_src}
+      alt=""
       aria-hidden="true"
-      className={cn('size-8 text-primary', className)}
-    >
-      <rect width="32" height="32" rx="9" fill="currentColor" />
-      {/*
-        The receipt. A single filled path: body, then a four-tooth zigzag tear across
-        the bottom. Drawn in the square's foreground colour so it reads as a cutout.
-      */}
-      <path
-        d="M7.5 6.8A2.5 2.5 0 0 1 10 4.3h12A2.5 2.5 0 0 1 24.5 6.8v18.5l-2.83 3.2-2.84-3.2-2.83 3.2-2.84-3.2-2.83 3.2-2.84-3.2V6.8Z"
-        fill="var(--primary-foreground)"
-      />
-      {/* One full line and one short line. Two is the most that stays separable at 16px. */}
-      <path
-        d="M11.25 12h9.5M11.25 16.75h6"
-        stroke="currentColor"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-      />
-    </svg>
+      width={256}
+      height={256}
+      loading="eager"
+      decoding="async"
+      className={cn('size-8 shrink-0', className)}
+    />
   )
 }
 
@@ -59,7 +43,7 @@ export function LogoWordmark({ className }: LogoProps) {
         className,
       )}
     >
-      Receipta
+      {site.name}
     </span>
   )
 }

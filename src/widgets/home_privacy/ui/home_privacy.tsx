@@ -8,7 +8,7 @@ export function HomePrivacy() {
     <Section>
       <Reveal>
         <div className="flex flex-col items-center gap-5 rounded-2xl border border-border bg-card px-6 py-12 text-center sm:px-12">
-          <span className="inline-flex size-11 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+          <span className="brand-gradient inline-flex size-11 items-center justify-center rounded-xl text-white shadow-sm">
             <LuShieldCheck className="size-5" aria-hidden="true" />
           </span>
           <h2 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">

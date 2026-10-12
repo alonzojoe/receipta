@@ -1,4 +1,5 @@
 import { HomeClosingCta } from '@/widgets/home_closing_cta'
+import { HomeFaq } from '@/widgets/home_faq'
 import { HomeFeatures } from '@/widgets/home_features'
 import { HomeHero } from '@/widgets/home_hero'
 import { HomePaymentModes } from '@/widgets/home_payment_modes'
@@ -21,6 +22,7 @@ export function HomePage() {
         <HomeSteps />
         <HomeFeatures />
         <HomePrivacy />
+        <HomeFaq />
         <HomeClosingCta />
       </main>
       <SiteFooter />

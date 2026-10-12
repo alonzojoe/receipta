@@ -27,6 +27,7 @@ export const site = {
 export const nav_links: readonly NavLink[] = [
   { label: 'How it works', href: '#how-it-works' },
   { label: 'Why Receipta', href: '#why-receipta' },
+  { label: 'FAQ', href: '#faq' },
 ]
 
 export const footer_links: readonly NavLink[] = [

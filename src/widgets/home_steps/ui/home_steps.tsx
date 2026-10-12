@@ -38,8 +38,8 @@ export function HomeSteps() {
       <ol className="mt-12 grid gap-6 sm:grid-cols-3">
         {steps.map((step, index) => (
           <Reveal key={step.title} delay={index * 60}>
-            <li className="flex h-full flex-col gap-3 rounded-xl border border-border bg-card p-6 transition-colors duration-200 ease-out hover:border-primary/40">
-              <span className="inline-flex size-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+            <li className="flex h-full flex-col gap-3 rounded-xl border border-border bg-card p-6 shadow-sm transition-[box-shadow,border-color] duration-200 ease-out hover:border-primary/40 hover:shadow-md">
+              <span className="brand-gradient inline-flex size-8 items-center justify-center rounded-full text-sm font-semibold text-white shadow-sm">
                 {index + 1}
               </span>
               <h3 className="text-lg font-medium tracking-tight">{step.title}</h3>

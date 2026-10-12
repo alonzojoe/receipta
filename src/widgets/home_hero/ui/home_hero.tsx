@@ -17,7 +17,7 @@ export function HomeHero() {
       */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 -top-1/3 -z-10 mx-auto aspect-square w-full max-w-xl rounded-full bg-primary/8 blur-3xl"
+        className="brand-glow pointer-events-none absolute inset-x-0 -top-1/3 -z-10 mx-auto aspect-square w-full max-w-2xl blur-2xl"
       />
 
       <div className="flex flex-col items-center gap-12 lg:flex-row lg:items-center lg:gap-16">
