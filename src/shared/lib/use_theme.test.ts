@@ -1,9 +1,11 @@
-import { readFileSync } from 'node:fs'
-
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { theme_storage_key } from '@/shared/config/theme'
+
+// Imported through Vite rather than node:fs, so the app's tsconfig does not have to
+// pull in Node types just for one assertion.
+import index_html from '../../../index.html?raw'
 
 import { useTheme } from './use_theme'
 
@@ -147,14 +149,12 @@ describe('useTheme', () => {
 
 describe('no-flash script', () => {
   it('uses the same storage key as the app', () => {
-    const html = readFileSync('index.html', 'utf8')
-
-    expect(html).toContain(`localStorage.getItem('${theme_storage_key}')`)
+    expect(index_html).toContain(`localStorage.getItem('${theme_storage_key}')`)
   })
 
   it('runs before the app module so the theme is set before first paint', () => {
-    const html = readFileSync('index.html', 'utf8')
-
-    expect(html.indexOf('receipta-theme')).toBeLessThan(html.indexOf('/src/main.tsx'))
+    expect(index_html.indexOf(theme_storage_key)).toBeLessThan(
+      index_html.indexOf('/src/main.tsx'),
+    )
   })
 })
