@@ -112,9 +112,21 @@ against the artwork, the squircle sits at `x 882-1242, y 241-607` in the source 
 and the first crop was taken 8px too far right and 9px too high, so it baked in the
 sheet's lavender background. Sampling proved it - `256,6` was fully opaque near-white.
 
-Re-cropped centred on the detected bounds and re-masked. All four edge midpoints are
-now saturated violet and all four corners fully transparent, checked by sampling rather
-than by eye.
+Re-cropped centred on the detected bounds. That removed the offset, but a second,
+separate problem remained: the source artwork carries its own pale glossy rim along the
+squircle's edge, part of its glass styling. Against white it is invisible; against a
+dark surface it reads as a white outline tracing the icon.
+
+Fixed by insetting the mask 8px at the 362px working size, so the clip falls inside that
+rim rather than on it. Verified by scanning inward from all four edges: the first fully
+opaque pixel is saturated violet on every side - rgb(112,59,251) left, rgb(98,52,253)
+right, rgb(141,89,253) top, rgb(61,25,214) bottom - and all four corners are fully
+transparent.
+
+Two lessons worth keeping. An offset crop and a baked-in rim look identical from a
+distance and needed different fixes. And both were invisible on the light page the work
+was being checked against, which is why the icon was signed off twice before the author
+caught it on a dark background.
 
 ## Known limitations
 
