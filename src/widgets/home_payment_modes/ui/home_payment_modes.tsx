@@ -15,11 +15,11 @@ export function HomePaymentModes() {
           <p className="text-sm text-muted-foreground">
             Works with how you already get paid
           </p>
-          <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+          <ul className="flex flex-wrap items-center justify-center gap-3">
             {payment_modes.map((mode) => (
               <li
                 key={mode.id}
-                className="inline-flex items-center gap-2 text-base font-medium text-foreground/70"
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm font-medium text-foreground/80 shadow-sm"
               >
                 {mode.label}
               </li>

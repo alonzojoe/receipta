@@ -154,6 +154,32 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+@layer components {
+  /*
+   * The brand gradient, defined once. Sampled from the logo artwork: magenta-violet
+   * through the core violet into deep indigo. Every surface that carries the brand -
+   * icon tiles, the hero wash - uses one of these rather than repeating the stops
+   * inline, so the brand has a single definition.
+   */
+  .brand-gradient {
+    background-image: linear-gradient(
+      135deg,
+      #cf6ffd 0%,
+      #784efe 55%,
+      #4c21e0 100%
+    );
+  }
+
+  .brand-glow {
+    background-image: radial-gradient(
+      closest-side,
+      color-mix(in oklch, #cf6ffd 22%, transparent) 0%,
+      color-mix(in oklch, #784efe 14%, transparent) 55%,
+      transparent 100%
+    );
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

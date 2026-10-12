@@ -67,8 +67,8 @@ export function HomeFeatures() {
       <ul className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {features.map((feature, index) => (
           <Reveal key={feature.title} delay={index * 50}>
-            <li className="flex h-full flex-col gap-3 rounded-xl border border-border bg-card p-6 transition-colors duration-200 ease-out hover:border-primary/40">
-              <span className="inline-flex size-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+            <li className="flex h-full flex-col gap-3 rounded-xl border border-border bg-card p-6 shadow-sm transition-[box-shadow,border-color] duration-200 ease-out hover:border-primary/40 hover:shadow-md">
+              <span className="brand-gradient inline-flex size-9 items-center justify-center rounded-lg text-white shadow-sm">
                 <feature.icon className="size-4.5" aria-hidden="true" />
               </span>
               <h3 className="text-base font-medium tracking-tight">{feature.title}</h3>

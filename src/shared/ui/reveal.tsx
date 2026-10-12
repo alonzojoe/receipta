@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
-
-import { cn } from '@/shared/lib/utils'
+import { motion, useReducedMotion } from 'motion/react'
+import type { ReactNode } from 'react'
 
 type RevealProps = {
   children: ReactNode
@@ -9,73 +8,42 @@ type RevealProps = {
   className?: string
 }
 
-function prefers_reduced_motion() {
-  // matchMedia is missing in some test and server environments; treat its absence as
-  // "no preference" rather than letting the render throw.
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return false
-  }
-
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-}
-
-function read_motion_state() {
-  const reduced = prefers_reduced_motion()
-
-  return {
-    reduced,
-    // Reduced motion shows immediately. So does a missing IntersectionObserver:
-    // without it there is no way to detect visibility, and hiding the content
-    // forever is far worse than skipping the animation.
-    immediate: reduced || typeof IntersectionObserver === 'undefined',
-  }
-}
-
 /**
- * Fades content up as it scrolls into view, once. The page is seen a handful of
- * times, so an entrance is justified; it never replays, because a reveal that
- * re-fires on scroll-back reads as a glitch.
+ * Fades content up as it scrolls into view, once.
  *
- * Only opacity and transform animate. Under reduced motion the translate is dropped
- * and the fade kept: the fade still signals arrival without moving anything.
+ * `once: true` is the whole point: a reveal that re-fires when you scroll back up
+ * reads as a glitch rather than as polish.
+ *
+ * The animated value is a full `transform` string rather than Framer's `y` shorthand.
+ * The shorthand is driven on the main thread through requestAnimationFrame, so it
+ * drops frames exactly when the page is busiest - during load, which is when a
+ * scroll reveal runs. The string form is hardware accelerated.
+ *
+ * Under reduced motion the translate is dropped and the fade is kept. The fade still
+ * signals arrival without moving anything, which is the point of the preference, not
+ * removing all feedback.
  */
 export function Reveal({ children, delay = 0, className }: RevealProps) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [motion] = useState(read_motion_state)
-  const [shown, set_shown] = useState(motion.immediate)
-
-  useEffect(() => {
-    if (motion.immediate) return
-
-    const node = ref.current
-    if (!node) return
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return
-        set_shown(true)
-        observer.disconnect()
-      },
-      { rootMargin: '0px 0px -10% 0px' },
-    )
-
-    observer.observe(node)
-    return () => observer.disconnect()
-  }, [motion.immediate])
+  const reduced = useReducedMotion()
 
   return (
-    <div
-      ref={ref}
-      data-shown={shown}
-      style={{ transitionDelay: shown && !motion.reduced ? `${delay}ms` : undefined }}
-      className={cn(
-        'transition-[opacity,transform] duration-[400ms] ease-out',
-        shown ? 'opacity-100' : 'opacity-0',
-        !motion.reduced && !shown && 'translate-y-2',
-        className,
-      )}
+    <motion.div
+      className={className}
+      initial={{
+        opacity: 0,
+        transform: reduced ? 'translateY(0px)' : 'translateY(12px)',
+      }}
+      whileInView={{ opacity: 1, transform: 'translateY(0px)' }}
+      viewport={{ once: true, margin: '0px 0px -8% 0px' }}
+      transition={{
+        duration: reduced ? 0.2 : 0.45,
+        // The custom ease-out from index.css. The built-in curves are too weak to
+        // feel deliberate, and ease-in is never used: it delays the first frame.
+        ease: [0.23, 1, 0.32, 1],
+        delay: reduced ? 0 : delay / 1000,
+      }}
     >
       {children}
-    </div>
+    </motion.div>
   )
 }

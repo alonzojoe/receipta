@@ -34,6 +34,7 @@ describe('HomePage', () => {
       'Three steps, about a minute',
       'Why Receipta',
       'Your receipts never leave your device',
+      'Questions, answered',
       'Your next receipt takes about a minute',
     ])
   })

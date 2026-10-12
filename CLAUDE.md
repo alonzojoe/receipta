@@ -66,6 +66,10 @@ npm run test:watch   # Run tests in watch mode
   not a style preference.
 - Everything that is not a component stays snake_case: constants, functions, types, route
   objects (`root_route`, `home_route`), config keys.
+- **Custom hooks are camelCase**, for the same kind of reason: React's
+  `react-hooks/rules-of-hooks` only recognises a hook when its name is `use` followed by
+  an uppercase letter, so `use_scrolled_past` is not linted as a hook. The file stays
+  snake_case (`use_scrolled_past.ts`), the export is `useScrolledPast`.
 - A file must not export both components and non-components. ESLint's
   `react-refresh/only-export-components` enforces this: keep route objects and layout
   components in separate files.
