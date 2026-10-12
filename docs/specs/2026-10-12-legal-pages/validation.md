@@ -53,15 +53,18 @@ Each row is a claim the documents make. The check is whether the codebase agrees
 
 | Width | No h-scroll | Readable measure | Result |
 | --- | --- | --- | --- |
-| 320 px | | | not run |
-| 375 px | | | not run |
-| 768 px | | | not run |
-| 1024 px | | | not run |
+| 320 px | yes | 16px gutter, one h1 | pass |
+| 375 px | not run | | not run |
+| 768 px | yes | 24px gutter, one h1 | pass |
+| 1024 px | not run | | not run |
+
+Measured in a reflowing iframe across all three pages: no horizontal scroll and zero
+overflowing elements at either width.
 
 | Check | Expected | Result |
 | --- | --- | --- |
 | Light | legible | not run |
-| Dark | legible | not run |
+| Dark | legible | pass - the privacy page was rendered and read in dark mode |
 
 ## Gate 5 — Rule compliance
 
@@ -73,11 +76,21 @@ Each row is a claim the documents make. The check is whether the codebase agrees
 
 ## Not verified
 
-- **The pages were not opened in a browser.** Layout, measure, and both themes rest on
-  the shared `LegalDocument` shell, which constrains width with `max-w-prose` and uses
-  only existing tokens - but that is reasoning, not looking.
-- **The responsive probe was not re-run.** The legal pages use the same `Section`
-  wrapper as every other page.
+- **Light mode was not viewed.** The session ran dark throughout.
+- **375px and 1024px** were not measured; 320 and 768 were.
+
+## An alignment bug this surfaced
+
+Opening the pages showed the body text starting 24px to the left of the logo above it.
+The cause was not the legal pages: `Section` applied its gutter *outside* the
+`max-w-5xl` container while the header applied its gutter *inside*, so the two
+disagreed by exactly one gutter width. Every page had it, including the home page; it
+was simply easier to see on a page that opens with a heading.
+
+Fixed by moving the padding inside the container in `Section`. Measured after: the logo
+and the first heading both sit at x=242 on `/privacy` and on `/`, an offset of 0 where
+it was 24px. Full-bleed section backgrounds still span the viewport, checked on the
+features section, and the gutters still hold at 16px on a 320px screen.
 
 ## Tests this work broke, and why
 
