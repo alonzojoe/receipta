@@ -17,12 +17,14 @@ type LegalDocumentProps = {
  * It owns the measure, the rhythm and the heading styles so the three documents cannot
  * drift apart typographically, and so the last-updated date comes from one place.
  *
- * The prose width is constrained with max-w-prose rather than a fixed width, per the
- * project's fluid-sizing rule. Long legal text set at full page width is unreadable.
+ * Two different widths, on purpose. The outer container is the same max-w-5xl every
+ * other page uses, so the title and the back link line up with the logo in the navbar
+ * above them. The body is then held to max-w-prose inside it, because legal text set
+ * to the full container width is a wall nobody reads.
  */
 export function LegalDocument({ title, summary, children }: LegalDocumentProps) {
   return (
-    <Section className="pt-10 sm:pt-14" innerClassName="max-w-3xl">
+    <Section className="pt-10 sm:pt-14">
       <Link
         to="/"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors duration-150 ease-out hover:text-foreground"
