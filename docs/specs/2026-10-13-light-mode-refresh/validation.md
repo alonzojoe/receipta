@@ -15,7 +15,7 @@ Measured, since "looks better" is not a result.
 | Check | Before | Target | After | Result |
 | --- | --- | --- | --- | --- |
 | Card vs background separation | 1.047:1 | visibly layered | 1.047 unchanged; layering now comes from shadow and bands, not fill | pass |
-| Shadows carry the brand hue | neutral black | violet-tinted | `oklch(0.42 0.14 287 / ...)` | pass |
+| Shadows carry the brand hue | neutral black | violet-tinted | `oklch(0.42 0.14 287 / 0.07)`, read from the rendered card | pass - after a fix, see below |
 | Tinted band present | none | at least one | two: steps and FAQ, at 1.078 vs background | pass |
 | Accent panels present | none | privacy and closing CTA | both, at 1.114 vs background | pass |
 
@@ -45,7 +45,7 @@ The claim most likely to be quietly wrong, because shadow tokens are shared.
 | Check | Expected | Result |
 | --- | --- | --- |
 | Dark home page, before vs after | visually identical apart from shadows | **changed** - see below |
-| Dark shadows readable | not violet-on-dark, which is invisible | pass - overridden to neutral |
+| Dark shadows readable | not violet-on-dark, which is invisible | pass - rendered card reads `oklch(0 0 0 / 0.4)` |
 | Dark contrast pairs | unchanged from the brand refresh numbers | pass - plus the two new surfaces, all 14 measured |
 
 ## Gate 4 — Visual
@@ -69,6 +69,36 @@ The claim most likely to be quietly wrong, because shadow tokens are shared.
 | Tokens centralised | all in `src/index.css` | none elsewhere | pass |
 | Only box-shadow transitions | no layout property animated | pass | pass |
 | Receipt preview untouched | `git diff` on `mock_receipt.tsx` | one line: `shadow-2xl shadow-primary/10` became `shadow-xl`, so it uses the new tokens | partial |
+
+## The shadow override did not work, and the first verification missed it
+
+Tailwind **inlines** `@theme` values into each utility at build time rather than emitting
+`var(--shadow-sm)`. Defining `--shadow-*` in `:root` therefore did nothing: the built
+`.shadow-sm` still carried Tailwind's own `#0000001a`, and not one shadow in the
+interface was tinted.
+
+The first verification checked that the variable was defined and that ours appeared after
+Tailwind's, and concluded it won. That checked the wrong thing. What matters is what the
+**utility** emits, and it emitted the default.
+
+Fixed with an indirection: the values live in `:root` and `.dark` as `--elevation-*`, and
+`@theme inline` sets `--shadow-*` to `var(--elevation-*)`. The utility then emits
+`--tw-shadow: var(--elevation-sm)`, which `.dark` can override.
+
+Verified the right way this time, from the rendered element rather than the stylesheet:
+
+- light card: `oklch(0.42 0.14 287 / 0.07)` - brand-tinted
+- dark card: `oklch(0 0 0 / 0.4)` - neutral
+
+This is the second time on this project that checking a stylesheet rather than the
+rendered result produced a confident wrong answer. The rule worth keeping: verify what
+the browser computes, not what the CSS file contains.
+
+## The inset hairline was too broad
+
+`shadow-sm` is used by the gradient icon chips and the translucent header as well as by
+cards. An inset white line reads as a bevel on the first and a stripe on the second, so
+it now applies only to `md` and `lg`, where something is genuinely raised.
 
 ## The spec said dark mode would be untouched. It was not.
 

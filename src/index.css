@@ -112,29 +112,35 @@
   /*
    * Shadows carry the brand hue, not black.
    *
-   * These deliberately override Tailwind's own --shadow-* theme values, so every
-   * existing `shadow-sm` and `shadow-md` in the codebase becomes brand-tinted without
-   * touching a component. The same technique as the easing curves above.
+   * Defined as --elevation-* here, then pointed at by --shadow-* inside @theme inline.
+   * The indirection is required: Tailwind INLINES @theme values into each utility at
+   * build time, so redefining --shadow-sm in :root does nothing - the emitted
+   * `.shadow-sm` still carries Tailwind's own black. Going through @theme inline makes
+   * the utility emit `var(--elevation-sm)`, which .dark can then override.
    *
    * A violet shadow on a cool background reads as light falling past an object. A black
    * one reads as grey dirt underneath it. The inset white hairline is the lit top edge
    * that makes a surface look raised rather than outlined.
    */
-  --shadow-2xs: 0 1px 2px 0 oklch(0.42 0.14 287 / 0.05);
-  --shadow-xs: 0 1px 2px 0 oklch(0.42 0.14 287 / 0.06);
-  --shadow-sm:
-    0 1px 2px 0 oklch(0.42 0.14 287 / 0.07), 0 2px 8px -2px oklch(0.42 0.14 287 / 0.08),
-    inset 0 1px 0 0 oklch(1 0 0 / 0.6);
-  --shadow-md:
+  --elevation-2xs: 0 1px 2px 0 oklch(0.42 0.14 287 / 0.05);
+  --elevation-xs: 0 1px 2px 0 oklch(0.42 0.14 287 / 0.06);
+  /*
+   * No inset hairline at sm: it is also used by the gradient icon chips, where it reads
+   * as a bevel, and by the translucent header, where it reads as a stripe. The lit edge
+   * belongs on things that are genuinely raised, which is md and lg.
+   */
+  --elevation-sm:
+    0 1px 2px 0 oklch(0.42 0.14 287 / 0.07), 0 2px 8px -2px oklch(0.42 0.14 287 / 0.08);
+  --elevation-md:
     0 2px 4px -1px oklch(0.42 0.14 287 / 0.08),
     0 8px 20px -4px oklch(0.42 0.14 287 / 0.13), inset 0 1px 0 0 oklch(1 0 0 / 0.7);
-  --shadow-lg:
+  --elevation-lg:
     0 4px 8px -2px oklch(0.42 0.14 287 / 0.1),
     0 16px 36px -8px oklch(0.42 0.14 287 / 0.16), inset 0 1px 0 0 oklch(1 0 0 / 0.7);
-  --shadow-xl:
+  --elevation-xl:
     0 8px 16px -4px oklch(0.42 0.14 287 / 0.12),
     0 24px 56px -12px oklch(0.42 0.14 287 / 0.2);
-  --shadow-2xl: 0 32px 72px -16px oklch(0.42 0.14 287 / 0.28);
+  --elevation-2xl: 0 32px 72px -16px oklch(0.42 0.14 287 / 0.28);
 }
 
 .dark {
@@ -178,13 +184,13 @@
    */
   --surface-tint: oklch(0.2 0.025 280);
   --surface-accent: oklch(0.24 0.04 288);
-  --shadow-2xs: 0 1px 2px 0 oklch(0 0 0 / 0.3);
-  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.35);
-  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.4), 0 2px 8px -2px oklch(0 0 0 / 0.35);
-  --shadow-md: 0 2px 4px -1px oklch(0 0 0 / 0.45), 0 8px 20px -4px oklch(0 0 0 / 0.4);
-  --shadow-lg: 0 4px 8px -2px oklch(0 0 0 / 0.5), 0 16px 36px -8px oklch(0 0 0 / 0.45);
-  --shadow-xl: 0 8px 16px -4px oklch(0 0 0 / 0.55), 0 24px 56px -12px oklch(0 0 0 / 0.5);
-  --shadow-2xl: 0 32px 72px -16px oklch(0 0 0 / 0.6);
+  --elevation-2xs: 0 1px 2px 0 oklch(0 0 0 / 0.3);
+  --elevation-xs: 0 1px 2px 0 oklch(0 0 0 / 0.35);
+  --elevation-sm: 0 1px 2px 0 oklch(0 0 0 / 0.4), 0 2px 8px -2px oklch(0 0 0 / 0.35);
+  --elevation-md: 0 2px 4px -1px oklch(0 0 0 / 0.45), 0 8px 20px -4px oklch(0 0 0 / 0.4);
+  --elevation-lg: 0 4px 8px -2px oklch(0 0 0 / 0.5), 0 16px 36px -8px oklch(0 0 0 / 0.45);
+  --elevation-xl: 0 8px 16px -4px oklch(0 0 0 / 0.55), 0 24px 56px -12px oklch(0 0 0 / 0.5);
+  --elevation-2xl: 0 32px 72px -16px oklch(0 0 0 / 0.6);
 }
 
 @theme inline {
@@ -223,6 +229,17 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-surface-tint: var(--surface-tint);
   --color-surface-accent: var(--surface-accent);
+  /*
+   * Pointed at the :root values rather than given literals, so .dark can override them.
+   * A literal here would be inlined into every utility and frozen.
+   */
+  --shadow-2xs: var(--elevation-2xs);
+  --shadow-xs: var(--elevation-xs);
+  --shadow-sm: var(--elevation-sm);
+  --shadow-md: var(--elevation-md);
+  --shadow-lg: var(--elevation-lg);
+  --shadow-xl: var(--elevation-xl);
+  --shadow-2xl: var(--elevation-2xl);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
