@@ -23,7 +23,7 @@ const steps: readonly Step[] = [
 
 export function HomeSteps() {
   return (
-    <Section id="how-it-works">
+    <Section id="how-it-works" className="bg-surface-tint">
       <Reveal>
         <div className="flex flex-col gap-3 text-center">
           <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">

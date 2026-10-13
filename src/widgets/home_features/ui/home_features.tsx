@@ -52,7 +52,7 @@ const features: readonly Feature[] = [
 
 export function HomeFeatures() {
   return (
-    <Section id="why-receipta" className="bg-muted/40">
+    <Section id="why-receipta">
       <Reveal>
         <div className="flex flex-col gap-3 text-center">
           <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">

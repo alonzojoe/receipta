@@ -7,7 +7,7 @@ export function HomePrivacy() {
   return (
     <Section>
       <Reveal>
-        <div className="flex flex-col items-center gap-5 rounded-2xl border border-border bg-card px-6 py-12 text-center sm:px-12">
+        <div className="flex flex-col items-center gap-5 rounded-2xl border border-border bg-surface-accent px-6 py-12 text-center shadow-sm sm:px-12">
           <span className="brand-gradient inline-flex size-11 items-center justify-center rounded-xl text-white shadow-sm">
             <LuShieldCheck className="size-5" aria-hidden="true" />
           </span>

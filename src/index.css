@@ -94,6 +94,47 @@
    */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /*
+   * Tinted surfaces. Light mode's problem was that every surface sat within 1.1:1 of
+   * every other, so the page read as one undifferentiated sheet. These give it bands.
+   *
+   * Both are violet over the page background rather than a darker grey, so the brand is
+   * present in the surfaces instead of only on the primary button.
+   *
+   * Chosen by solving for text first: --foreground reads 13.0:1 and 12.6:1 on them, and
+   * --muted-foreground 4.88:1 and 4.72:1. A tint that looked better and dropped text
+   * below 4.5 would have been made lighter, not shipped.
+   */
+  --surface-tint: oklch(0.96 0.022 292);
+  --surface-accent: oklch(0.95 0.03 292);
+
+  /*
+   * Shadows carry the brand hue, not black.
+   *
+   * These deliberately override Tailwind's own --shadow-* theme values, so every
+   * existing `shadow-sm` and `shadow-md` in the codebase becomes brand-tinted without
+   * touching a component. The same technique as the easing curves above.
+   *
+   * A violet shadow on a cool background reads as light falling past an object. A black
+   * one reads as grey dirt underneath it. The inset white hairline is the lit top edge
+   * that makes a surface look raised rather than outlined.
+   */
+  --shadow-2xs: 0 1px 2px 0 oklch(0.42 0.14 287 / 0.05);
+  --shadow-xs: 0 1px 2px 0 oklch(0.42 0.14 287 / 0.06);
+  --shadow-sm:
+    0 1px 2px 0 oklch(0.42 0.14 287 / 0.07), 0 2px 8px -2px oklch(0.42 0.14 287 / 0.08),
+    inset 0 1px 0 0 oklch(1 0 0 / 0.6);
+  --shadow-md:
+    0 2px 4px -1px oklch(0.42 0.14 287 / 0.08),
+    0 8px 20px -4px oklch(0.42 0.14 287 / 0.13), inset 0 1px 0 0 oklch(1 0 0 / 0.7);
+  --shadow-lg:
+    0 4px 8px -2px oklch(0.42 0.14 287 / 0.1),
+    0 16px 36px -8px oklch(0.42 0.14 287 / 0.16), inset 0 1px 0 0 oklch(1 0 0 / 0.7);
+  --shadow-xl:
+    0 8px 16px -4px oklch(0.42 0.14 287 / 0.12),
+    0 24px 56px -12px oklch(0.42 0.14 287 / 0.2);
+  --shadow-2xl: 0 32px 72px -16px oklch(0.42 0.14 287 / 0.28);
 }
 
 .dark {
@@ -128,6 +169,22 @@
   --sidebar-accent-foreground: oklch(0.96 0.01 294);
   --sidebar-border: oklch(1 0 0 / 12%);
   --sidebar-ring: oklch(0.709 0.159 294);
+
+  /*
+   * Dark mode needs its own shadows. A violet shadow on a dark surface is invisible, and
+   * the inset white hairline reads as a stray bright line rather than a lit edge. Dark
+   * mode gets its depth from surface separation, so the shadows here are neutral and
+   * only deep enough to seat an element.
+   */
+  --surface-tint: oklch(0.2 0.025 280);
+  --surface-accent: oklch(0.24 0.04 288);
+  --shadow-2xs: 0 1px 2px 0 oklch(0 0 0 / 0.3);
+  --shadow-xs: 0 1px 2px 0 oklch(0 0 0 / 0.35);
+  --shadow-sm: 0 1px 2px 0 oklch(0 0 0 / 0.4), 0 2px 8px -2px oklch(0 0 0 / 0.35);
+  --shadow-md: 0 2px 4px -1px oklch(0 0 0 / 0.45), 0 8px 20px -4px oklch(0 0 0 / 0.4);
+  --shadow-lg: 0 4px 8px -2px oklch(0 0 0 / 0.5), 0 16px 36px -8px oklch(0 0 0 / 0.45);
+  --shadow-xl: 0 8px 16px -4px oklch(0 0 0 / 0.55), 0 24px 56px -12px oklch(0 0 0 / 0.5);
+  --shadow-2xl: 0 32px 72px -16px oklch(0 0 0 / 0.6);
 }
 
 @theme inline {
@@ -164,6 +221,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-surface-tint: var(--surface-tint);
+  --color-surface-accent: var(--surface-accent);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
