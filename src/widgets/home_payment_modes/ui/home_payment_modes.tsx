@@ -28,6 +28,9 @@ export function HomePaymentModes() {
                 className="inline-flex shrink-0 items-center gap-2.5 rounded-full border border-border bg-card px-5 py-3 text-base font-medium text-foreground/80 shadow-sm"
               >
                 {/*
+                  Not lazy-loaded: the strip is on screen immediately, and a lazy image
+                  inside a translated track can pop in late within the fade zone.
+
                   Decorative: the name beside it carries the meaning, so a screen reader
                   reading "GCash logo, GCash" would be noise. Icons are the one place the
                   project allows a fixed dimension.
@@ -38,7 +41,6 @@ export function HomePaymentModes() {
                   aria-hidden="true"
                   width={128}
                   height={128}
-                  loading="lazy"
                   decoding="async"
                   className="size-7 shrink-0 rounded-md object-contain"
                 />
