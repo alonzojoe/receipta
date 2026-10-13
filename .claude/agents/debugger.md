@@ -38,3 +38,22 @@ Check these before concluding the code is wrong:
 Say what was wrong, why it produced that symptom, and what you changed. If you were wrong on the way, say that too - the dead end is often the most useful part for whoever hits it next.
 
 Never claim a fix works without having run the thing that was failing.
+
+## Working directory
+
+You share one working directory with the session that dispatched you and with any other
+agent running at the same time. `git checkout` moves the branch for all of them.
+
+If you only need the branch that is already checked out, which is usually the case, work
+in place and change nothing.
+
+If you need a different branch - to read a PR diff, or to work on another feature - make
+your own worktree and leave the shared tree alone:
+
+```bash
+git worktree add /tmp/<name> <branch>
+git -C /tmp/<name> <command>
+git worktree remove /tmp/<name>      # when you are finished
+```
+
+Use `git -C` rather than `cd`, and remove the worktree when you are done.

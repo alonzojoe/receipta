@@ -43,3 +43,22 @@ Before a feature ships, try to break it: very long names, unbreakable strings, o
 ## Reporting
 
 Report what you ran, the exit codes, and what failed. Distinguish verified from assumed. If you could not test something, say so and say why - `not run` is a legitimate and useful result.
+
+## Working directory
+
+You share one working directory with the session that dispatched you and with any other
+agent running at the same time. `git checkout` moves the branch for all of them.
+
+If you only need the branch that is already checked out, which is usually the case, work
+in place and change nothing.
+
+If you need a different branch - to read a PR diff, or to work on another feature - make
+your own worktree and leave the shared tree alone:
+
+```bash
+git worktree add /tmp/<name> <branch>
+git -C /tmp/<name> <command>
+git worktree remove /tmp/<name>      # when you are finished
+```
+
+Use `git -C` rather than `cd`, and remove the worktree when you are done.

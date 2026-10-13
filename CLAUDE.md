@@ -202,5 +202,44 @@ A rough order for a feature: `product-manager` to settle what and when it is don
 `planner` to sequence it, `frontend-designer` to build it, `qa-tester` to verify,
 `code-reviewer` before merge. `debugger` and `performance-monitor` are reactive.
 
+### Agents share one working directory
+
+They do. An agent that runs `git checkout` moves the branch for everyone, including the
+session that dispatched it and any other agent running at the same time.
+
+This has already gone wrong once: `code-reviewer` checked out a branch to read a PR
+diff, and a commit being prepared on a different branch landed on the one the reviewer
+had switched to. Git gave no warning - the commit succeeded, on the wrong branch, with
+the right message.
+
+**Working on the branch that is already checked out needs nothing special.** That is
+most work, and it stays as it is.
+
+**An agent that needs a different branch creates its own worktree.** A worktree is a
+second checkout of the same repository with its own HEAD and its own files, sharing one
+object store. Same history, separate files, which is exactly the shape of the problem.
+
+```bash
+git worktree add <path-outside-the-repo> <branch>   # existing branch
+git worktree add <path> -b <new-branch> main        # new branch
+git -C <path> status                                 # work in it without cd
+git worktree remove <path>                           # when finished
+git worktree list                                    # find strays
+git worktree prune                                   # drop records of deleted dirs
+```
+
+Use `git -C <path>` rather than `cd`. It keeps the two trees from being confused in the
+first place.
+
+Rules:
+
+- Put worktrees **outside the repository**, so they never show up as untracked files.
+- **Remove a worktree when its task finishes.** A stale one is a checkout someone edits
+  by accident, with changes that go nowhere.
+- **Do not switch branches in the shared tree while an agent is running.** Worktrees stop
+  agents from moving the tree; they do not stop you from moving it under an agent.
+- If a worktree's directory is deleted without `git worktree remove`, `git worktree
+  prune` clears the leftover record.
+
 ## Notes
 - Claude continually update this file with important information.
