@@ -1,3 +1,4 @@
+import { site } from '@/shared/config/site'
 import { theme_storage_key } from '@/shared/config/theme'
 
 /**
@@ -6,7 +7,7 @@ import { theme_storage_key } from '@/shared/config/theme'
  */
 export const legal_last_updated = '12 October 2026'
 
-export const legal_contact_url = 'https://github.com/alonzojoe/receipta'
+export const legal_contact_url = site.repository_url
 
 export type StoredItem = {
   key: string

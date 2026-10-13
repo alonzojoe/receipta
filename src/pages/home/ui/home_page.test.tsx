@@ -78,13 +78,13 @@ describe('HomePage', () => {
     for (const cta of ctas) expect(cta).toHaveAttribute('href', '/create')
   })
 
-  it('credits the author with a safe external GitHub link', async () => {
+  it('links the repository from the footer, safely', async () => {
     render_home()
     await screen.findByRole('heading', { level: 1 })
 
-    const link = screen.getByRole('link', { name: new RegExp(site.author.name, 'i') })
+    const link = screen.getByRole('link', { name: /receipta on github/i })
 
-    expect(link).toHaveAttribute('href', 'https://github.com/alonzojoe')
+    expect(link).toHaveAttribute('href', site.repository_url)
     expect(link).toHaveAttribute('target', '_blank')
     expect(link.getAttribute('rel')).toContain('noopener')
     expect(link.getAttribute('rel')).toContain('noreferrer')
