@@ -116,10 +116,13 @@ has not reached `main` yet. This should become rare now that features go straigh
 Every PR goes through review before it merges. The flow is fixed:
 
 1. **Open the PR.**
-2. **`code-reviewer` reviews the diff** and posts its findings as **inline comments on
-   the changed lines**, through the GitHub account, using
-   `gh api repos/<owner>/<repo>/pulls/<n>/comments`. Comments sit on the code they
-   refer to, not in one lump at the bottom, so a reader sees them in context.
+2. **Run `code-reviewer` immediately, without being asked.** Opening a PR is the
+   trigger. Do not stop to ask whether a review is wanted - it always is.
+
+   It reviews the diff and posts its findings as **inline comments on the changed
+   lines**, through the GitHub account, with
+   `gh api repos/<owner>/<repo>/pulls/<n>/comments`. Comments sit on the code they refer
+   to rather than in one lump at the bottom, so a reader meets them in context.
 3. **Report the review to the author.** Say how many findings there are, how severe, and
    what the PR number is. Do not merge silently.
 4. **The findings are addressed** by whichever agent owns that area - `frontend-designer`
