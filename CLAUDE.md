@@ -125,7 +125,11 @@ Every PR goes through review before it merges. The flow is fixed:
 4. **The findings are addressed** by whichever agent owns that area - `frontend-designer`
    for UI, `debugger` for a defect, `qa-tester` for missing coverage. Fixes are pushed to
    the same branch, so the PR updates in place.
-5. **Merge**, once the findings are resolved or explicitly accepted as won't-fix.
+5. **Re-review after the fixes**, against the new diff. A fix can miss the point or
+   introduce something new, and nothing else checks that.
+6. **The author merges.** Not an agent, ever. Resolved findings are a precondition for
+   merging, not permission to merge: a merge is a commit on `main`, so the same gate
+   applies as every other commit. Report that the PR is ready and stop there.
 
 Rules for review comments:
 
@@ -135,7 +139,10 @@ Rules for review comments:
   not a finding.
 - If the review finds nothing, say so plainly rather than inventing a nit to look
   thorough.
-- A finding that is wrong on inspection is closed with the reason, not silently obeyed.
+- A finding that is wrong on inspection is disputed in a reply to that comment, stating
+  why. It is not silently obeyed, and it is not silently ignored.
+- **The author decides a dispute**, and decides what counts as won't-fix. An agent may
+  argue a finding is wrong; it does not get to close the question.
 
 ### Commit messages
 
