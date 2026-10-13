@@ -35,7 +35,7 @@ const subtotal = lines.reduce(
  */
 export function MockReceipt() {
   return (
-    <div className="w-full max-w-sm rotate-1 rounded-xl bg-card p-6 shadow-2xl shadow-primary/10 ring-1 ring-border transition-transform duration-300 ease-out hover:rotate-0">
+    <div className="w-full max-w-sm rotate-1 rounded-xl bg-card p-6 shadow-xl ring-1 ring-border transition-transform duration-300 ease-out hover:rotate-0">
       <div className="flex items-start justify-between gap-4 border-b border-dashed border-border pb-4">
         <div className="flex flex-col">
           <span className="text-sm font-semibold text-foreground">Juan Dela Cruz</span>

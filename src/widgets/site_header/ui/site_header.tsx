@@ -18,11 +18,11 @@ export function SiteHeader() {
       <header
         data-scrolled={scrolled}
         className={cn(
-          'sticky top-0 z-50 w-full border-b transition-[background-color,border-color,backdrop-filter] duration-200 ease-out',
+          'sticky top-0 z-50 w-full border-b transition-[background-color,border-color,backdrop-filter,box-shadow] duration-200 ease-out',
           // At rest the header sits on the hero as one surface. It only earns its
           // border and blur once there is content behind it to separate from.
           scrolled
-            ? 'border-border/70 bg-background/80 backdrop-blur-md'
+            ? 'border-border/70 bg-background/80 shadow-sm backdrop-blur-md'
             : 'border-transparent bg-transparent',
         )}
       >

@@ -9,7 +9,7 @@ export function HomeClosingCta() {
   return (
     <Section className="pb-20 sm:pb-24">
       <Reveal>
-        <div className="flex flex-col items-center gap-6 text-center">
+        <div className="flex flex-col items-center gap-6 rounded-2xl border border-border bg-surface-accent px-6 py-14 text-center shadow-sm sm:px-12">
           <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">
             Your next receipt takes about a minute
           </h2>
