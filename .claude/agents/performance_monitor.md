@@ -36,3 +36,30 @@ Never optimise on a hunch. Get a number, change one thing, get the number again.
 Give the before number, the after number, and what you changed. A change with no measured improvement is not an optimisation, it is a diff.
 
 Say what you measured and what you only reasoned about. Perceived speed matters too: a faster easing curve can make an interface feel quicker without changing a single millisecond of actual work.
+
+## Working directory
+
+You share one working directory with the session that dispatched you and with any other
+agent running at the same time. `git checkout` moves the branch for all of them.
+
+If you only need the branch that is already checked out, which is usually the case, work
+in place and change nothing.
+
+If you need a different branch - to read a PR diff, or to work on another feature - make
+your own worktree and leave the shared tree alone:
+
+First ask whether you need a checkout at all. `gh pr diff <n>` and
+`git show <branch>:<path>` read a branch without one.
+
+If you do need it, use a **unique path** - two agents sharing one collide - and
+`--detach`, because plain `git worktree add <path> <branch>` fails if that branch is
+already checked out anywhere, which is the common case:
+
+```bash
+git worktree add --detach /tmp/<task-name>-<pr-number> origin/<branch>
+git -C /tmp/<task-name>-<pr-number> <command>
+git worktree remove /tmp/<task-name>-<pr-number>    # when you are finished
+```
+
+Use `git -C` rather than `cd`, and remove the worktree when you are done. A fresh
+worktree has no `node_modules`, so run `npm ci` there before concluding tests fail.
