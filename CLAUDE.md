@@ -111,6 +111,56 @@ has not reached `main` yet. This should become rare now that features go straigh
   - Good: `chore: project setup and product specs`, `feat: receipt builder and export`
   - Bad: `develop`
 
+### After opening a pull request
+
+Every PR goes through review before it merges. The flow is fixed:
+
+1. **Open the PR.**
+2. **`code-reviewer` reviews the diff** and posts its findings as **inline comments on
+   the changed lines**, through the GitHub account, using
+   `gh api repos/<owner>/<repo>/pulls/<n>/comments`. Comments sit on the code they
+   refer to, not in one lump at the bottom, so a reader sees them in context.
+3. **Report the review to the author.** Say how many findings there are, how severe, and
+   what the PR number is. Do not merge silently.
+4. **The findings are addressed** by whichever agent owns that area - `frontend-designer`
+   for UI, `debugger` for a defect, `qa-tester` for missing coverage. Fixes are pushed to
+   the same branch, so the PR updates in place.
+5. **Reply to each comment and resolve its conversation.** The reply says what changed,
+   or why the finding was not acted on. Then resolve the thread, so an unresolved
+   conversation always means something is still outstanding.
+6. **Re-review after the fixes**, against the new diff. A fix can miss the point or
+   introduce something new, and nothing else checks that.
+7. **The author merges.** Not an agent, ever. Every conversation resolved is a
+   precondition for merging, not permission to merge: a merge is a commit on `main`, so
+   the same gate applies as every other commit. Report that the PR is ready and stop
+   there.
+
+Resolving a thread needs GraphQL; the REST API cannot do it:
+
+```bash
+# thread ids
+gh api graphql -f query='{ repository(owner:"<owner>", name:"<repo>") {
+  pullRequest(number:<n>) { reviewThreads(first:50) {
+    nodes { id isResolved comments(first:1){ nodes{ path line } } } } } } }'
+
+# resolve one
+gh api graphql -f query='mutation { resolveReviewThread(input:{threadId:"<id>"})
+  { thread { isResolved } } }'
+```
+
+Rules for review comments:
+
+- **No AI attribution anywhere.** Not in the comment body, not as a trailer, not as a
+  signature. The same rule as commits.
+- A finding states what is wrong, why it matters, and the fix. "Consider refactoring" is
+  not a finding.
+- If the review finds nothing, say so plainly rather than inventing a nit to look
+  thorough.
+- A finding that is wrong on inspection is disputed in a reply to that comment, stating
+  why. It is not silently obeyed, and it is not silently ignored.
+- **The author decides a dispute**, and decides what counts as won't-fix. An agent may
+  argue a finding is wrong; it does not get to close the question.
+
 ### Commit messages
 
 - Use Conventional Commits for every message: `<prefix>: <message>`
