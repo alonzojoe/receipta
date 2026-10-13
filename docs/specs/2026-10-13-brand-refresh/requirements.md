@@ -57,12 +57,36 @@ hues and inverting lightness, the same method used for the current palette. Ever
 is re-measured for contrast; none of the current measurements carry over, because every
 token changes.
 
-### The wordmark stays live text
+### The wordmark comes from the other sheet
 
-The sheet shows a specific geometric sans with a violet dot on the "i". We continue to
-render "Receipta" as live text in Geist rather than shipping a cropped image, for the
-same reasons as before: it stays crisp at any size, it is selectable, and it themes.
-Matching the dot is possible later and is not part of this.
+The mark is the paper plane from `reveipta new brand.jpeg`. The **wordmark** is taken
+from `Receipta Brand Identity Showcase.png`, which specifies it for both light and dark
+mode. Author's decision: plane mark, showcase wordmark.
+
+It stays **live text**, not a cropped image: it is then crisp at any size, selectable,
+and it themes with one definition instead of two files. But it cannot stay in Geist.
+
+The wordmark is a heavy geometric sans with a **single-story `a`**, round `e` and `c`,
+a straight-legged `R`, and an angled cut on the `t`. Geist has a double-story `a` and is
+not geometric, so it is not a near miss - it is a different kind of letterform.
+
+**Poppins 700** matches it. Rendered side by side against the sheet: the `a`, `R`, `e`
+and `t` all correspond, and 700 carries the same weight as the sheet where 800 is
+noticeably heavier. Self-hosted through `@fontsource/poppins`, so no third-party request
+and no change to the Privacy Policy's claim.
+
+Two typefaces is a deliberate exception to the one-family rule, scoped to the wordmark
+only. A display face for the logo and a text face for the interface is a normal split,
+and the alternative - a cropped image per theme - is worse on every axis that matters.
+
+**The dot on the `i` is violet and oversized**, and it is the detail that makes the
+wordmark recognisable. Built by setting the word with a dotless `ı` and positioning a
+violet dot above it, so it stays live text.
+
+Colours come from the sheet and match the tokens already: near-black in light
+(`#232433`, close to the supplied Text `#1F2937`), near-white in dark. The existing
+`text-foreground` already resolves to both, so the wordmark needs no theme-specific
+colour of its own.
 
 ## Source quality
 
@@ -97,13 +121,15 @@ filled squircle does. Both must be checked.
 ### In scope
 
 - Every icon asset and the in-app logo
+- The wordmark typeface, and the violet dot on the `i`
 - All theme tokens in `src/index.css`, light and dark, re-measured for contrast
 - The brand gradient utilities, which currently use the old violet stops
 - Anything referencing the old mark's colours
 
 ### Out of scope
 
-- The wordmark as an image
+- The wordmark as a cropped image. It stays live text.
+- Matching the showcase's tagline lockup. The tagline is page copy, not part of the logo.
 - The receipt template's own styling
 - The institution logos
 - Any copy change
@@ -116,6 +142,7 @@ filled squircle does. Both must be checked.
 4. Every foreground/background pair measures 4.5:1 or better, re-measured
 5. The favicon is legible at 16 px, verified by rasterising and looking
 6. Every raster icon has transparent corners, verified by sampling
-7. The in-app logo renders correctly in both themes
-8. No colour literal outside `src/index.css`, except the receipt preview's document colours
-9. `npm run build`, `npm run lint`, `npm test` all exit 0
+7. The in-app logo renders correctly in both themes, mark and wordmark together
+8. The wordmark is set in Poppins with a violet dot on the `i`, as live text
+9. No colour literal outside `src/index.css`, except the receipt preview's document colours
+10. `npm run build`, `npm run lint`, `npm test` all exit 0

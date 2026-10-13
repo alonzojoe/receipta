@@ -69,7 +69,21 @@ Every token changes, so no number carries over from the previous palette.
 | Receipt preview | unchanged, still its own document colours | — |
 | Buttons | primary still reads as the brand | — |
 
-## Gate 6 — Rule compliance
+## Gate 6 — The wordmark
+
+| Check | Expected | Result |
+| --- | --- | --- |
+| Typeface | Poppins 700, self-hosted | — |
+| Visual match | compared side by side against the sheet | — |
+| Violet dot | present on the `i`, sized like the sheet | — |
+| Accessible name | reads "Receipta" | — |
+| Copied text | yields "Receipta", not "Receıpta" | — |
+| Light mode | near-black, matching the sheet | — |
+| Dark mode | near-white, matching the sheet | — |
+| Only the wordmark uses it | the interface stays in Geist | — |
+| Added weight | one weight only, measured in the build output | — |
+
+## Gate 7 — Rule compliance
 
 | Check | Command | Expected | Result |
 | --- | --- | --- | --- |

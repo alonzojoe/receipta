@@ -7,8 +7,9 @@ branch name. Review runs automatically on open.
 | --- | --- |
 | `docs: add brand refresh spec` | the spec |
 | `feat: adopt the paper plane brand palette` | task 2 |
-| `chore: replace the app icons with the paper plane mark` | tasks 1, 3 |
-| `docs: record brand refresh validation` | task 4 |
+| `feat: set the wordmark in the brand typeface` | task 3 |
+| `chore: replace the app icons with the paper plane mark` | tasks 1, 4 |
+| `docs: record brand refresh validation` | task 5 |
 
 Palette and icons are separate commits: one is a token change touching every surface,
 the other is a pile of binaries. Together they make an unreadable diff.
@@ -45,7 +46,25 @@ changes, including the hue of the neutrals.
 Also update `.brand-gradient` and `.brand-glow`, which still hold the old violet stops.
 The new sheet shows a flat mark; a gradient tuned to the old one will not match it.
 
-## Task 3 — Swap the icons and the logo component
+## Task 3 — The wordmark
+
+`npm install @fontsource/poppins` and import the 700 weight only, so one file is added
+rather than a family.
+
+Register it in `src/index.css` as a second theme font - the display face - leaving
+`--font-sans` as Geist for everything else. Nothing but the wordmark uses it.
+
+`LogoWordmark` renders the word with a **dotless `ı`** (U+0131) and an absolutely
+positioned violet dot above it. The accessible name must still read "Receipta": a
+dotless i is a different character, so the visible text needs an `aria-label`, or the
+real word in a visually hidden span, or the dot applied as a decorative overlay on a
+normal `i`. Pick whichever keeps the text selectable and correct when copied.
+
+**Verify:** render it beside the sheet's wordmark at the same size and compare. Check
+the accessible name is "Receipta" and that copying the text yields "Receipta", not
+"Receıpta".
+
+## Task 4 — Swap the icons and the logo component
 
 Replace the files in place, so nothing that references them needs changing. `logo.tsx`
 already renders `logo_mark.png` at a caller-controlled size and needs no edit beyond its
@@ -54,7 +73,7 @@ comment, which describes the old mark.
 Update `index.html`'s `theme-color` and `site.webmanifest`'s `theme_color` and
 `background_color`, which still carry the old values.
 
-## Task 4 — Verify and record
+## Task 5 — Verify and record
 
 Rasterise the favicon at 16 and 32 and **look at both**. Render the mark on light and on
 dark and look at both. Run the contrast script. Walk the home page in both themes.
@@ -73,6 +92,10 @@ raised rather than taken silently.
 **Every surface changes at once.** A palette swap touches the whole interface, so a
 mistake is everywhere rather than in one place. The contrast table is the check that
 catches it; it is not optional and its numbers are not carried over.
+
+**The dotless-i trick breaks copy and paste if done carelessly.** Someone copying the
+logo text must get "Receipta", not "Receıpta". Whichever approach is taken, that is
+checked rather than assumed.
 
 **The neutrals change hue.** Going from purple-tinted to slate is subtle per-element and
 obvious in aggregate. Worth looking at the whole page rather than one component.
