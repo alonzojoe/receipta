@@ -9,6 +9,7 @@ import { describe, expect, it } from 'vitest'
 import { create_route } from '@/app/routes/create_route'
 import { home_route } from '@/app/routes/home_route'
 import { root_route } from '@/app/routes/root_route'
+import { institutions } from '@/shared/config/institutions'
 import { site } from '@/shared/config/site'
 
 function render_home() {
@@ -50,13 +51,26 @@ describe('HomePage', () => {
     expect(screen.getByText('₱750.00')).toBeInTheDocument()
   })
 
-  it('names every payment mode', async () => {
+  it('shows the institutions people are paid through', async () => {
     render_home()
     await screen.findByRole('heading', { level: 1 })
 
-    for (const label of ['GCash', 'Maya', 'MariBank', 'Bank Transfer']) {
-      expect(screen.getAllByText(label).length).toBeGreaterThan(0)
+    // The marquee renders its content twice so the loop is seamless, so each name
+    // appears more than once in the DOM. The duplicate is aria-hidden; see the marquee
+    // tests for that.
+    for (const name of ['GCash', 'Maya', 'MariBank', 'BDO Unibank', 'Landbank']) {
+      expect(screen.getAllByText(name).length).toBeGreaterThan(0)
     }
+  })
+
+  it('exposes the institutions as one list, without the loop duplicate', async () => {
+    render_home()
+    await screen.findByRole('heading', { level: 1 })
+
+    const strip = screen.getByText('Works with how you already get paid').parentElement
+    const list = within(strip as HTMLElement).getByRole('list')
+    expect(within(list).getAllByRole('listitem')).toHaveLength(institutions.length)
+    expect(institutions).toHaveLength(31)
   })
 
   it('renders six feature cards', async () => {
