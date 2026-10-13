@@ -111,6 +111,32 @@ has not reached `main` yet. This should become rare now that features go straigh
   - Good: `chore: project setup and product specs`, `feat: receipt builder and export`
   - Bad: `develop`
 
+### After opening a pull request
+
+Every PR goes through review before it merges. The flow is fixed:
+
+1. **Open the PR.**
+2. **`code-reviewer` reviews the diff** and posts its findings as **inline comments on
+   the changed lines**, through the GitHub account, using
+   `gh api repos/<owner>/<repo>/pulls/<n>/comments`. Comments sit on the code they
+   refer to, not in one lump at the bottom, so a reader sees them in context.
+3. **Report the review to the author.** Say how many findings there are, how severe, and
+   what the PR number is. Do not merge silently.
+4. **The findings are addressed** by whichever agent owns that area - `frontend-designer`
+   for UI, `debugger` for a defect, `qa-tester` for missing coverage. Fixes are pushed to
+   the same branch, so the PR updates in place.
+5. **Merge**, once the findings are resolved or explicitly accepted as won't-fix.
+
+Rules for review comments:
+
+- **No AI attribution anywhere.** Not in the comment body, not as a trailer, not as a
+  signature. The same rule as commits.
+- A finding states what is wrong, why it matters, and the fix. "Consider refactoring" is
+  not a finding.
+- If the review finds nothing, say so plainly rather than inventing a nit to look
+  thorough.
+- A finding that is wrong on inspection is closed with the reason, not silently obeyed.
+
 ### Commit messages
 
 - Use Conventional Commits for every message: `<prefix>: <message>`
