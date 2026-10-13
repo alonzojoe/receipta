@@ -219,13 +219,25 @@ most work, and it stays as it is.
 second checkout of the same repository with its own HEAD and its own files, sharing one
 object store. Same history, separate files, which is exactly the shape of the problem.
 
+**To read a branch, prefer not checking it out at all.** `gh pr diff <n>` and
+`git show <branch>:<path>` need no worktree and cannot disturb anything.
+
+When a checkout is genuinely needed:
+
 ```bash
-git worktree add <path-outside-the-repo> <branch>   # existing branch
-git worktree add <path> -b <new-branch> main        # new branch
-git -C <path> status                                 # work in it without cd
-git worktree remove <path>                           # when finished
-git worktree list                                    # find strays
-git worktree prune                                   # drop records of deleted dirs
+# Reading a branch that may already be checked out somewhere - use --detach.
+# Plain `git worktree add <path> <branch>` FAILS with
+#   fatal: '<branch>' is already used by worktree at '<path>'
+# which is exactly the case an agent hits when reviewing the current branch.
+git worktree add --detach <path> origin/<branch>
+
+# Working on a new branch
+git worktree add <path> -b <new-branch> main
+
+git -C <path> status            # work in it without cd
+git worktree remove <path>      # when finished
+git worktree list               # find strays, and anything marked prunable
+git worktree prune              # drop records of directories that were deleted
 ```
 
 Use `git -C <path>` rather than `cd`. It keeps the two trees from being confused in the
@@ -233,13 +245,20 @@ first place.
 
 Rules:
 
-- Put worktrees **outside the repository**, so they never show up as untracked files.
+- **Give each worktree a unique path.** Two agents using the same one collide, which is
+  the bug this is meant to prevent. Include the PR number or task name.
+- `/tmp` is fine for a throwaway read-only worktree. **Do not keep commits there** -
+  macOS clears it, and `git worktree prune` then discards any uncommitted work along
+  with the record. A worktree that holds work belongs in a sibling directory.
+- A fresh worktree has **no `node_modules`**, so `npm test` needs `npm ci` first, or a
+  symlink to the main tree's. Worth knowing before concluding the suite is broken.
 - **Remove a worktree when its task finishes.** A stale one is a checkout someone edits
-  by accident, with changes that go nowhere.
-- **Do not switch branches in the shared tree while an agent is running.** Worktrees stop
-  agents from moving the tree; they do not stop you from moving it under an agent.
-- If a worktree's directory is deleted without `git worktree remove`, `git worktree
-  prune` clears the leftover record.
+  by accident, with changes that go nowhere. If `remove` refuses because the tree is
+  dirty, commit or discard the changes first rather than reaching for `--force`.
+- **Do not move the shared tree while an agent is running.** Not just `checkout`:
+  `switch`, `reset`, `stash` and `pull` all do it too.
+- **Check before committing.** `git branch --show-current` costs nothing and is the one
+  guard that would have caught the original incident.
 
 ## Notes
 - Claude continually update this file with important information.

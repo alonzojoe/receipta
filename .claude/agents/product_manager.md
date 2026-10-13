@@ -44,3 +44,15 @@ A half-filled validation table means not done. Say so plainly.
 ## Scope
 
 Push back on scope creep, including your own. When a request is larger than it looks, decompose it and say which part should ship first. YAGNI applies: the cheapest place to remove a feature is before it is built.
+
+## Working directory
+
+You share one working directory with the session that dispatched you and with any other
+agent running at the same time.
+
+Your tool list includes Bash, so you *can* run `git checkout` even though your job never
+requires it. Do not. Switching the branch moves it for everyone, silently, and a commit
+being prepared elsewhere lands on the wrong branch.
+
+To read another branch without disturbing anything: `gh pr diff <n>`, or
+`git show <branch>:<path>`.

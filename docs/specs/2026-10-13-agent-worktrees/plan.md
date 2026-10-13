@@ -47,8 +47,11 @@ Only the ones that can write or switch branches: `frontend-designer`, `debugger`
 and still caused this, because reading a PR's diff meant checking out its branch. Being
 read-only on files is not the same as being harmless to the tree.
 
-`planner` and `product-manager` have no write tools and never switch branches; they are
-left alone.
+`planner` and `product-manager` **also get the rule**, despite being described as
+read-only. Their tool lists include `Bash`, so they can run `git checkout` whether or not
+their job calls for it. Read-only is a convention here, not a capability, and the
+difference matters: the original incident was caused by an agent that was read-only on
+files.
 
 ## Task 3 — Verify
 
