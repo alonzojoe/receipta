@@ -18,9 +18,14 @@ export const site = {
   tagline: 'Send receipts, not screenshots.',
   description:
     'Turn a GCash, Maya, MariBank, or bank transfer payment into a clean receipt you can send in seconds.',
+  /**
+   * The project repository. The footer links the product here rather than to a
+   * personal profile, and the legal pages use it as their contact route, so it is
+   * defined once and re-exported rather than written out twice.
+   */
+  repository_url: 'https://github.com/alonzojoe/receipta',
   author: {
     name: 'alonzojoe',
-    github_url: 'https://github.com/alonzojoe',
   },
 } as const
 
