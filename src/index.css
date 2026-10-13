@@ -19,16 +19,22 @@
  *   Border        #CBD5E1   oklch(0.869 0.020 253)
  *   Background    #F8FAFC   oklch(0.984 0.003 248)
  *
- * Two deliberate departures:
+ * Two deliberate departures from the sheet:
  *
- * The sheet gives #CBD5E1 for "descriptions, borders". It measures 1.42:1 on the
- * background - fine for a border, unreadable as text. So it is the border token, and
- * muted TEXT uses #64748B from the sibling brand sheet, which is the same slate family
- * and measures 4.55:1.
+ * 1. The sheet gives #CBD5E1 for "descriptions, borders". It measures 1.42:1 on the
+ *    background - correct for a border, unreadable as text. So #CBD5E1 is the border
+ *    token, and muted TEXT comes from the sibling sheet's #64748B instead, same slate
+ *    family. Its lightness is then lowered from 0.554 to 0.52, because 0.554 clears
+ *    4.5:1 on the background and the card but only reaches 4.24:1 on --muted, which is
+ *    the surface it actually sits on in the hero badge and the receipt chip.
  *
- * Dark mode is DERIVED, not supplied. The sheet gives light values only. Hues are
- * kept, lightness inverted, and the primary lifted to Primary Light so it stays
- * legible on a dark surface.
+ * 2. Dark mode is DERIVED, not supplied: the sheet gives light values only. Hues are
+ *    kept, lightness inverted, and the primary lifted from 0.526 to 0.709 (Primary
+ *    Light) so it stays legible on a dark surface.
+ *
+ * Lowest measured pair is muted-foreground on --muted at 4.90:1. Every pair is recorded
+ * in docs/specs/2026-10-13-brand-refresh/validation.md; re-measure there if a lightness
+ * changes.
  *
  * Dark mode is not an inversion: primary lightness is lifted from 0.541 to 0.700 so
  * it stays legible on a dark surface, and its foreground flips to dark.
@@ -50,7 +56,7 @@
   --secondary: oklch(0.943 0.028 295);
   --secondary-foreground: oklch(0.33 0.09 287);
   --muted: oklch(0.96 0.006 250);
-  --muted-foreground: oklch(0.554 0.038 257);
+  --muted-foreground: oklch(0.52 0.038 257);
   --accent: oklch(0.943 0.028 295);
   --accent-foreground: oklch(0.33 0.09 287);
   --destructive: oklch(0.577 0.245 27.325);
@@ -174,20 +180,25 @@
    * icon tiles, the hero wash - uses one of these rather than repeating the stops
    * inline, so the brand has a single definition.
    */
+  /*
+   * Stops are the brand's own values: Primary Light, Primary, and Primary darkened.
+   * Written as oklch so they sit in the same space as the tokens and shift with them
+   * if the brand moves, rather than drifting as arbitrary hexes.
+   */
   .brand-gradient {
     background-image: linear-gradient(
       135deg,
-      #8b5cf6 0%,
-      #6c3aed 55%,
-      #5b21d6 100%
+      oklch(0.709 0.159 294) 0%,
+      oklch(0.526 0.247 287) 55%,
+      oklch(0.42 0.22 287) 100%
     );
   }
 
   .brand-glow {
     background-image: radial-gradient(
       closest-side,
-      color-mix(in oklch, #a78bfa 22%, transparent) 0%,
-      color-mix(in oklch, #6c3aed 14%, transparent) 55%,
+      color-mix(in oklch, oklch(0.709 0.159 294) 22%, transparent) 0%,
+      color-mix(in oklch, oklch(0.526 0.247 287) 14%, transparent) 55%,
       transparent 100%
     );
   }

@@ -45,6 +45,12 @@ Every token changes, so no number carries over from the previous palette.
 | `--muted-foreground` on `--background` | dark | 4.5:1 | 7.72:1 | pass |
 | `--foreground` on `--card` | light | 4.5:1 | 14.68:1 | pass |
 | `--foreground` on `--card` | dark | 4.5:1 | 16.14:1 | pass |
+| `--muted-foreground` on `--muted` | light | 4.5:1 | 4.90:1 | pass - after a fix, see below |
+| `--muted-foreground` on `--muted` | dark | 4.5:1 | 6.08:1 | pass |
+| `--muted-foreground` on `--card` | light | 4.5:1 | 5.50:1 | pass |
+| `--muted-foreground` on `--card` | dark | 4.5:1 | 7.11:1 | pass |
+| `--secondary-foreground` on `--secondary` | light | 4.5:1 | 10.57:1 | pass |
+| `--secondary-foreground` on `--secondary` | dark | 4.5:1 | 13.00:1 | pass |
 
 ## Gate 4 — Palette fidelity
 
@@ -115,6 +121,34 @@ The first wordmark extraction included **the top three pixel rows of the tagline
 visible as a faint smudge under the word. Found by counting opaque pixels per row and
 spotting a gap between the `p` descender (row 114) and a separate element (rows 125-127).
 Re-cropped above the tagline; both assets now scan as a single element with no gaps.
+
+## An accessibility failure the review caught
+
+The first measurement checked `--muted-foreground` against `--background` and `--card`
+and called it done at 4.55:1. It never checked it against **`--muted`** - the surface it
+actually sits on in the hero badge and the receipt chip. There it measured **4.24:1**,
+below AA.
+
+Fixed by lowering its lightness from 0.554 to 0.52, found by solving across all three
+surfaces rather than tuning against one: 5.26:1 on background, 5.50:1 on card, 4.90:1 on
+muted.
+
+The lesson is in the method, not the number. Measuring a foreground against the page
+background is not enough when the token is also used on tinted surfaces. Every surface a
+token lands on is now in the table.
+
+## Asset formats
+
+In-app images are **WebP**, public icons are **PNG**, and the split is deliberate:
+
+| Asset | Format | Why |
+| --- | --- | --- |
+| `logo_mark`, both wordmarks | WebP | We render these ourselves, so support is a non-question. 34-47% smaller: 86 KB of PNG became 53 KB. |
+| favicons, `apple-touch-icon`, manifest icons | PNG | Read by browsers and operating systems whose WebP support for icons is not dependable. Saving a few KB is not worth a missing favicon. |
+
+SVG was considered and is not possible: the mark is supplied as a lossy JPEG, and
+tracing it would produce an approximation rather than the artwork. It would need a real
+vector from the designer.
 
 ## Open questions
 
