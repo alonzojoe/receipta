@@ -6,6 +6,13 @@ export type Institution = {
   id: string
   name: string
   category: InstitutionCategory
+  /**
+   * The regulatory classification, which is finer-grained than `category`. Today it maps
+   * 1:1 onto `category`, so it looks redundant. It is kept because it stops being
+   * redundant the moment thrift or rural banks are added: they would share the
+   * `local_bank` category but not the type. `institutions.test.ts` pins the current 1:1
+   * mapping so that change is a deliberate decision, not drift.
+   */
   institutionType: string
   icon: string
 }
@@ -26,6 +33,10 @@ export type Institution = {
  * `updated` is on the dataset because this goes stale: banks merge, digital banks are
  * licensed, wallets close.
  */
+// This cast asserts the shape, it does not check it: the JSON infers `category` as
+// `string`, so a bad category would still compile. The runtime checks in
+// `institutions.test.ts` are what enforce it - do not delete them on the strength of the
+// annotation.
 export const institutions: readonly Institution[] = data.institutions as Institution[]
 
 export const institutions_updated = data.updated

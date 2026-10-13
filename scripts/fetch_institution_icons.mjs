@@ -77,6 +77,13 @@ const seen = new Map()
 const failed = []
 
 for (const institution of institutions.institutions) {
+  // The id becomes a filename under out_dir, and only the test suite validates it. Refuse
+  // anything that could escape the directory (`../`, slashes) rather than trust the JSON.
+  if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(institution.id)) {
+    failed.push(`${JSON.stringify(institution.id)}: unsafe id, skipped`)
+    continue
+  }
+
   const domain = domains[institution.id]
   if (!domain) {
     failed.push(`${institution.id}: no domain mapped`)

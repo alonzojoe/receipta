@@ -42,6 +42,31 @@ describe('institutions dataset', () => {
     }
   })
 
+  /*
+   * `institutionType` is kept for when thrift or rural banks arrive, but today it is fully
+   * determined by `category`. If this fails, a category now holds more than one type (or a
+   * type spans categories): that is the moment the field starts earning its place, so
+   * revisit where it is used rather than just updating this table.
+   */
+  it('keeps institutionType 1:1 with category', () => {
+    const expected: Record<string, string> = {
+      ewallet: 'non_bank_emi',
+      digital_bank: 'digital_bank',
+      local_bank: 'universal_commercial_bank',
+    }
+    const types_by_category = new Map<string, Set<string>>()
+
+    for (const item of institutions) {
+      const types = types_by_category.get(item.category) ?? new Set<string>()
+      types.add(item.institutionType)
+      types_by_category.set(item.category, types)
+    }
+
+    for (const [category, types] of types_by_category) {
+      expect([...types], `${category} institutionType`).toEqual([expected[category]])
+    }
+  })
+
   it('uses trading names, not registered legal names', () => {
     for (const item of institutions) {
       expect(item.name, item.id).not.toMatch(/\b(Inc|Incorporated|Corporation|Co)\.?$/)
