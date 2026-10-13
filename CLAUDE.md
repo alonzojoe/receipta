@@ -125,11 +125,28 @@ Every PR goes through review before it merges. The flow is fixed:
 4. **The findings are addressed** by whichever agent owns that area - `frontend-designer`
    for UI, `debugger` for a defect, `qa-tester` for missing coverage. Fixes are pushed to
    the same branch, so the PR updates in place.
-5. **Re-review after the fixes**, against the new diff. A fix can miss the point or
+5. **Reply to each comment and resolve its conversation.** The reply says what changed,
+   or why the finding was not acted on. Then resolve the thread, so an unresolved
+   conversation always means something is still outstanding.
+6. **Re-review after the fixes**, against the new diff. A fix can miss the point or
    introduce something new, and nothing else checks that.
-6. **The author merges.** Not an agent, ever. Resolved findings are a precondition for
-   merging, not permission to merge: a merge is a commit on `main`, so the same gate
-   applies as every other commit. Report that the PR is ready and stop there.
+7. **The author merges.** Not an agent, ever. Every conversation resolved is a
+   precondition for merging, not permission to merge: a merge is a commit on `main`, so
+   the same gate applies as every other commit. Report that the PR is ready and stop
+   there.
+
+Resolving a thread needs GraphQL; the REST API cannot do it:
+
+```bash
+# thread ids
+gh api graphql -f query='{ repository(owner:"<owner>", name:"<repo>") {
+  pullRequest(number:<n>) { reviewThreads(first:50) {
+    nodes { id isResolved comments(first:1){ nodes{ path line } } } } } } }'
+
+# resolve one
+gh api graphql -f query='mutation { resolveReviewThread(input:{threadId:"<id>"})
+  { thread { isResolved } } }'
+```
 
 Rules for review comments:
 

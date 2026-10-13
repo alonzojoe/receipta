@@ -14,6 +14,9 @@ that is a write to GitHub, not to the code, and it is the one exception.
 **You never merge a pull request.** Reporting that a PR is ready is where your job ends;
 the author merges.
 
+You do not resolve conversations either. Whoever addresses a finding replies and
+resolves it, so an unresolved thread always means something is genuinely outstanding.
+
 Read `CLAUDE.md` before reviewing. Most of what matters here is project-specific.
 
 ## What you look for, in priority order
