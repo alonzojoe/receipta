@@ -180,6 +180,28 @@
   }
 }
 
+/*
+ * Marquee. The track holds its content twice, so translating by exactly half its width
+ * lands on the start of the second copy and the restart is invisible. Any other offset
+ * produces a visible jump once per loop.
+ *
+ * linear on purpose: constant motion with an eased curve visibly accelerates and
+ * decelerates every time it loops. This is the case the project's easing rules name as
+ * the exception.
+ *
+ * Only transform animates, so it stays off the main thread. That matters here more than
+ * most places - this strip sits near the top of the page and so runs during load, when
+ * the main thread is busiest.
+ */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

@@ -8,11 +8,6 @@ export type NavLink = {
   href: string
 }
 
-export type PaymentMode = {
-  id: string
-  label: string
-}
-
 export const site = {
   name: 'Receipta',
   tagline: 'Send receipts, not screenshots.',
@@ -41,14 +36,3 @@ export const footer_links: readonly NavLink[] = [
   { label: 'Cookie Policy', href: '/cookies' },
 ]
 
-/**
- * Payment providers. Rendered as labels for now: react-icons carries no Philippine
- * fintech marks, and official brand assets have not been sourced yet. The strip is
- * shaped so a logo component can slot in beside each label without restructuring.
- */
-export const payment_modes: readonly PaymentMode[] = [
-  { id: 'gcash', label: 'GCash' },
-  { id: 'maya', label: 'Maya' },
-  { id: 'maribank', label: 'MariBank' },
-  { id: 'bank-transfer', label: 'Bank Transfer' },
-]

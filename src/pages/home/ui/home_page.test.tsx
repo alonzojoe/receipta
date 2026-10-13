@@ -50,12 +50,15 @@ describe('HomePage', () => {
     expect(screen.getByText('₱750.00')).toBeInTheDocument()
   })
 
-  it('names every payment mode', async () => {
+  it('shows the institutions people are paid through', async () => {
     render_home()
     await screen.findByRole('heading', { level: 1 })
 
-    for (const label of ['GCash', 'Maya', 'MariBank', 'Bank Transfer']) {
-      expect(screen.getAllByText(label).length).toBeGreaterThan(0)
+    // The marquee renders its content twice so the loop is seamless, so each name
+    // appears more than once in the DOM. The duplicate is aria-hidden; see the marquee
+    // tests for that.
+    for (const name of ['GCash', 'Maya', 'MariBank', 'BDO Unibank', 'Landbank']) {
+      expect(screen.getAllByText(name).length).toBeGreaterThan(0)
     }
   })
 
