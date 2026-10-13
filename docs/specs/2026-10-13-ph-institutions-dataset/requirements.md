@@ -100,7 +100,10 @@ corrected in the same change. A false privacy claim is worse than an ugly picker
 - Remittance-only operators, unless they are genuinely used to receive payment.
 - Anything defunct, merged, or whose licence has lapsed.
 
-Target size is roughly 40 to 60 entries. If it grows past that, the scope is wrong.
+Target size was estimated at 40 to 60 entries. **The researched answer is 31**, and the
+estimate was simply wrong: once the foreign bank branches with no retail presence are
+removed from BSP's 44 universal and commercial banks, far fewer remain than guessed.
+Padding the list to reach a number would have been worse than correcting the number.
 
 ## Accuracy
 
@@ -143,7 +146,7 @@ home page's payment strip still uses it. Migrating that is a separate, visible c
 4. Every `icon` is a local path under `/institutions/`, and the file exists
 5. **No icon URL points at a third-party service**
 6. All BSP-licensed digital banks are present
-7. Entry count is between 40 and 60
+7. Entry count reflects the researched answer, not a target plucked in advance
 8. Every entry traces to a source; unverifiable ones are absent
 9. A typed accessor exists and the JSON is not imported raw by consumers
 10. The `updated` date is present and correct
