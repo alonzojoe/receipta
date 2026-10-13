@@ -1,0 +1,223 @@
+{
+  "country": "PH",
+  "updated": "2026-10-13",
+  "institutions": [
+    {
+      "id": "gcash",
+      "name": "GCash",
+      "category": "ewallet",
+      "institutionType": "non_bank_emi",
+      "icon": "/institutions/gcash.png"
+    },
+    {
+      "id": "maya",
+      "name": "Maya",
+      "category": "ewallet",
+      "institutionType": "non_bank_emi",
+      "icon": "/institutions/maya.png"
+    },
+    {
+      "id": "shopeepay",
+      "name": "ShopeePay",
+      "category": "ewallet",
+      "institutionType": "non_bank_emi",
+      "icon": "/institutions/shopeepay.png"
+    },
+    {
+      "id": "grabpay",
+      "name": "GrabPay",
+      "category": "ewallet",
+      "institutionType": "non_bank_emi",
+      "icon": "/institutions/grabpay.png"
+    },
+    {
+      "id": "coins-ph",
+      "name": "Coins.ph",
+      "category": "ewallet",
+      "institutionType": "non_bank_emi",
+      "icon": "/institutions/coins-ph.png"
+    },
+    {
+      "id": "gotyme",
+      "name": "GoTyme Bank",
+      "category": "digital_bank",
+      "institutionType": "digital_bank",
+      "icon": "/institutions/gotyme.png"
+    },
+    {
+      "id": "maya-bank",
+      "name": "Maya Bank",
+      "category": "digital_bank",
+      "institutionType": "digital_bank",
+      "icon": "/institutions/maya-bank.png"
+    },
+    {
+      "id": "maribank",
+      "name": "MariBank",
+      "category": "digital_bank",
+      "institutionType": "digital_bank",
+      "icon": "/institutions/maribank.png"
+    },
+    {
+      "id": "ofbank",
+      "name": "Overseas Filipino Bank",
+      "category": "digital_bank",
+      "institutionType": "digital_bank",
+      "icon": "/institutions/ofbank.png"
+    },
+    {
+      "id": "tonik",
+      "name": "Tonik Digital Bank",
+      "category": "digital_bank",
+      "institutionType": "digital_bank",
+      "icon": "/institutions/tonik.png"
+    },
+    {
+      "id": "uniondigital",
+      "name": "UnionDigital Bank",
+      "category": "digital_bank",
+      "institutionType": "digital_bank",
+      "icon": "/institutions/uniondigital.png"
+    },
+    {
+      "id": "unobank",
+      "name": "UNO Digital Bank",
+      "category": "digital_bank",
+      "institutionType": "digital_bank",
+      "icon": "/institutions/unobank.png"
+    },
+    {
+      "id": "aub",
+      "name": "Asia United Bank",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/aub.png"
+    },
+    {
+      "id": "bankcom",
+      "name": "Bank of Commerce",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/bankcom.png"
+    },
+    {
+      "id": "bdo",
+      "name": "BDO Unibank",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/bdo.png"
+    },
+    {
+      "id": "bpi",
+      "name": "Bank of the Philippine Islands",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/bpi.png"
+    },
+    {
+      "id": "chinabank",
+      "name": "China Bank",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/chinabank.png"
+    },
+    {
+      "id": "cimb",
+      "name": "CIMB Bank Philippines",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/cimb.png"
+    },
+    {
+      "id": "ctbc",
+      "name": "CTBC Bank Philippines",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/ctbc.png"
+    },
+    {
+      "id": "dbp",
+      "name": "Development Bank of the Philippines",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/dbp.png"
+    },
+    {
+      "id": "eastwest",
+      "name": "EastWest Bank",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/eastwest.png"
+    },
+    {
+      "id": "hsbc",
+      "name": "HSBC Philippines",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/hsbc.png"
+    },
+    {
+      "id": "landbank",
+      "name": "Landbank",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/landbank.png"
+    },
+    {
+      "id": "maybank",
+      "name": "Maybank Philippines",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/maybank.png"
+    },
+    {
+      "id": "metrobank",
+      "name": "Metrobank",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/metrobank.png"
+    },
+    {
+      "id": "pbcom",
+      "name": "PBCom",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/pbcom.png"
+    },
+    {
+      "id": "pnb",
+      "name": "Philippine National Bank",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/pnb.png"
+    },
+    {
+      "id": "rcbc",
+      "name": "RCBC",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/rcbc.png"
+    },
+    {
+      "id": "security-bank",
+      "name": "Security Bank",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/security-bank.png"
+    },
+    {
+      "id": "unionbank",
+      "name": "UnionBank",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/unionbank.png"
+    },
+    {
+      "id": "veterans-bank",
+      "name": "Philippine Veterans Bank",
+      "category": "local_bank",
+      "institutionType": "universal_commercial_bank",
+      "icon": "/institutions/veterans-bank.png"
+    }
+  ]
+}
