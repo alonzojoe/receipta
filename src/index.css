@@ -53,6 +53,10 @@
   --popover-foreground: oklch(0.278 0.03 257);
   --primary: oklch(0.526 0.247 287);
   --primary-foreground: oklch(0.985 0.005 287);
+  /* The default Button's fill and label. Aliased to primary here so light mode is
+   * unchanged by construction; .dark gives them their own values. */
+  --button: var(--primary);
+  --button-foreground: var(--primary-foreground);
   --secondary: oklch(0.943 0.028 295);
   --secondary-foreground: oklch(0.33 0.09 287);
   --muted: oklch(0.96 0.006 250);
@@ -152,6 +156,11 @@
   --popover-foreground: oklch(0.97 0.005 248);
   --primary: oklch(0.709 0.159 294);
   --primary-foreground: oklch(0.19 0.045 287);
+  /* The Receipta logo mark's violet, as a FILL behind a white label (--button-foreground).
+   * Do not reuse it as text, an icon, a border or a focus ring: against this page it is
+   * about 2.7:1, which fails 3:1. Violet used as ink is --primary above. */
+  --button: oklch(0.526 0.247 287);
+  --button-foreground: oklch(1 0 0);
   --secondary: oklch(0.28 0.025 257);
   --secondary-foreground: oklch(0.96 0.008 248);
   --muted: oklch(0.27 0.022 257);
@@ -204,6 +213,8 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-button: var(--button);
+  --color-button-foreground: var(--button-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);

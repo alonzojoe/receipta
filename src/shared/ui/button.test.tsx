@@ -60,6 +60,17 @@ describe('Button', () => {
     expect(classes).not.toContain('transition-all')
   })
 
+  it('fills the default variant from the button tokens, not primary', () => {
+    render(<Button>press</Button>)
+    const classes = screen.getByRole('button').className.split(' ')
+
+    expect(classes).toContain('bg-button')
+    expect(classes).toContain('text-button-foreground')
+    expect(classes).not.toContain('bg-primary')
+    expect(classes).not.toContain('text-primary-foreground')
+    expect(classes.some((c) => c.startsWith('hover:bg-primary'))).toBe(false)
+  })
+
   it('exposes variant and size as data attributes', () => {
     render(
       <Button variant="outline" size="lg">
