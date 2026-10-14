@@ -47,3 +47,6 @@ export const questions: readonly Question[] = [
       'That works too. Pick the payment method that matches, and leave the reference number blank when there is no transaction to point at.',
   },
 ]
+
+/** The row that is open on first render. Named so the choice is explicit, not an index. */
+export const default_open_id = 'free'
