@@ -156,10 +156,12 @@
   --popover-foreground: oklch(0.97 0.005 248);
   --primary: oklch(0.709 0.159 294);
   --primary-foreground: oklch(0.19 0.045 287);
-  /* The Receipta logo mark's violet, as a FILL behind a white label (--button-foreground).
-   * Do not reuse it as text, an icon, a border or a focus ring: against this page it is
-   * about 2.7:1, which fails 3:1. Violet used as ink is --primary above. */
-  --button: oklch(0.526 0.247 287);
+  /* The Receipta logo mark's violet, sampled from logo_mark.webp: rgb(96, 49, 241) is
+   * 14.2% of its opaque pixels, and this oklch round-trips to exactly that. A FILL behind
+   * a white label (--button-foreground). Do not reuse it as text, an icon, a border or a
+   * focus ring: against this page it is about 2.9:1, which fails 3:1. The violet used as
+   * ink is --primary above. */
+  --button: oklch(0.51 0.26 283.4);
   --button-foreground: oklch(1 0 0);
   --secondary: oklch(0.28 0.025 257);
   --secondary-foreground: oklch(0.96 0.008 248);

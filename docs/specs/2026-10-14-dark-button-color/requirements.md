@@ -88,24 +88,23 @@ contrast. That is the point of decision 2.
 1. In dark mode the default `Button` resolves to a background of the mark violet and a
    text colour of white. Verified in a browser by reading the computed `background-color`
    and `color`, and recorded. The background is within one unit per sRGB channel of
-   `rgb(107, 58, 237)`, which is what `oklch(0.526 0.247 287)` renders as. The earlier
-   `rgb(96, 48, 240)` figure was a sampling estimate of the logo mark and is not the
-   rendered token value.
+   `rgb(96, 49, 241)`, the logo mark's own violet. That value is 14.2% of the opaque
+   pixels in `logo_mark.webp` (body mean `rgb(97, 52, 240)`), measured from an exact
+   histogram with no quantisation, and `oklch(0.51 0.26 283.4)` round-trips to it.
 2. In light mode the default `Button`'s computed `background-color`, `color` and hover
    `background-color` are identical before and after the change. Verified by reading the
    computed values on `origin/main` (1a5b9a0) and on the branch and recording both. The
    `:root` values of `--button` and `--button-foreground` are `var(--primary)` and
    `var(--primary-foreground)`.
-3. White text on the resting fill measures 4.5:1 or better in dark mode. Expected 6.08:1.
+3. White text on the resting fill measures 4.5:1 or better in dark mode. Expected 6.55:1.
    Measured and recorded.
 4. White text on the hover fill measures 4.5:1 or better in dark mode. Measured on the
    real composited colour, since the hover blends or mixes with what is behind it, and
    recorded.
 5. Mark violet fill against the surface behind it is measured and recorded for the resting
    state, for both surfaces it appears on: the page background `oklch(0.17 0.018 257)`,
-   expected about 3.14:1, and the closing CTA band, expected about 2.73:1. The earlier
-   single 2.73:1 figure was the band, not the page. A result under 3:1 on the band is
-   accepted on the reasoning in decision 3. It is not an unmeasured assumption.
+   expected about 2.92:1, and the closing CTA band, expected about 2.53:1. Both miss 3:1
+   and both are accepted on the reasoning in decision 3. It is not an unmeasured assumption.
 6. The hover fill against the surface behind it is at least as high as the resting fill
    against that same surface. Measured and recorded on both surfaces. If hover would
    lower it, the hover is changed, not the criterion.
@@ -155,10 +154,13 @@ Recorded so they are not mistaken for omissions.
 Three criteria were wrong about the numbers, not about the design. All three were
 corrected above rather than marked as failures.
 
-1. **Criterion 1's target colour.** `oklch(0.526 0.247 287)` renders as `rgb(107, 58, 237)`.
-   The `rgb(96, 48, 240)` in the original draft was a sampling estimate of the logo mark
-   image, and a check against it within one unit would have failed on a correct
-   implementation.
+1. **Criterion 1's target colour, and the token itself.** The first implementation used
+   light mode's `--primary`, `oklch(0.526 0.247 287)`, which renders `rgb(107, 58, 237)` -
+   eleven units off the logo mark and visibly lighter and less blue. The author asked for
+   the icon's colour, so the mark was re-sampled with an exact pixel histogram:
+   `rgb(96, 49, 241)`. Dark `--button` is now `oklch(0.51 0.26 283.4)`, which round-trips
+   to it. The original draft's `rgb(96, 48, 240)` estimate was close; the token chosen to
+   satisfy it was not.
 2. **Criterion 5's surface.** The 2.73:1 figure was the fill against the closing CTA
    band, not against the page. Against the page the measured figure is 3.14:1, which
    clears 3:1. So the resting fill passes 1.4.11 on the header and hero buttons and
@@ -181,3 +183,30 @@ fixed, because both are real and neither is this PR's business.
   light fill toward white, so the white-ish label loses contrast on hover. This is
   existing behaviour on every default button in light mode and is untouched here. Worth a
   follow-up; fixing it means changing light hover, which is outside this spec.
+
+## Measured result
+
+Read from the rendered page on a production build, with every colour resolved through a
+canvas because Chrome reports computed colours as `oklch()`. An earlier attempt parsed
+those strings as RGB and produced nonsense; the figures below replace it.
+
+| Pair | Dark | Light |
+| --- | --- | --- |
+| Fill | `rgb(96, 49, 241)` | `rgb(107, 58, 237)` |
+| Label | `rgb(255, 255, 255)` | `rgb(250, 250, 253)` |
+| Label on fill | **6.55:1** | 5.84:1 |
+| Fill against page | 2.92:1 | 5.81:1 |
+| Fill against closing CTA band | 2.53:1 | 5.20:1 |
+
+The dark fill is byte-identical to the logo mark's own violet, which was the point.
+Light mode's figures match the pre-change measurements exactly.
+
+**The trade-off, stated plainly.** Using the real logo violet instead of light mode's
+`--primary` improves the label from 6.08:1 to 6.55:1 and costs fill-to-page contrast:
+3.14:1 drops to 2.92:1 on the page, and 2.73:1 to 2.53:1 on the closing band. The page
+figure now misses 3:1 where it previously cleared it. Decision 3 already accepted a
+sub-3:1 fill on the reasoning that the 6.55:1 label and the button's position identify
+the control, and WCAG 1.4.11 asks for 3:1 only on a boundary needed for identification.
+That reasoning holds at 2.92:1, but it is now the only thing holding, so it is worth the
+author's eye on a real display. A hairline ring remains the cheap fix if the edge reads
+too softly, and is listed under Deferred.
