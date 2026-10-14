@@ -22,8 +22,13 @@ Taken against the built page before writing this spec.
 
 | Pair | Ratio | Reading |
 | --- | --- | --- |
-| White text on mark violet | **6.08:1** | Clears AA (4.5:1) |
-| Mark violet fill on dark page `oklch(0.17 0.018 257)` | **2.73:1** | Under 3:1 |
+| White text on mark violet | **6.55:1** | Clears AA (4.5:1) |
+| Mark violet fill on dark page `oklch(0.17 0.018 257)` | **2.92:1** | Under 3:1 |
+| Mark violet fill on the closing CTA band | **2.53:1** | Under 3:1 |
+
+These are the final measured figures for the mark's own violet, `rgb(96, 49, 241)`. The
+draft's 6.08:1 and 2.73:1 were for `oklch(0.526 0.247 287)` and for the closing band
+respectively, and are superseded. See Measured result at the end.
 
 Not yet measured, and required by this spec: white text on the hover fill, the hover fill
 against the page, the disabled state, and the focus indicator.
@@ -210,3 +215,26 @@ the control, and WCAG 1.4.11 asks for 3:1 only on a boundary needed for identifi
 That reasoning holds at 2.92:1, but it is now the only thing holding, so it is worth the
 author's eye on a real display. A hairline ring remains the cheap fix if the edge reads
 too softly, and is listed under Deferred.
+
+## Hover, measured
+
+Dark hover is a solid `color-mix`, so it has no alpha and can be read straight from the
+computed value.
+
+| Dark | Fill | Label on fill | Fill vs page |
+| --- | --- | --- | --- |
+| Rest | `rgb(96, 49, 241)` | 6.55:1 | 2.92:1 |
+| Hover | `rgb(124, 72, 239)` | 5.21:1 | **3.67:1** |
+
+Hover clears the 4.5:1 floor on the label and raises fill-to-page from 2.92:1 to 3.67:1,
+so the button's edge becomes *more* defined under the pointer rather than less. That was
+the point of rejecting `/80` for dark mode.
+
+**Light hover was not validly measured and does not need to be.** Light uses
+`hover:bg-button/80`, whose alpha composites against the page at paint time; reading the
+computed value without compositing reports hover as identical to rest, which is wrong.
+Light mode is unchanged by construction instead: `--button` is `var(--primary)` in
+`:root`, so the emitted light rules are the same colours as before this change, and the
+pre-change and post-change computed values matched on all three CTAs. The separately
+noted light-mode hover label figure of 4.02:1 is existing behaviour, measured from
+composited screenshot pixels, and is untouched here.

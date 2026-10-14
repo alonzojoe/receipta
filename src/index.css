@@ -57,6 +57,8 @@
    * unchanged by construction; .dark gives them their own values. */
   --button: var(--primary);
   --button-foreground: var(--primary-foreground);
+  /* Only consumed by the dark-gated hover utility, so light keeps its own /80 blend. */
+  --button-hover: var(--button);
   --secondary: oklch(0.943 0.028 295);
   --secondary-foreground: oklch(0.33 0.09 287);
   --muted: oklch(0.96 0.006 250);
@@ -163,6 +165,11 @@
    * ink is --primary above. */
   --button: oklch(0.51 0.26 283.4);
   --button-foreground: oklch(1 0 0);
+  /* Hover mixes toward the white label, never toward the page. The /80 blend used in
+   * light mode would fade the fill into this near-black background, making the button's
+   * edge fainter exactly when it is being pointed at - and the edge is already under
+   * 3:1 at rest. */
+  --button-hover: color-mix(in oklch, var(--button), var(--button-foreground) 10%);
   --secondary: oklch(0.28 0.025 257);
   --secondary-foreground: oklch(0.96 0.008 248);
   --muted: oklch(0.27 0.022 257);
@@ -217,6 +224,7 @@
   --color-primary-foreground: var(--primary-foreground);
   --color-button: var(--button);
   --color-button-foreground: var(--button-foreground);
+  --color-button-hover: var(--button-hover);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);

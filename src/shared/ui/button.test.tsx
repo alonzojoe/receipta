@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import { Button } from './button'
+import css from '@/index.css?raw'
 
 const variants = [
   'default',
@@ -60,15 +61,39 @@ describe('Button', () => {
     expect(classes).not.toContain('transition-all')
   })
 
-  it('fills the default variant from the button tokens, not primary', () => {
+  it('fills the default variant from the button tokens', () => {
     render(<Button>press</Button>)
     const classes = screen.getByRole('button').className.split(' ')
 
     expect(classes).toContain('bg-button')
     expect(classes).toContain('text-button-foreground')
-    expect(classes).not.toContain('bg-primary')
-    expect(classes).not.toContain('text-primary-foreground')
-    expect(classes.some((c) => c.startsWith('hover:bg-primary'))).toBe(false)
+    expect(classes).toContain('dark:hover:bg-button-hover')
+  })
+
+  /**
+   * A class name is not a colour. Tailwind inlines `@theme` values into the utilities it
+   * emits, so a token declared only in `:root` never reaches `bg-*` - this project has
+   * shipped that bug twice, once with `--shadow-*` and once here. Asserting the class
+   * alone would pass with no CSS behind it, so the stylesheet is read directly.
+   */
+  it('backs each button utility with a token the theme actually exposes', () => {
+    // Anchored on the at-rule at the start of a line. A plain indexOf('@theme inline')
+    // matches the comment that explains this very class of bug, 90 lines earlier.
+    const block = (head: string) => {
+      const m = new RegExp(`^${head} \\{([\\s\\S]*?)^\\}`, 'm').exec(css)
+      expect(m, `no ${head} block in index.css`).not.toBeNull()
+      return m![1]
+    }
+
+    const theme = block('@theme inline')
+    for (const name of ['button', 'button-foreground', 'button-hover']) {
+      expect(theme).toContain(`--color-${name}: var(--${name});`)
+    }
+
+    const dark = block('\\.dark')
+    expect(dark).toMatch(/--button:\s*oklch\(/)
+    expect(dark).toMatch(/--button-foreground:\s*oklch\(/)
+    expect(dark).toMatch(/--button-hover:\s*color-mix\(/)
   })
 
   it('exposes variant and size as data attributes', () => {
