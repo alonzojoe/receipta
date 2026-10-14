@@ -6,19 +6,20 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/shared/ui/accordion'
-import { default_open_id, questions } from '../model/questions'
+import { questions } from '../model/questions'
 
 /**
  * A plain list on the section's own tinted surface: no per-item background, no shadow,
- * hairline borders between rows (each row's separator is owned by AccordionItem; the list
- * only adds the top edge). The author asked for rows that inherit the section.
+ * hairline borders between rows. The author asked for rows that inherit the section.
  *
  * With no surface to shift, hover is carried by the text and the plus-minus icon turning to the
  * brand colour. The focus ring is inset on the trigger, so it can never be clipped by
  * the row or the section.
  */
+const item_class = 'border-b border-border'
+
 const trigger_class =
-  'min-h-11 rounded-lg px-3 py-5 text-base font-medium tracking-tight text-foreground hover:text-primary focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring'
+  'min-h-11 rounded-lg px-3 py-5 text-base font-medium tracking-tight text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring [@media(hover:hover)]:hover:text-primary [@media(hover:hover)]:hover:[&_[data-slot=accordion-trigger-icon]]:text-primary [&_svg]:size-5 [&_[data-slot=accordion-trigger-icon]]:mt-0.5'
 
 const content_class = 'px-3 pb-5 text-muted-foreground'
 
@@ -40,11 +41,11 @@ export function HomeFaq() {
         <Accordion
           type="single"
           collapsible
-          defaultValue={default_open_id}
+          defaultValue={questions[0].id}
           className="mx-auto mt-12 max-w-3xl border-t border-border"
         >
           {questions.map((item) => (
-            <AccordionItem key={item.id} value={item.id}>
+            <AccordionItem key={item.id} value={item.id} className={item_class}>
               <AccordionTrigger className={trigger_class}>{item.question}</AccordionTrigger>
               <AccordionContent className={content_class}>{item.answer}</AccordionContent>
             </AccordionItem>

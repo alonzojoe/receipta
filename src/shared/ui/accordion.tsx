@@ -23,7 +23,7 @@ function AccordionItem({
   return (
     <AccordionPrimitive.Item
       data-slot="accordion-item"
-      className={cn("border-b border-border", className)}
+      className={cn("not-last:border-b", className)}
       {...props}
     />
   )
@@ -48,12 +48,12 @@ function AccordionTrigger({
         <span
           aria-hidden="true"
           data-slot="accordion-trigger-icon"
-          className="pointer-events-none relative mt-0.5 shrink-0 text-muted-foreground transition-colors duration-150 ease-out group-hover/accordion-trigger:text-primary"
+          className="pointer-events-none relative shrink-0 text-muted-foreground transition-colors duration-150 ease-out"
         >
           {/* Plus and minus are stacked and crossfaded. Only opacity and transform move;
               the rotation is dropped under reduced motion, the fade is kept. */}
-          <LuPlus className="size-5 transition-opacity duration-200 ease-out group-aria-expanded/accordion-trigger:opacity-0 motion-safe:transition-[opacity,transform] motion-safe:group-aria-expanded/accordion-trigger:rotate-90" />
-          <LuMinus className="size-5 absolute inset-0 opacity-0 transition-opacity duration-200 ease-out group-aria-expanded/accordion-trigger:opacity-100 motion-safe:transition-[opacity,transform] motion-safe:-rotate-90 motion-safe:group-aria-expanded/accordion-trigger:rotate-0" />
+          <LuPlus className="transition-opacity duration-200 ease-out group-aria-expanded/accordion-trigger:opacity-0 motion-safe:transition-[opacity,transform] motion-safe:group-aria-expanded/accordion-trigger:rotate-90" />
+          <LuMinus className="absolute inset-0 opacity-0 transition-opacity duration-200 ease-out group-aria-expanded/accordion-trigger:opacity-100 motion-safe:transition-[opacity,transform] motion-safe:-rotate-90 motion-safe:group-aria-expanded/accordion-trigger:rotate-0" />
         </span>
       </AccordionPrimitive.Trigger>
     </AccordionPrimitive.Header>

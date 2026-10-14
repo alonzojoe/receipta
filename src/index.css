@@ -314,11 +314,10 @@
  * panel is still short. Both run 200ms ease-out, no delay: this is a control people use
  * to read, and it should feel immediate.
  *
- * Radix keeps a closing panel's content mounted until animationend, then removes the
- * children and sets `hidden` on the role="region" element, which itself stays in the
- * DOM. The answer text leaves the accessibility tree; the empty region does not
- * disappear. Applied only under `motion-safe:`, so under reduced motion there is no
- * animation and the content is removed on the same frame the state flips.
+ * Radix keeps a closing panel mounted until animationend, then unmounts it. That is
+ * what takes a collapsed answer out of the accessibility tree. Applied only under
+ * `motion-safe:`, so under reduced motion there is no animation and the panel is
+ * removed on the same frame the state flips.
  */
 @keyframes accordion-reveal {
   from {
