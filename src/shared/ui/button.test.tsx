@@ -87,7 +87,9 @@ describe('Button', () => {
 
     const theme = block('@theme inline')
     for (const name of ['button', 'button-foreground', 'button-hover']) {
-      expect(theme).toContain(`--color-${name}: var(--${name});`)
+      // Anchored, not a substring: a declaration commented out with // or wrapped in
+      // /* */ still satisfies toContain while contributing nothing to the build.
+      expect(theme).toMatch(new RegExp(`^\\s*--color-${name}:\\s*var\\(--${name}\\);`, 'm'))
     }
 
     const dark = block('\\.dark')
