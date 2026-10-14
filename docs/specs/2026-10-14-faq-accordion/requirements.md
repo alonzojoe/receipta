@@ -104,12 +104,12 @@ now carries a hover state.
 
 ## Acceptance criteria
 
-1. The FAQ renders six question rows in the original order with unchanged text, verified by a test that compares rendered question and answer text against the source data.
+1. The FAQ renders six question rows in the original order, verified by a test that compares rendered question and answer text against the source data. One copy change is authorised by the author: `customers names` becomes `customers’ names`, fixing a missing apostrophe so it matches the privacy page. No other wording changes.
 2. Each question is a `<button>` inside a heading element, verified by a test querying `getByRole('button', { name: <question> })` for all six.
 3. On load the first item's button has `aria-expanded="true"` and the other five have `aria-expanded="false"`.
 4. Clicking a collapsed item sets its `aria-expanded` to `true` and sets the previously open item's to `false`. At most one is `true` at any time.
 5. Clicking the open item sets its `aria-expanded` to `false`, leaving none open.
-6. Each button's `aria-controls` resolves to an element with `role="region"` whose `aria-labelledby` points back to that button.
+6. While an item is open, its button's `aria-controls` resolves to an element with `role="region"` whose `aria-labelledby` points back to that button. A collapsed button may omit `aria-controls`: Radix sets it only while the panel is open, and referencing a hidden element would be worse than omitting it.
 7. A collapsed item's answer is not exposed: `getByText(<answer>)` is absent or `not.toBeVisible()`, and the answer is not in the accessibility tree.
 8. Enter and Space on a focused button toggle it. Down/Up Arrow, Home and End move focus between question buttons. Each is covered by a test using `userEvent`.
 9. After toggling by keyboard, `document.activeElement` is still the same button.
