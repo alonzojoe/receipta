@@ -1,48 +1,27 @@
 import { Reveal } from '@/shared/ui/reveal'
 import { Section } from '@/shared/ui/section'
-
-type Question = {
-  question: string
-  answer: string
-}
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/shared/ui/accordion'
+import { questions } from '../model/questions'
 
 /**
- * The BIR question is deliberately first among the hard ones and answered plainly.
- * Receipta produces a proof-of-payment document, not a registered official receipt,
- * and a tool that lets someone believe otherwise would be doing real harm.
+ * A plain list on the section's own tinted surface: no per-item background, no shadow,
+ * hairline borders between rows. The author asked for rows that inherit the section.
+ *
+ * With no surface to shift, hover is carried by the text and the plus-minus icon turning to the
+ * brand colour. The focus ring is inset on the trigger, so it can never be clipped by
+ * the row or the section.
  */
-const questions: readonly Question[] = [
-  {
-    question: 'Is it really free?',
-    answer:
-      'Yes. There is no account, no trial, and no paid tier. Receipta runs entirely in your browser, so there is nothing for us to bill you for.',
-  },
-  {
-    question: 'Is this a BIR official receipt?',
-    answer:
-      'No, and it should not be used as one. An official receipt has registration, numbering, and retention requirements that this tool does not meet. Receipta produces a proof-of-payment document you can send a customer, not a tax document.',
-  },
-  {
-    question: 'Where is my data stored?',
-    answer:
-      'On your device, and nowhere else. Your customers names, your amounts, and your item photos never leave your browser. There is no server to send them to.',
-  },
-  {
-    question: 'Do I need an account?',
-    answer:
-      'No. Open it, fill it in, export the receipt. Nothing to sign up for and nothing to remember.',
-  },
-  {
-    question: 'Can I use it for my small business?',
-    answer:
-      'Yes. Issue under a company name or your own name, whichever fits. Just remember it is a courtesy receipt, not a substitute for whatever your business is required to issue.',
-  },
-  {
-    question: 'What if I get paid in cash?',
-    answer:
-      'That works too. Pick the payment method that matches, and leave the reference number blank when there is no transaction to point at.',
-  },
-]
+const item_class = 'border-b border-border'
+
+const trigger_class =
+  'min-h-11 rounded-lg px-3 py-5 text-base font-medium tracking-tight text-foreground transition-colors focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring [@media(hover:hover)]:hover:text-primary [@media(hover:hover)]:hover:[&_[data-slot=accordion-trigger-icon]]:text-primary [&_svg]:size-5 [&_[data-slot=accordion-trigger-icon]]:mt-0.5'
+
+const content_class = 'px-3 pb-5 text-muted-foreground'
 
 export function HomeFaq() {
   return (
@@ -58,16 +37,21 @@ export function HomeFaq() {
         </div>
       </Reveal>
 
-      <dl className="mx-auto mt-12 grid max-w-3xl gap-4 sm:grid-cols-2">
-        {questions.map((item, index) => (
-          <Reveal key={item.question} delay={index * 50}>
-            <div className="flex h-full flex-col gap-2 rounded-xl border border-border bg-card p-6 shadow-sm">
-              <dt className="text-base font-medium tracking-tight">{item.question}</dt>
-              <dd className="text-sm text-muted-foreground">{item.answer}</dd>
-            </div>
-          </Reveal>
-        ))}
-      </dl>
+      <Reveal>
+        <Accordion
+          type="single"
+          collapsible
+          defaultValue={questions[0].id}
+          className="mx-auto mt-12 max-w-3xl border-t border-border"
+        >
+          {questions.map((item) => (
+            <AccordionItem key={item.id} value={item.id} className={item_class}>
+              <AccordionTrigger className={trigger_class}>{item.question}</AccordionTrigger>
+              <AccordionContent className={content_class}>{item.answer}</AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </Reveal>
     </Section>
   )
 }

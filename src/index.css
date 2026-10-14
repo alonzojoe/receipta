@@ -247,6 +247,8 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --animate-accordion-reveal: accordion-reveal 200ms var(--ease-out);
+  --animate-accordion-conceal: accordion-conceal 200ms var(--ease-out);
 }
 
 @layer components {
@@ -299,6 +301,43 @@
   }
   to {
     transform: translateX(-50%);
+  }
+}
+
+/*
+ * Accordion. Height is animated on purpose: the rows below must move to make room, and
+ * that is layout by definition. A transform would leave a gap or an overlap and the
+ * rows would jump when it finished. Radix measures the panel once and exposes
+ * --radix-accordion-content-height, so nothing here measures per frame.
+ *
+ * Opacity rides along with height so the text does not get clipped mid-line while the
+ * panel is still short. Both run 200ms ease-out, no delay: this is a control people use
+ * to read, and it should feel immediate.
+ *
+ * Radix keeps a closing panel mounted until animationend, then unmounts it. That is
+ * what takes a collapsed answer out of the accessibility tree. Applied only under
+ * `motion-safe:`, so under reduced motion there is no animation and the panel is
+ * removed on the same frame the state flips.
+ */
+@keyframes accordion-reveal {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+}
+
+@keyframes accordion-conceal {
+  from {
+    height: var(--radix-accordion-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
   }
 }
 
