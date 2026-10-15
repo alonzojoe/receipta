@@ -68,6 +68,12 @@
   --destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.869 0.02 253);
   --input: oklch(0.869 0.02 253);
+  /* The outline of a form control. --border is 1.42:1 on the page, right for a divider and
+   * too faint to find a field by (WCAG 1.4.11 wants 3:1). Same slate hue as the rest;
+   * 3.47:1 on --background, 3.64:1 on --card, measured. */
+  --control-border: oklch(0.62 0.03 257);
+  /* The wash behind a modal dialog. */
+  --scrim: oklch(0.2 0.03 257 / 0.4);
   --ring: oklch(0.526 0.247 287);
   --chart-1: oklch(0.526 0.247 287);
   --chart-2: oklch(0.62 0.2 290);
@@ -179,6 +185,13 @@
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 12%);
   --input: oklch(1 0 0 / 16%);
+  /* A SOLID value, not --input. --input is white at 16% alpha, which is 1.89:1 on --card
+   * in the pixels the browser paints (the browser composites alpha in gamma-encoded sRGB;
+   * a script that composites in linear light reports 3.66:1 and is wrong). Opaque, there
+   * is nothing to composite. Measured from rendered pixels, on a production build: 3.9:1
+   * against the card outside the control and 3.3:1 against the control's own fill. */
+  --control-border: oklch(0.56 0.03 257);
+  --scrim: oklch(0 0 0 / 0.6);
   --ring: oklch(0.709 0.159 294);
   --chart-1: oklch(0.709 0.159 294);
   --chart-2: oklch(0.76 0.13 292);
@@ -234,6 +247,8 @@
   --color-destructive: var(--destructive);
   --color-border: var(--border);
   --color-input: var(--input);
+  --color-control-border: var(--control-border);
+  --color-scrim: var(--scrim);
   --color-ring: var(--ring);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);

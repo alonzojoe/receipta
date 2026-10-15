@@ -32,11 +32,11 @@ describe('router', () => {
     ).toBeInTheDocument()
   })
 
-  it('renders the builder placeholder at /create', async () => {
+  it('renders the receipt wizard at /create', async () => {
     render_at('/create')
 
     expect(
-      await screen.findByRole('heading', { name: /receipt builder is next/i }),
+      await screen.findByRole('heading', { level: 1, name: /create a receipt/i }),
     ).toBeInTheDocument()
   })
 

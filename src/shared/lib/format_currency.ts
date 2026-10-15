@@ -7,3 +7,12 @@ const peso = new Intl.NumberFormat('en-PH', {
 export function format_currency(amount: number) {
   return peso.format(amount)
 }
+
+/**
+ * Formats an integer number of centavos: 123450 -> "₱1,234.50". Money is carried as
+ * integers everywhere else, so this is the single place centavos meet the formatter.
+ * Still the one `Intl.NumberFormat`.
+ */
+export function format_centavos(centavos: number) {
+  return format_currency(centavos / 100)
+}

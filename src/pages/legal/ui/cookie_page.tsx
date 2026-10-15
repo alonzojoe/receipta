@@ -64,22 +64,24 @@ export function CookiePage() {
           </section>
 
           <section>
-            <h2>What is not stored</h2>
+            <h2>What is never sent anywhere</h2>
             <p>
-              Your receipts are not saved. The names, amounts, payment details and
-              photos you enter live in the page&rsquo;s memory while it is open and are
-              discarded when you close the tab. Nothing about your receipts is written
-              to local storage, and nothing is uploaded.
+              Your receipt draft is stored on your device, as the table above says. It is
+              not uploaded. Receipta has no server, so the names, amounts, payment
+              details and photos you enter stay in your browser and are never sent to us
+              or to anyone else.
             </p>
           </section>
 
           <section>
             <h2>Clearing it</h2>
             <p>
-              Clear site data for Receipta in your browser settings and the stored
-              preference goes with it. Private or incognito browsing discards it when
-              you close the window. Removing it only means the app forgets your theme
-              choice next time.
+              Use Clear draft on the receipt form to delete the saved draft, photos
+              included. Clear site data for Receipta in your browser settings and both
+              items above go with it. Private or incognito browsing discards them when
+              you close the window. Removing the theme only means the app forgets your
+              choice next time. Removing the draft means the receipt you were working on
+              is gone.
             </p>
           </section>
 
