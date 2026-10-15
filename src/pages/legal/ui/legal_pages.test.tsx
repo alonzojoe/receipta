@@ -12,6 +12,7 @@ import { home_route } from '@/app/routes/home_route'
 import { privacy_route } from '@/app/routes/privacy_route'
 import { root_route } from '@/app/routes/root_route'
 import { terms_route } from '@/app/routes/terms_route'
+import { draft_storage_key } from '@/shared/config/draft_storage_key'
 import { legal_last_updated, stored_items } from '@/shared/config/legal'
 import { theme_storage_key } from '@/shared/config/theme'
 
@@ -107,6 +108,72 @@ describe('legal pages', () => {
 
   it('keeps the inventory honest about the theme key the app actually writes', () => {
     expect(stored_items.map((item) => item.key)).toContain(theme_storage_key)
+  })
+
+  it('lists the receipt draft in the cookie table, under the key the code writes', async () => {
+    const { container } = render_at('/cookies')
+    await screen.findByRole('heading', { level: 1 })
+
+    const table = container.querySelector('table') as HTMLElement
+    expect(within(table).getByText(draft_storage_key)).toBeInTheDocument()
+    expect(stored_items.map((item) => item.key)).toEqual(
+      expect.arrayContaining([theme_storage_key, draft_storage_key]),
+    )
+    expect(table.querySelectorAll('tbody tr')).toHaveLength(2)
+  })
+
+  describe('the stored-data claims stay true now that a draft is saved', () => {
+    // Each of these was published before the receipt draft existed and is false now.
+    const retired_claims = [
+      /your receipts are not saved/i,
+      /a single preference/i,
+      /that is the complete list/i,
+      /not written to local storage/i,
+      /nothing about your receipts is written/i,
+      /closing the tab discards/i,
+      /discarded when you close the tab/i,
+      /held in your browser.s memory while the page is open/i,
+    ]
+
+    it.each(['/privacy', '/cookies'])('%s makes none of the retired claims', async (path) => {
+      const { container } = render_at(path)
+      await screen.findByRole('heading', { level: 1 })
+      const text = container.querySelector('main')?.textContent ?? ''
+
+      expect(text.length).toBeGreaterThan(500)
+      for (const claim of retired_claims) {
+        expect(text).not.toMatch(claim)
+      }
+    })
+
+    it.each(['/privacy', '/cookies'])('%s discloses the saved draft and Clear draft', async (path) => {
+      const { container } = render_at(path)
+      await screen.findByRole('heading', { level: 1 })
+      const text = container.querySelector('main')?.textContent ?? ''
+
+      expect(text).toMatch(/receipt draft/i)
+      expect(text).toMatch(/clear draft/i)
+      expect(text).toMatch(/photos/i)
+    })
+
+    it.each([
+      { path: '/privacy', heading: /removing your data/i },
+      { path: '/cookies', heading: /clearing it/i },
+    ])('$path tells the reader how to remove the draft in the section about removal', async ({ path, heading }) => {
+      render_at(path)
+      const section = (await screen.findByRole('heading', { name: heading })).closest('section')
+
+      expect(section?.textContent).toMatch(/clear draft/i)
+    })
+
+    it('the privacy page says the draft is unencrypted and never sent anywhere', async () => {
+      render_at('/privacy')
+      await screen.findByRole('heading', { level: 1 })
+      const text = document.querySelector('main')?.textContent ?? ''
+
+      expect(text).toMatch(/not encrypted/i)
+      expect(text).toMatch(/never sent to us or anyone else/i)
+    })
   })
 
   it.each(pages)('leaves no placeholder links on $path', async ({ path }) => {
