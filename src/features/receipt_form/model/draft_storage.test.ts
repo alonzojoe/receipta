@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { draft_max_chars } from '@/entities/receipt'
 import { draft_storage_key } from '@/shared/config/draft_storage_key'
+import { stored_items } from '@/shared/config/legal'
 import { make_item, make_valid_values, tiny_jpeg } from '@/test/receipt_fixtures'
 
 import { draft_version, parse_draft, type Draft } from './draft_schema'
@@ -41,6 +42,19 @@ describe('the storage key', () => {
   it('is the key write_draft uses', () => {
     write_draft(make_draft())
     expect(window.localStorage.getItem('receipta:draft:v1')).not.toBeNull()
+  })
+
+  it('is published in the stored-items inventory the Privacy and Cookie pages read', () => {
+    expect(stored_items.map((item) => item.key)).toContain(draft_storage_key)
+  })
+
+  it('is the only key a saved draft writes, and the inventory lists it', () => {
+    write_draft(make_draft())
+    const written = Object.keys(window.localStorage)
+    expect(written).toEqual([draft_storage_key])
+    for (const key of written) {
+      expect(stored_items.map((item) => item.key)).toContain(key)
+    }
   })
 })
 

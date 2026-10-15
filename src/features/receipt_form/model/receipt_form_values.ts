@@ -4,6 +4,11 @@ export type PartyType = 'individual' | 'organization'
 
 export const party_types: readonly PartyType[] = ['individual', 'organization']
 
+export const party_type_labels: Record<PartyType, string> = {
+  individual: 'Individual',
+  organization: 'Organization',
+}
+
 /** Payment method values that are not an institution id. */
 export const cash_method = 'cash'
 export const other_method = 'other'
