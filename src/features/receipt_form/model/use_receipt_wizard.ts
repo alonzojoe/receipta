@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
+import { clear_attempted_steps, mark_step_attempted } from './field_validators'
 import type { ReceiptFormApi } from './use_receipt_form'
 import {
   step_labels,
@@ -62,14 +63,17 @@ export function useReceiptWizard(form: ReceiptFormApi, initial_step: StepNumber)
   }, [invalid_request])
 
   const go_to = useCallback((number: StepNumber) => {
+    clear_attempted_steps(form)
     set_navigated(true)
     set_announcement(announcement_for(number))
     set_step_number(number)
-  }, [])
+  }, [form])
 
   const next = useCallback(async () => {
     if (step_number === last_step) return
     const errors = validate_step(step_name, form.state.values, new Date())
+    // Before validating: from this press on, the step's fields are live.
+    mark_step_attempted(form, step_name)
     await form.validateAllFields('submit')
     if (Object.keys(errors).length === 0) {
       go_to((step_number + 1) as StepNumber)
@@ -84,10 +88,11 @@ export function useReceiptWizard(form: ReceiptFormApi, initial_step: StepNumber)
 
   /** Resets to step 1 with no announcement: Clear draft announces itself with a toast. */
   const reset = useCallback(() => {
+    clear_attempted_steps(form)
     set_navigated(false)
     set_announcement('')
     set_step_number(1)
-  }, [])
+  }, [form])
 
   return {
     step_number,

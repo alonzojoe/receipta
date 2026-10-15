@@ -163,6 +163,43 @@ describe('when errors appear', () => {
     expect(screen.getAllByText('Full name is required')).toHaveLength(1)
   })
 
+  it('keeps reporting a field that was fixed and then broken again (the step stays live)', async () => {
+    const { user } = render_form()
+    const [issuer, recipient] = screen.getAllByLabelText('Full name')
+    await user.click(next())
+    expect(screen.getAllByText('Full name is required')).toHaveLength(2)
+
+    // Fixed: the message goes. TanStack drops the field's submit error here, which is
+    // exactly what used to make it fall silent for good.
+    await user.type(issuer, 'J')
+    expect(issuer).not.toHaveAttribute('aria-invalid')
+    expect(screen.getAllByText('Full name is required')).toHaveLength(1)
+
+    // Broken again, with no second press of Next.
+    await user.clear(issuer)
+    expect(issuer).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getAllByText('Full name is required')).toHaveLength(2)
+
+    // And again, to show it is not a one-off.
+    await user.type(issuer, 'J')
+    await user.clear(issuer)
+    expect(issuer).toHaveAttribute('aria-invalid', 'true')
+
+    // A field that was valid when Next was pressed is live too.
+    await user.type(issuer, 'J')
+    await user.type(recipient, 'A')
+    await user.clear(recipient)
+    expect(recipient).toHaveAttribute('aria-invalid', 'true')
+  })
+
+  it('stays quiet about a step until Next has been pressed on it', async () => {
+    const { user } = render_form()
+    const [issuer] = screen.getAllByLabelText('Full name')
+    await user.type(issuer, 'J')
+    await user.clear(issuer)
+    expect(issuer).not.toHaveAttribute('aria-invalid')
+  })
+
   it('starts a revisited step quiet', async () => {
     seed_draft(1, make_valid_values({ items: [make_item({ price: '' })] }))
     const { user } = render_form()

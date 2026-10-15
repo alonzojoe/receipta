@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { make_jpeg_bytes } from '@/test/image_fixtures'
 import { render_form, whole_flow_timeout } from '@/test/receipt_form_harness'
 
 // jsdom cannot decode or encode an image, so the browser adapter is replaced by a fake
@@ -75,7 +76,7 @@ describe('Back keeps everything (criterion 7), typed through the UI', () => {
     await user.type(control('items[1].price'), '20')
     await user.type(control('discount'), '10')
     fireEvent.change(document.querySelector<HTMLInputElement>('input[type=file]')!, {
-      target: { files: [new File([new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 0x10])], 'a.jpg', { type: 'image/jpeg' })] },
+      target: { files: [new File([Uint8Array.from(make_jpeg_bytes(400, 300))], 'a.jpg', { type: 'image/jpeg' })] },
     })
     await waitFor(() => expect(document.querySelector(`img[src="${photo}"]`)).not.toBeNull())
     const items = read_step('Items')

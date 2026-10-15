@@ -40,7 +40,7 @@ type FormFieldProps = {
  *
  * It shows whatever errors the field holds and decides nothing about when they appear:
  * `step_validators` makes a field speak only after the step's button is pressed, then
- * keeps a failed field live until it is fixed.
+ * keeps every field of that step live.
  */
 export function FormField({
   field,
