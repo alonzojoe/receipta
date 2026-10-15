@@ -46,6 +46,7 @@ export function ItemsStep({ form }: ItemsStepProps) {
                     key={item.id}
                     form={form}
                     index={index}
+                    item_id={item.id}
                     can_remove={!only_one}
                     remove_reason_id={remove_reason_id}
                     on_remove={() => {

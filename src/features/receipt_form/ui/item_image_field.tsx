@@ -15,6 +15,8 @@ import { FormField } from './form_field'
 type ItemImageFieldProps = {
   form: ReceiptFormApi
   index: number
+  /** The item's id. A photo is written by id, because its row can move or go while it processes. */
+  item_id: string
 }
 
 const accepted_types = 'image/jpeg,image/png,image/webp'
@@ -26,7 +28,7 @@ const accepted_types = 'image/jpeg,image/png,image/webp'
  * alone. Attaching checks the draft as it would be with the new photo, so the user hears
  * "no" while looking at the thing they are attaching.
  */
-export function ItemImageField({ form, index }: ItemImageFieldProps) {
+export function ItemImageField({ form, index, item_id }: ItemImageFieldProps) {
   const number = index + 1
   const trigger_ref = useRef<HTMLButtonElement>(null)
   const file_ref = useRef<HTMLInputElement>(null)
@@ -43,6 +45,9 @@ export function ItemImageField({ form, index }: ItemImageFieldProps) {
           api.setErrorMap({ onChange: message })
         }
 
+        /** Where this item is now, or -1 if its row was removed. Read at write time, never captured. */
+        const current_index = () => form.state.values.items.findIndex((item) => item.id === item_id)
+
         async function attach(file: File) {
           refuse(undefined)
           const budget = attach_budget(form.state.values, index)
@@ -52,12 +57,16 @@ export function ItemImageField({ form, index }: ItemImageFieldProps) {
           set_processing(true)
           try {
             const result = await process_image(file, canvas_codec)
+            // The row may have been removed or moved while this ran. Resolve it by id now;
+            // if it is gone the result is dropped, not written to whatever took its place.
+            const at = current_index()
+            if (at === -1) return
             if (!result.ok) return refuse(image_refusal_messages[result.reason])
             // Measured again after processing: the form may have changed while it ran.
-            const fresh = attach_budget(form.state.values, index)
+            const fresh = attach_budget(form.state.values, at)
             const room = check_attach(fresh.image_count, fresh.draft_length, result.data_url.length)
             if (!room.ok) return refuse(image_refusal_messages[room.reason])
-            field.handleChange(result.data_url)
+            form.setFieldValue(`items[${at}].image`, result.data_url)
           } finally {
             set_processing(false)
           }

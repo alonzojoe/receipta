@@ -13,6 +13,7 @@ import { ItemImageField } from './item_image_field'
 type ItemRowProps = {
   form: ReceiptFormApi
   index: number
+  item_id: string
   /** False for the last remaining item: it cannot be removed. */
   can_remove: boolean
   /** The id of the hint that says why Remove is unavailable. */
@@ -25,7 +26,7 @@ type ItemRowProps = {
  * photo and Remove. `min-w-0` and `break-words` let a 100-character name wrap instead of
  * pushing the row wider than the screen.
  */
-export function ItemRow({ form, index, can_remove, remove_reason_id, on_remove }: ItemRowProps) {
+export function ItemRow({ form, index, item_id, can_remove, remove_reason_id, on_remove }: ItemRowProps) {
   const path = `items[${index}]` as const
   const number = index + 1
 
@@ -100,7 +101,7 @@ export function ItemRow({ form, index, can_remove, remove_reason_id, on_remove }
         }}
       </form.Subscribe>
 
-      <ItemImageField form={form} index={index} />
+      <ItemImageField form={form} index={index} item_id={item_id} />
     </li>
   )
 }

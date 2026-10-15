@@ -1,8 +1,9 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { make_jpeg_bytes, make_png_bytes } from '@/test/image_fixtures'
 import { make_item, make_valid_values, tiny_jpeg } from '@/test/receipt_fixtures'
-import { render_form, seed_draft } from '@/test/receipt_form_harness'
+import { read_stored_draft, render_form, seed_draft } from '@/test/receipt_form_harness'
 
 import { draft_max_chars } from '@/entities/receipt'
 
@@ -10,12 +11,17 @@ import { draft_max_chars } from '@/entities/receipt'
 // fake codec. The real pipeline (size check, byte sniffing, the quality ladder) still runs
 // around it. WHAT THIS DOES NOT PROVE: that a real file is decoded, oriented and flattened.
 // That was checked in a real browser, not here.
-const { encode } = vi.hoisted(() => ({
+const { encode, stall } = vi.hoisted(() => ({
   encode: vi.fn(async () => ({ data_url: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ==', bytes: 100 })),
+  // When `gate` is set, decode waits for it: a photo that is "still processing".
+  stall: { gate: null as Promise<void> | null },
 }))
 vi.mock('../lib/canvas_image', () => ({
   canvas_codec: {
-    decode: async () => ({ width: 400, height: 300, handle: {} }),
+    decode: async () => {
+      if (stall.gate) await stall.gate
+      return { width: 400, height: 300, handle: {} }
+    },
     encode,
     release: () => {},
   },
@@ -24,9 +30,10 @@ vi.mock('../lib/canvas_image', () => ({
 beforeEach(() => {
   localStorage.clear()
   encode.mockClear()
+  stall.gate = null
 })
 
-const jpeg_bytes = [0xff, 0xd8, 0xff, 0xe0, 0, 0x10]
+const jpeg_bytes = make_jpeg_bytes(400, 300)
 const file_input = () => document.querySelector<HTMLInputElement>('input[type=file]')!
 const file_of = (bytes: number[] | string, name: string, type = 'image/jpeg') =>
   new File([typeof bytes === 'string' ? bytes : new Uint8Array(bytes)], name, { type })
@@ -74,6 +81,13 @@ describe('ItemImageField', () => {
     expect(encode).not.toHaveBeenCalled()
   })
 
+  it('refuses a tiny PNG that declares 60000 x 60000 pixels, naming the reason, before decoding', async () => {
+    attach(file_of(make_png_bytes(60_000, 60_000), 'bomb.png', 'image/png'))
+    await waitFor(() => expect(errors().join(' ')).toMatch(/50 megapixels/))
+    expect(encode).not.toHaveBeenCalled()
+    expect(document.querySelector('img[src^="data:image/jpeg"]')).toBeNull()
+  })
+
   it('removes the photo, clears it from the draft on the next save, and returns focus to the attach button', async () => {
     attach(file_of(jpeg_bytes, 'a.jpg'))
     await screen.findByRole('button', { name: 'Remove photo from item 1' })
@@ -119,5 +133,68 @@ describe('ItemImageField limits', () => {
     attach(file_of(jpeg_bytes, 'a.jpg'), document.querySelectorAll<HTMLInputElement>('input[type=file]')[9])
     await waitFor(() => expect(errors().join(' ')).toMatch(/no room left/))
     expect(document.querySelectorAll('img[src^="data:image/jpeg"]')).toHaveLength(9)
+  })
+})
+
+describe('ItemImageField while a photo is still processing', () => {
+  const two_items = () =>
+    seed_draft(
+      2,
+      make_valid_values({
+        items: [make_item({ id: 'a', name: 'First' }), make_item({ id: 'b', name: 'Second' })],
+      }),
+    )
+
+  /** Starts a photo on item 2 and holds it in decode until `release` is called. */
+  function start_stalled_attach() {
+    let release = () => {}
+    stall.gate = new Promise<void>((resolve) => (release = resolve))
+    attach(file_of(jpeg_bytes, 'a.jpg'), document.querySelectorAll<HTMLInputElement>('input[type=file]')[1])
+    return release
+  }
+
+  /** Unmounting flushes the autosave, so the stored draft is the form's final values. */
+  function final_items() {
+    view.unmount()
+    return read_stored_draft()!.values.items
+  }
+
+  it('drops the photo when its own row was removed meanwhile, leaving no item without an id', async () => {
+    two_items()
+    view = render_form()
+    const release = start_stalled_attach()
+    await view.user.click(screen.getByRole('button', { name: 'Remove item 2' }))
+    release()
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Add photo for item 1' })).not.toHaveAttribute('aria-disabled'))
+    await new Promise((resolve) => setTimeout(resolve, 20))
+
+    const items = final_items()
+    expect(items).toHaveLength(1)
+    expect(items[0]).toMatchObject({ id: 'a', name: 'First', image: null })
+  })
+
+  it('still lets Next work after that, because no malformed item exists', async () => {
+    two_items()
+    view = render_form()
+    const release = start_stalled_attach()
+    await view.user.click(screen.getByRole('button', { name: 'Remove item 2' }))
+    release()
+    await new Promise((resolve) => setTimeout(resolve, 20))
+    await view.user.click(screen.getByRole('button', { name: /next/i }))
+    expect(await screen.findByRole('heading', { name: /payment/i })).toBeInTheDocument()
+  })
+
+  it('puts the photo on the same item when an earlier row is removed meanwhile', async () => {
+    two_items()
+    view = render_form()
+    const release = start_stalled_attach()
+    await view.user.click(screen.getByRole('button', { name: 'Remove item 1' }))
+    release()
+    await waitFor(() => expect(document.querySelector('img[src^="data:image/jpeg"]')).not.toBeNull())
+
+    const items = final_items()
+    expect(items).toHaveLength(1)
+    expect(items[0]).toMatchObject({ id: 'b', name: 'Second' })
+    expect(items[0].image).toMatch(/^data:image\/jpeg/)
   })
 })
