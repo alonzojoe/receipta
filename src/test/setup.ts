@@ -43,3 +43,15 @@ class IntersectionObserverStub implements IntersectionObserver {
 }
 
 window.IntersectionObserver = IntersectionObserverStub
+
+// jsdom has no layout, so it does not implement scrollIntoView. The wizard scrolls the new
+// step's heading into view, and cmdk scrolls the active option, so both need the stub.
+Element.prototype.scrollIntoView = vi.fn()
+
+// cmdk observes its list's size. jsdom has no ResizeObserver.
+class ResizeObserverStub implements ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+window.ResizeObserver = ResizeObserverStub
