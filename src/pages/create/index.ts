@@ -1,1 +1,1 @@
-export { CreatePlaceholderPage } from './ui/create_placeholder_page'
+export { CreatePage } from './ui/create_page'
