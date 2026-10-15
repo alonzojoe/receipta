@@ -1,10 +1,11 @@
 import { describe, expect, it, vi, type Mock } from 'vitest'
 
 import { image_max_bytes } from '@/entities/receipt'
+import { make_jpeg_bytes, make_png_bytes } from '@/test/image_fixtures'
 
 import { process_image, type ImageCodec } from './image_pipeline'
 
-const jpeg_head = [0xff, 0xd8, 0xff, 0xe0, 0, 0x10]
+const jpeg_head = make_jpeg_bytes(4000, 3000)
 
 function make_file(head: number[] = jpeg_head, name = 'photo.jpg') {
   return new File([Uint8Array.from(head)], name, { type: 'image/jpeg' })
@@ -143,6 +144,52 @@ describe('process_image: refusals before decoding', () => {
     const result = await process_image(make_file(head, 'photo.jpg'), codec)
 
     expect(result).toEqual({ ok: false, reason })
+    expect(codec.decode).not.toHaveBeenCalled()
+  })
+})
+
+describe('process_image: the pixel budget, checked from the header before decoding', () => {
+  const refused_unread = async (bytes: number[], name: string) => {
+    const codec = make_codec(() => 1)
+    const file = new File([Uint8Array.from(bytes)], name)
+    return { result: await process_image(file, codec), codec }
+  }
+
+  it('refuses a tiny PNG that declares 60000 x 60000 pixels, without decoding', async () => {
+    const bytes = make_png_bytes(60_000, 60_000)
+    expect(bytes.length).toBeLessThan(100)
+    const { result, codec } = await refused_unread(bytes, 'bomb.png')
+    expect(result).toEqual({ ok: false, reason: 'too_many_pixels' })
+    expect(codec.decode).not.toHaveBeenCalled()
+  })
+
+  it('refuses a tiny JPEG that declares 65000 x 65000 pixels, without decoding', async () => {
+    const { result, codec } = await refused_unread(make_jpeg_bytes(65_000, 65_000), 'bomb.jpg')
+    expect(result).toEqual({ ok: false, reason: 'too_many_pixels' })
+    expect(codec.decode).not.toHaveBeenCalled()
+  })
+
+  it('still finds the size when a large EXIF segment pushes the frame header past 512 bytes', async () => {
+    const { result, codec } = await refused_unread(make_jpeg_bytes(65_000, 65_000, 60_000), 'bomb.jpg')
+    expect(result).toEqual({ ok: false, reason: 'too_many_pixels' })
+    expect(codec.decode).not.toHaveBeenCalled()
+  })
+
+  it('accepts exactly 50 megapixels and refuses one pixel more', async () => {
+    const at_limit = await refused_unread(make_png_bytes(10_000, 5_000), 'a.png')
+    expect(at_limit.result.ok).toBe(true)
+    const over = await refused_unread(make_png_bytes(5_000, 10_001), 'b.png')
+    expect(over.result).toEqual({ ok: false, reason: 'too_many_pixels' })
+  })
+
+  it('accepts a typical phone photo, 48 megapixels', async () => {
+    const { result } = await refused_unread(make_jpeg_bytes(8000, 6000), 'a.jpg')
+    expect(result.ok).toBe(true)
+  })
+
+  it('refuses, rather than guesses, when the header has no readable dimensions', async () => {
+    const { result, codec } = await refused_unread([0xff, 0xd8, 0xff, 0xe0, 0, 0x10], 'a.jpg')
+    expect(result).toEqual({ ok: false, reason: 'decode_failed' })
     expect(codec.decode).not.toHaveBeenCalled()
   })
 })

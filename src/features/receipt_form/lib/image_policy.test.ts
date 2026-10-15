@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { draft_max_chars } from '@/entities/receipt'
+import { draft_max_chars, image_max_pixels } from '@/entities/receipt'
+import {
+  make_jpeg_bytes,
+  make_png_bytes,
+  make_webp_extended_bytes,
+  make_webp_lossless_bytes,
+  make_webp_lossy_bytes,
+} from '@/test/image_fixtures'
 
 import {
   check_attach,
@@ -8,6 +15,7 @@ import {
   fit_within,
   image_refusal_messages,
   is_source_too_large,
+  read_image_size,
   sniff_image,
 } from './image_policy'
 
@@ -168,5 +176,41 @@ describe('check_attach', () => {
   it('reports the count before the budget when both fail', () => {
     expect(check_attach(10, draft_max_chars, 1).ok).toBe(false)
     expect(check_attach(10, draft_max_chars, 1)).toMatchObject({ reason: 'too_many' })
+  })
+})
+
+describe('read_image_size', () => {
+  const size = (width: number, height: number) => ({ width, height })
+
+  it('reads a PNG from its IHDR', () => {
+    expect(read_image_size(Uint8Array.from(make_png_bytes(4000, 3000)), 'image/png')).toEqual(size(4000, 3000))
+  })
+
+  it('reads a JPEG from its frame header', () => {
+    expect(read_image_size(Uint8Array.from(make_jpeg_bytes(4032, 3024)), 'image/jpeg')).toEqual(size(4032, 3024))
+  })
+
+  it('finds a JPEG frame header that sits after a large EXIF segment', () => {
+    const jpeg = Uint8Array.from(make_jpeg_bytes(6000, 4000, 60_000))
+    expect(read_image_size(jpeg, 'image/jpeg')).toEqual(size(6000, 4000))
+  })
+
+  it.each([
+    ['lossy', make_webp_lossy_bytes],
+    ['lossless', make_webp_lossless_bytes],
+    ['extended', make_webp_extended_bytes],
+  ])('reads a %s WebP', (_, make) => {
+    expect(read_image_size(Uint8Array.from(make(1234, 987)), 'image/webp')).toEqual(size(1234, 987))
+  })
+
+  it('answers null, never a guess, when the header is cut short or has no frame header', () => {
+    expect(read_image_size(Uint8Array.from(make_png_bytes(10, 10)).slice(0, 20), 'image/png')).toBeNull()
+    expect(read_image_size(Uint8Array.from(make_jpeg_bytes(10, 10)).slice(0, 25), 'image/jpeg')).toBeNull()
+    expect(read_image_size(bytes(0xff, 0xd8, 0xff, 0xe0, 0, 0x10), 'image/jpeg')).toBeNull()
+    expect(read_image_size(new Uint8Array(40), 'image/webp')).toBeNull()
+  })
+
+  it('has a budget of 50 megapixels', () => {
+    expect(image_max_pixels).toBe(50_000_000)
   })
 })
