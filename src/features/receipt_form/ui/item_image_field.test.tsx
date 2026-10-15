@@ -6,6 +6,7 @@ import { make_item, make_valid_values, tiny_jpeg } from '@/test/receipt_fixtures
 import { read_stored_draft, render_form, seed_draft } from '@/test/receipt_form_harness'
 
 import { draft_max_chars } from '@/entities/receipt'
+import { image_refusal_messages } from '../lib/image_policy'
 
 // jsdom cannot decode, draw or encode an image, so the browser adapter is replaced by a
 // fake codec. The real pipeline (size check, byte sniffing, the quality ladder) still runs
@@ -83,7 +84,9 @@ describe('ItemImageField', () => {
 
   it('refuses a tiny PNG that declares 60000 x 60000 pixels, naming the reason, before decoding', async () => {
     attach(file_of(make_png_bytes(60_000, 60_000), 'bomb.png', 'image/png'))
-    await waitFor(() => expect(errors().join(' ')).toMatch(/50 megapixels/))
+    await waitFor(() =>
+      expect(errors().join(' ')).toContain(image_refusal_messages.too_many_pixels),
+    )
     expect(encode).not.toHaveBeenCalled()
     expect(document.querySelector('img[src^="data:image/jpeg"]')).toBeNull()
   })

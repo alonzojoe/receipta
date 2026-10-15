@@ -2,6 +2,7 @@ import {
   draft_max_chars,
   image_fallback_edge,
   image_max_edge,
+  image_max_pixels,
   image_qualities,
   image_source_max_bytes,
   images_max,
@@ -213,8 +214,11 @@ export const image_refusal_messages: Record<ImageRefusal, string> = {
   heic: 'HEIC photos are not accepted. Take a JPEG instead: on iPhone, Settings, Camera, Formats, Most Compatible.',
   not_an_image: 'That file is not an image. Use a JPEG, PNG or WebP photo.',
   too_large: 'That file is over 10 MB. Choose a smaller photo.',
-  too_many_pixels:
-    'That photo has too many pixels to open here (over 50 megapixels). Choose a smaller one, or lower the camera resolution.',
+  // Interpolated, not written out: a hand-typed figure here drifted from the constant the
+  // moment the limit moved, and tests pinned the stale wording rather than catching it.
+  too_many_pixels: `That photo has too many pixels to open here (over ${Math.round(
+    image_max_pixels / 1_000_000,
+  )} megapixels). Choose a smaller one, or lower the camera resolution.`,
   decode_failed: 'That image could not be read. Try a different photo.',
   encode_failed: 'That image could not be processed. Try a different photo.',
   still_too_big:

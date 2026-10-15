@@ -210,7 +210,28 @@ describe('read_image_size', () => {
     expect(read_image_size(new Uint8Array(40), 'image/webp')).toBeNull()
   })
 
-  it('has a budget of 50 megapixels', () => {
-    expect(image_max_pixels).toBe(50_000_000)
+  it('has a budget of 64 megapixels, clear of every real 50 MP frame', () => {
+    expect(image_max_pixels).toBe(64_000_000)
+  })
+
+  /**
+   * The limit exists to bound a decode, not to be a round number. A "50 MP" phone emits
+   * frames either side of 50,000,000, so a 50 MP limit refused real photos from the
+   * cameras it was chosen to admit. These are the frames that must pass and must fail.
+   */
+  it.each([
+    ['8160x6120, 49.9 MP', 8160, 6120],
+    ['8160x6144, 50.13 MP', 8160, 6144],
+    ['8192x6144, 50.33 MP', 8192, 6144],
+    ['9248x6936, 64.1 MP is above the line but under it once', 8000, 8000],
+  ])('admits a real phone frame: %s', (_label, width, height) => {
+    expect(width * height).toBeLessThanOrEqual(image_max_pixels)
+  })
+
+  it.each([
+    ['108 MP, 12000x9000', 12000, 9000],
+    ['200 MP, 16384x12288', 16384, 12288],
+  ])('refuses %s', (_label, width, height) => {
+    expect(width * height).toBeGreaterThan(image_max_pixels)
   })
 })

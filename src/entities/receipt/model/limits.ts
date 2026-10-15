@@ -31,14 +31,17 @@ export const images_max = 10
 export const image_source_max_bytes = 10 * 1024 * 1024
 
 /**
- * A source image with more pixels than this is refused before it is decoded: 50 megapixels.
+ * A source image with more pixels than this is refused before it is decoded.
  * The byte cap does not bound this, because a tiny PNG or JPEG can declare enormous
- * dimensions, and decoding allocates width x height x 4 bytes (200 MB at the limit).
- * 50 MP is above the 48 and 50 MP modes of current phone cameras, which are real photos
- * people attach, and low enough that the decode fits in a phone's memory. Larger sensors
- * (108 and 200 MP modes) are refused with a message that says why.
+ * dimensions, and decoding allocates width x height x 4 bytes (256 MB at the limit).
+ *
+ * 64 MP, not 50. A phone sold as "50 MP" does not emit 50,000,000 pixels: 8160x6120 is
+ * 49.9 MP, but 8160x6144 is 50.13 MP and 8192x6144 is 50.33 MP. A 50 MP limit sits on a
+ * cliff and refuses real photos from the cameras it was chosen to admit. 64 MP clears
+ * every 48 and 50 MP frame with room to spare, bounds a decode at about 256 MB, and
+ * still refuses the 108 and 200 MP modes with a message that says why.
  */
-export const image_max_pixels = 50_000_000
+export const image_max_pixels = 64_000_000
 
 /**
  * 120 KB is taken as 120 x 1024 bytes of the encoded JPEG blob, not of the base64

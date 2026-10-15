@@ -175,11 +175,16 @@ describe('process_image: the pixel budget, checked from the header before decodi
     expect(codec.decode).not.toHaveBeenCalled()
   })
 
-  it('accepts exactly 50 megapixels and refuses one pixel more', async () => {
-    const at_limit = await refused_unread(make_png_bytes(10_000, 5_000), 'a.png')
+  it('accepts exactly the pixel budget and refuses one pixel more', async () => {
+    const at_limit = await refused_unread(make_png_bytes(8_000, 8_000), 'a.png')
     expect(at_limit.result.ok).toBe(true)
-    const over = await refused_unread(make_png_bytes(5_000, 10_001), 'b.png')
+    const over = await refused_unread(make_png_bytes(8_000, 8_001), 'b.png')
     expect(over.result).toEqual({ ok: false, reason: 'too_many_pixels' })
+  })
+
+  it('accepts the 50.33 MP frame a "50 MP" phone actually emits', async () => {
+    const { result } = await refused_unread(make_jpeg_bytes(8192, 6144), 'real.jpg')
+    expect(result.ok).toBe(true)
   })
 
   it('accepts a typical phone photo, 48 megapixels', async () => {
