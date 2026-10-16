@@ -59,8 +59,12 @@ function expect_invariants(source: PaginationInput, result: Pagination) {
   const last_page = pages[pages.length - 1]
   expect(['only', 'last']).toContain(last_page.kind)
   // The one exception: a single item whose tail is split, so its totals sit on page 1 with it.
-  if (last_page.split === 'rest') expect(pages[0].split).toBe('totals')
-  else if (last_page.split === 'whole') expect(pages[0].split).toBe('none')
+  if (last_page.split === 'rest') {
+    // The page before the closing page carries the last item row and the totals.
+    const carrier = pages[pages.length - 2]
+    expect(carrier.split).toBe('totals')
+    expect(carrier.rows).toContain(source.rows.length - 1)
+  } else if (last_page.split === 'whole') expect(pages[0].split).toBe('none')
   else expect(last_page.rows).toContain(source.rows.length - 1)
 
   // The first page always carries an item row (author decision).
@@ -391,8 +395,14 @@ describe('paginate_receipt: 38, the last row travels with the totals', () => {
     expect(pages_of(paginate_receipt({ ...fits, totals: room + 1 }))[0].split).toBe('none')
   })
 
-  it('returns tail_too_tall when the last row and totals cannot share any page', () => {
-    expect(paginate_receipt(input([plain_row, plain_row, plain_row], { tail: usable }))).toEqual({
+  it('deals a tail as tall as a page across two pages rather than refusing (it was tail_too_tall for 3 rows)', () => {
+    const source = input([plain_row, plain_row, plain_row], { tail: usable })
+    expect(pages_of(paginate_receipt(source)).map((page) => page.split)).toEqual(['totals', 'rest'])
+    expect_invariants(source, paginate_receipt(source))
+  })
+
+  it('returns tail_too_tall when even the rest of the tail cannot fit a page', () => {
+    expect(paginate_receipt(input([plain_row, plain_row, plain_row], { tail: usable + totals }))).toEqual({
       ok: false,
       reason: 'tail_too_tall',
     })
@@ -482,5 +492,89 @@ describe('paginate_receipt: input it cannot use', () => {
     const source = Object.freeze({ ...good, rows })
     expect(paginate_receipt(source)).toEqual(paginate_receipt(source))
     expect(rows).toHaveLength(30)
+  })
+})
+
+describe('paginate_receipt: a multi-item receipt whose tail does not fit beside the last row', () => {
+  // The reviewer's finding: one item was dealt across two pages, two or more were refused.
+  const long_tail = 700
+  const rows = [plain_row, plain_row, plain_row]
+
+  it('splits the tail instead of refusing (it reproduced as tail_too_tall before the fix)', () => {
+    const source = input(rows, { tail: long_tail })
+    expect(continuation_head + plain_row + long_tail + indicator).toBeGreaterThan(usable)
+    const result = paginate_receipt(source)
+    expect(result.ok).toBe(true)
+    expect_invariants(source, result)
+    const pages = pages_of(result)
+    expect(pages[pages.length - 1]).toEqual({ kind: 'last', rows: [], split: 'rest' })
+    // The totals sit with the last item row, on the page that already held the other rows.
+    expect(pages[pages.length - 2]).toEqual({ kind: 'first', rows: [0, 1, 2], split: 'totals' })
+  })
+
+  it('gives the totals a page of their own with the last row when the open page is full', () => {
+    const full = filling(first_page_room, photo_row)
+    const source = input([...full, plain_row], { tail: long_tail })
+    const pages = pages_of(paginate_receipt(source))
+    expect(pages.map((page) => page.split)).toEqual([undefined, 'totals', 'rest'])
+    expect(pages[1].rows).toEqual([full.length])
+    expect_invariants(source, paginate_receipt(source))
+  })
+
+  it('keeps the unsplit layout whenever the last row and the whole tail fit together', () => {
+    const source = input(rows, { tail: usable - continuation_head - plain_row - indicator })
+    const pages = pages_of(paginate_receipt(source))
+    expect(pages.every((page) => page.split === undefined)).toBe(true)
+    expect_invariants(source, paginate_receipt(source))
+  })
+
+  it('splits at exactly the limit: the tail fits by <=, one pixel more splits it', () => {
+    const edge = usable - continuation_head - plain_row - indicator
+    expect(pages_of(paginate_receipt(input(rows, { tail: edge }))).every((page) => page.split === undefined)).toBe(true)
+    const over = input(rows, { tail: edge + 1 })
+    expect(pages_of(paginate_receipt(over)).map((page) => page.split)).toEqual(['totals', 'rest'])
+    expect_invariants(over, paginate_receipt(over))
+  })
+
+  it('still refuses when the rest of the tail cannot fit a page of its own', () => {
+    const fits = input(rows, { tail: usable - continuation_head - indicator + totals })
+    expect(paginate_receipt(fits).ok).toBe(true)
+    expect(paginate_receipt({ ...fits, tail: fits.tail + 1 })).toEqual({ ok: false, reason: 'tail_too_tall' })
+  })
+
+  it('still refuses when the last row and the totals fit on no page', () => {
+    const tall = usable - continuation_head - totals - foot_band
+    const fits = input([plain_row, tall], { tail: long_tail })
+    expect(paginate_receipt(fits).ok).toBe(true)
+    expect(paginate_receipt({ ...fits, rows: [plain_row, tall + 1] })).toEqual({ ok: false, reason: 'tail_too_tall' })
+  })
+
+  it('refuses a last row taller than a page as row_too_tall', () => {
+    expect(paginate_receipt(input([plain_row, usable], { tail: long_tail }))).toEqual({ ok: false, reason: 'row_too_tall' })
+    expect(paginate_receipt(input([plain_row, plain_row, usable - continuation_head + 1]))).toEqual({
+      ok: false,
+      reason: 'row_too_tall',
+    })
+  })
+
+  it('keeps every invariant across a sweep of row counts, heights and tails', () => {
+    let split = 0
+    for (let count = 2; count <= 9; count += 1) {
+      for (const row of [36, 48, photo_row, 200]) {
+        for (const tail_height of [300, 520, 640, 700, 760]) {
+          for (const head of [first_head, 400]) {
+            const source = input(Array<number>(count).fill(row), { tail: tail_height, first_head: head })
+            const result = paginate_receipt(source)
+            if (!result.ok) {
+              expect(['tail_too_tall', 'head_too_tall', 'row_too_tall']).toContain(result.reason)
+              continue
+            }
+            expect_invariants(source, result)
+            if (result.pages.some((page) => page.split === 'rest')) split += 1
+          }
+        }
+      }
+    }
+    expect(split).toBeGreaterThan(0)
   })
 })

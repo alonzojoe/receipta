@@ -98,6 +98,11 @@ export function page_content_height(input: PaginationInput, page: PageSlice) {
  * case where a page has no item row, and it is the closing page, not the totals page. Only
  * when even the totals do not fit beside the item (a header taller than half a page) does the
  * whole tail take page 2.
+ *
+ * The same split applies to the last row of a longer receipt: when it cannot share a page
+ * with the whole tail, it keeps the totals (on the open page if it fits there, else on a page
+ * of its own) and the rest of the tail closes the receipt. The totals are still on exactly one
+ * page, and it is the one that carries the last item row.
  */
 export function paginate_receipt(input: PaginationInput): Pagination {
   const { first_head, continuation_head, foot_band, indicator, rows, tail, totals } = input
@@ -183,9 +188,30 @@ export function paginate_receipt(input: PaginationInput): Pagination {
     return { ok: true, pages }
   }
 
-  const final_head = continuation_head
-  if (final_head + unit > usable) return { ok: false, reason: 'tail_too_tall' }
-  pages.push({ kind: closed.length === 0 ? 'first' : 'middle', rows: open })
-  pages.push({ kind: 'last', rows: [last] })
-  return { ok: true, pages }
+  if (continuation_head + unit <= usable) {
+    pages.push({ kind: closed.length === 0 ? 'first' : 'middle', rows: open })
+    pages.push({ kind: 'last', rows: [last] })
+    return { ok: true, pages }
+  }
+
+  // The last row and the whole tail do not fit on a continuation page of their own. Deal the
+  // tail out as a single item does: the last row keeps the totals, the rest of the tail closes
+  // the receipt on one more page. The totals page is the open page when the last row fits
+  // there (the head is the first page's if nothing was closed), otherwise a page of its own.
+  const rest_fits = continuation_head + (tail - totals) + indicator <= usable
+  const last_row = rows[last]
+  const open_head = closed.length === 0 ? first_head : continuation_head
+  if (rest_fits && open_head + sum(rows, open) + last_row + totals + foot_band <= usable) {
+    pages.push({ kind: closed.length === 0 ? 'first' : 'middle', rows: [...open, last], split: 'totals' })
+    pages.push({ kind: 'last', rows: [], split: 'rest' })
+    return { ok: true, pages }
+  }
+  if (rest_fits && continuation_head + last_row + totals + foot_band <= usable) {
+    pages.push({ kind: closed.length === 0 ? 'first' : 'middle', rows: open })
+    pages.push({ kind: 'middle', rows: [last], split: 'totals' })
+    pages.push({ kind: 'last', rows: [], split: 'rest' })
+    return { ok: true, pages }
+  }
+  // A row taller than a continuation page fits nowhere; otherwise it is the tail that cannot be placed.
+  return { ok: false, reason: continuation_head + last_row > usable ? 'row_too_tall' : 'tail_too_tall' }
 }
