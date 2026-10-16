@@ -33,6 +33,7 @@ compact strip below 1024px, and the focus ring.
 | Rim vs the fill it encloses | 2.41:1 | - | not load-bearing |
 | Progress line and header bar | `rgb(96, 49, 241)` | the logo mark's violet | **exact** |
 | Progress vs the card | 2.69:1 | - | see exception |
+| **Progress fill vs its own empty track** | **1.89:1** | - | **accepted, see below** |
 | Completed discs (unchanged) | content 6.07:1, rim 3.77:1 | - | unmoved |
 
 ### Light
@@ -62,8 +63,35 @@ reasons:
   exception the spec records, and it is noted beside the token in `index.css` so the next
   person to reuse `--brand-fill` as ink finds the reasoning rather than the precedent.
 
-A lighter violet for the line is Deferred, to be settled by eye on a real display rather
-than by another calculation.
+### The figure that was missing, and the author's decision on it
+
+The first version of this document recorded the progress against the *card* (2.69:1) and
+never measured it against **its own empty track**, which is the pair that actually shows
+how far along the bar is. Review caught the omission. Measured from composited pixels,
+with the bar 25% filled:
+
+| | Filled | Empty track | Fill vs track |
+| --- | --- | --- | --- |
+| Dark | `rgb(96, 49, 241)` | `rgb(47, 53, 61)` | **1.89:1** |
+| Light | `rgb(107, 58, 237)` | `rgb(203, 213, 225)` | 4.10:1 |
+
+Lavender gave roughly 4.5:1 in dark, so this is a real loss: the filled and empty halves
+of the bar now differ far less than they did. Both colours are dark, and contrast between
+two dark colours is inherently low - no arrangement of this violet on this track reaches
+3:1 without changing one of them.
+
+**The author accepted it as it stands** ("accept as it is for now"), having been shown the
+measured figures and the alternatives. Nothing is required to change: the bar is
+`aria-hidden`, and "Step n of 4" states the same information as text immediately beside
+it, so 1.4.11 does not apply. The honest description is that the bar is now a weaker
+gauge than it was, and reads more as decoration than as a measure.
+
+Two fixes were offered and declined for now, and stay available: darkening the dark-mode
+track so the violet reads against it as an inset groove (about 3:1), or keeping the bar
+lavender while the active disc alone takes the violet. Both are in Deferred.
+
+A lighter violet for the line is also Deferred, to be settled by eye on a real display
+rather than by another calculation.
 
 ## Non-regression
 
@@ -81,6 +109,24 @@ Completed steps are lavender while the active step and the progress are the mark
 That is the author's instruction - "the active one change only the color" and "and the
 progress" - recorded as a decision, not an oversight. Whether the completed discs should
 follow is Deferred and wants a look on screen.
+
+## Guard test
+
+`step_timeline.test.tsx` pins the class division, because the failures it guards are
+silent in two directions: dropping `dark:bg-brand-fill` leaves the disc lavender with
+nothing failing, and writing `bg-brand-fill` *without* the `dark:` prefix repaints the
+disc in light mode, where the spec requires no change. Neither is visible to a
+behavioural test or to a reader of the diff.
+
+Five mutations, each applied, run and reverted:
+
+| Mutation | Caught by |
+| --- | --- |
+| `dark:` prefix dropped from the fill | 2 tests |
+| the fill removed entirely | 1 test |
+| the rim recoloured to `brand-fill` (ink misuse) | 1 test |
+| the progress line returned to `bg-primary` | 1 test |
+| a completed disc recoloured (out of scope) | 2 tests |
 
 ## Not verified
 
