@@ -53,10 +53,15 @@
   --popover-foreground: oklch(0.278 0.03 257);
   --primary: oklch(0.526 0.247 287);
   --primary-foreground: oklch(0.985 0.005 287);
-  /* The default Button's fill and label. Aliased to primary here so light mode is
-   * unchanged by construction; .dark gives them their own values. */
-  --button: var(--primary);
-  --button-foreground: var(--primary-foreground);
+  /* The brand's violet as a FILL, with the label colour that sits on it. Two consumers:
+   * the default Button, and the /create timeline's active step and progress. Named for
+   * the role rather than either consumer, so the next violet fill does not need a third
+   * alias. Aliased to primary here so light mode is unchanged by construction; .dark
+   * gives them their own values. */
+  --brand-fill: var(--primary);
+  --brand-fill-foreground: var(--primary-foreground);
+  --button: var(--brand-fill);
+  --button-foreground: var(--brand-fill-foreground);
   /* Only consumed by the dark-gated hover utility, so light keeps its own /80 blend. */
   --button-hover: var(--button);
   --secondary: oklch(0.943 0.028 295);
@@ -166,11 +171,18 @@
   --primary-foreground: oklch(0.19 0.045 287);
   /* The Receipta logo mark's violet, sampled from logo_mark.webp: rgb(96, 49, 241) is
    * 14.2% of its opaque pixels, and this oklch round-trips to exactly that. A FILL behind
-   * a white label (--button-foreground). Do not reuse it as text, an icon, a border or a
-   * focus ring: against this page it is about 2.9:1, which fails 3:1. The violet used as
-   * ink is --primary above. */
-  --button: oklch(0.51 0.26 283.4);
-  --button-foreground: oklch(1 0 0);
+   * white content (--brand-fill-foreground). Do not reuse it as text, an icon, a border
+   * or a focus ring: against this page it is about 2.9:1, which fails 3:1. The violet
+   * used as ink is --primary above.
+   *
+   * The /create timeline's 2px progress line is the one recorded exception to that rule:
+   * it is non-interactive, it bounds no control, and its state is also carried by the
+   * disc shapes and by the visible "Step n of 4", so 1.4.11 does not require 3:1 of it.
+   * See docs/specs/2026-10-16-timeline-tracking-color/requirements.md. */
+  --brand-fill: oklch(0.51 0.26 283.4);
+  --brand-fill-foreground: oklch(1 0 0);
+  --button: var(--brand-fill);
+  --button-foreground: var(--brand-fill-foreground);
   /* Hover mixes toward the white label, never toward the page. The /80 blend used in
    * light mode would fade the fill into this near-black background, making the button's
    * edge fainter exactly when it is being pointed at - and the edge is already under
@@ -235,6 +247,8 @@
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-brand-fill: var(--brand-fill);
+  --color-brand-fill-foreground: var(--brand-fill-foreground);
   --color-button: var(--button);
   --color-button-foreground: var(--button-foreground);
   --color-button-hover: var(--button-hover);

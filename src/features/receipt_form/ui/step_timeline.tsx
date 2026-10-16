@@ -128,8 +128,21 @@ export function StepTimeline({ current, on_select, details = {} }: StepTimelineP
                     'flex size-8 shrink-0 items-center justify-center rounded-full transition-[background-color,border-color,color,box-shadow] duration-200 ease-out',
                     state === 'completed' &&
                       'bg-primary text-primary-foreground group-hover/step:bg-primary/85',
+                    // Dark only, and a FILL rather than ink: the mark violet is too dark to
+                    // read as a number or a 1px rim on this row. White on it measures
+                    // 6.55:1, the same pairing as the primary button, which is what the
+                    // active step is meant to echo. The lavender rim stays - it defines
+                    // the disc's edge at ~6:1 against the row, where a violet rim would
+                    // leave that edge at ~2.5:1.
+                    //
+                    // The progress line and bar stay on --primary deliberately. The mark
+                    // violet separated from its own empty track at only 1.89:1 in dark,
+                    // against ~4.5:1 for lavender: both are dark colours, so the filled
+                    // and empty halves of a gauge stopped being distinguishable. The
+                    // violet belongs on the disc, which is identified by its rim and its
+                    // white content, not on a bar whose only job is a boundary.
                     state === 'current' &&
-                      'border-2 border-primary bg-card text-primary ring-4 ring-primary/20',
+                      'border-2 border-primary bg-card text-primary ring-4 ring-primary/20 dark:bg-brand-fill dark:text-brand-fill-foreground',
                     state === 'upcoming' &&
                       'border border-dashed border-control-border bg-muted text-muted-foreground',
                   )}
