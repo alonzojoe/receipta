@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { default_open_id, questions } from '../model/questions'
@@ -107,6 +107,14 @@ describe('HomeFaq', () => {
     expect(screen.getAllByRole('region')).toHaveLength(1)
   })
 
+  /**
+   * Both halves wait on the condition rather than asserting it one tick after the click.
+   * Radix moves a panel's content and its `hidden` attribute across separate commits, and
+   * this accordion is single-open, so one click tears down the previously open item while
+   * building this one. Asserting immediately caught the panel mounted-but-still-hidden
+   * roughly once in ten runs under CPU load - a real race in the test, not in the
+   * component. `waitFor` polls, so it is as fast as before when the machine is idle.
+   */
   it('removes an answer from the accessibility tree again once it is closed', async () => {
     const user = userEvent.setup()
     render(<HomeFaq />)
@@ -114,16 +122,20 @@ describe('HomeFaq', () => {
     const button = screen.getByRole('button', { name: question })
 
     await user.click(button)
-    expect(screen.getByText(answer)).toBeVisible()
-    expect(screen.getByRole('region', { name: question })).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(answer)).toBeVisible()
+      expect(screen.getByRole('region', { name: question })).toBeInTheDocument()
+    })
 
     await user.click(button)
-    expect(button).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByText(answer)).toBeNull()
-    expect(screen.queryByRole('region', { name: question })).toBeNull()
-    const panel = panel_for(button)
-    expect(panel).toHaveAttribute('hidden')
-    expect(panel).toBeEmptyDOMElement()
+    await waitFor(() => {
+      expect(button).toHaveAttribute('aria-expanded', 'false')
+      expect(screen.queryByText(answer)).toBeNull()
+      expect(screen.queryByRole('region', { name: question })).toBeNull()
+      const panel = panel_for(button)
+      expect(panel).toHaveAttribute('hidden')
+      expect(panel).toBeEmptyDOMElement()
+    })
   })
 
   it('toggles with Enter and Space and keeps focus on the button', async () => {
