@@ -1,0 +1,21 @@
+/*
+ * The preview wrapper around the document. It is fluid; the document inside it is not.
+ * The sheet keeps its 600 px layout and is shrunk with a transform, which does not shrink its
+ * layout box, so the frame sets the size the user actually sees: the sheet's size times the
+ * scale. --doc-width, --doc-height and --scale are unitless numbers set by the component,
+ * so no pixel size is written in the markup. If --doc-height is not known yet the calc is
+ * invalid and the frame is `auto`.
+ */
+.receipt-preview-frame {
+  width: calc(var(--doc-width) * var(--scale) * 1px);
+  height: calc(var(--doc-height) * var(--scale) * 1px);
+  max-width: 100%;
+  margin-inline: auto;
+  overflow: hidden;
+}
+
+.receipt-preview-sheet {
+  width: calc(var(--doc-width) * 1px);
+  transform: scale(var(--scale));
+  transform-origin: top left;
+}

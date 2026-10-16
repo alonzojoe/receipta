@@ -1,7 +1,7 @@
-import { screen } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { render_form, whole_flow_timeout } from '@/test/receipt_form_harness'
+import { make_export_dependencies, render_form, whole_flow_timeout } from '@/test/receipt_form_harness'
 
 beforeEach(() => {
   localStorage.clear()
@@ -24,7 +24,8 @@ const button_named = (text: string) => (element: Element) =>
 
 describe('keyboard only', () => {
   it('completes the whole wizard from Parties to Review without a pointer', async () => {
-    const { user } = render_form()
+    const export_dependencies = make_export_dependencies()
+    const { user } = render_form(undefined, export_dependencies)
 
     // Parties: type both names, Enter advances.
     await tab_to(user, field_named('issuer_name'))
@@ -66,8 +67,17 @@ describe('keyboard only', () => {
     expect(document.body.textContent).toContain('Printing')
     expect(document.body.textContent).toContain('₱1,520.00')
     expect(document.body.textContent).toContain('Maya')
-    expect(document.body.textContent).toContain('2026-10-01')
+    // The receipt shows its date long, as it will be sent.
+    expect(document.body.textContent).toContain('1 October 2026')
     expect(document.body.textContent).toContain('Thank you')
+
+    // Both downloads are reachable by Tab and work with Enter, and Back is reachable after.
+    await tab_to(user, button_named('Download PDF'))
+    await user.keyboard('{Enter}')
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Download image' })).toBeEnabled())
+    await tab_to(user, button_named('Download image'))
+    await user.keyboard('{Enter}')
+    expect(export_dependencies.run.mock.calls.map(([kind]) => kind)).toEqual(['pdf', 'png'])
     await tab_to(user, button_named('Back'))
   }, whole_flow_timeout)
 })

@@ -96,6 +96,28 @@
   --sidebar-ring: oklch(0.526 0.247 287);
 
   /*
+   * The receipt document's palette. A receipt is a sheet of paper, not a screen of the app,
+   * so these are plain hex values that are never overridden in .dark: an export made in dark
+   * mode must be pixel-identical to one made in light mode. They are a separate namespace
+   * from the app tokens above because those change under .dark and are oklch(), which the
+   * rasteriser would have to resolve.
+   *
+   *   paper   #FFFFFF  the page
+   *   ink     #0F172A  17.85:1 on paper
+   *   muted   #475569   7.58:1 on paper
+   *   rule    #E2E8F0  hairlines and the thumbnail border (a divider, not text)
+   *   accent  #6C3AED   6.06:1 on paper - the app's own brand violet (--primary is the same
+   *                     colour in oklch), used for the one "Receipt" caption
+   *
+   * receipt_palette.test.ts reads this block and re-measures the text pairs.
+   */
+  --receipt-paper: #ffffff;
+  --receipt-ink: #0f172a;
+  --receipt-muted: #475569;
+  --receipt-rule: #e2e8f0;
+  --receipt-accent: #6c3aed;
+
+  /*
    * Easing.
    *
    * These deliberately OVERRIDE Tailwind's built-in --ease-out and --ease-in-out.

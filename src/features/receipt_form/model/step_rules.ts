@@ -1,4 +1,4 @@
-import { compute_totals, parse_discount, parse_price, parse_quantity } from '@/entities/receipt'
+import { cash_method, compute_totals, other_method, parse_discount, parse_price, parse_quantity } from '@/entities/receipt'
 
 import {
   discount_cap_rule,
@@ -16,8 +16,6 @@ import {
   reference_rule,
 } from './field_rules'
 import {
-  cash_method,
-  other_method,
   party_name_label,
   type ReceiptFormValues,
 } from './receipt_form_values'

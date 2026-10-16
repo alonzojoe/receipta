@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
+import { normalise_notes } from '@/entities/receipt'
+
 import {
   discount_cap_rule,
   discount_rule,
   item_name_rule,
   items_count_rule,
-  normalise_notes,
   notes_rule,
   other_method_rule,
   party_name_rule,

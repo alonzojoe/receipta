@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { LuBanknote, LuChevronsUpDown, LuEllipsis } from 'react-icons/lu'
 
+import { cash_method, other_method, payment_method_icon, payment_method_name } from '@/entities/receipt'
 import { institutions_by_category } from '@/shared/config/institutions'
 import { cn } from '@/shared/lib/utils'
 import {
@@ -14,8 +15,6 @@ import {
 import { control_classes } from '@/shared/ui/control_style'
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover'
 
-import { payment_method_icon, payment_method_name } from '../model/payment_method'
-import { cash_method, other_method } from '../model/receipt_form_values'
 import type { FieldControl } from './form_field'
 
 type PaymentMethodPickerProps = { control: FieldControl }

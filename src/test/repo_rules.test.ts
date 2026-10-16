@@ -10,7 +10,9 @@ import {
   find_interfaces,
   find_intl_number_format,
   find_raw_form_elements,
+  find_dynamic_export_library_imports,
   find_sibling_slice_imports,
+  find_static_export_library_imports,
   import_specifiers,
   type Hit,
 } from './source_rules'
@@ -138,6 +140,11 @@ describe('the repository rules', () => {
 
   it('keeps one widget, feature or page slice from importing another on its layer (FSD)', () => {
     expect(with_hits(find_sibling_slice_imports)).toEqual([])
+  })
+
+  it('loads html2canvas-pro and jspdf only through import(), and only in load_ports.ts (criterion 69)', () => {
+    expect(with_hits(find_static_export_library_imports)).toEqual([])
+    expect(with_hits(find_dynamic_export_library_imports)).toEqual(['/src/features/receipt_export/lib/load_ports.ts'])
   })
 
   it('uses no colour literal or palette shade outside index.css', () => {

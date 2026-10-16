@@ -1,12 +1,15 @@
 import {
+  cash_method,
   is_future,
   is_real_date,
   items_max,
   items_min,
   money_message,
   name_max_length,
+  normalise_notes,
   notes_max_length,
   notes_max_lines,
+  other_method,
   other_method_max_length,
   parse_discount,
   parse_price,
@@ -16,7 +19,7 @@ import {
 import { find_institution } from '@/shared/config/institutions'
 import { format_centavos } from '@/shared/lib/format_currency'
 
-import { cash_method, other_method, party_types } from './receipt_form_values'
+import { party_types } from './receipt_form_values'
 
 /** A rule answers with the message to show, or nothing when the value is fine. */
 export type RuleResult = string | undefined
@@ -110,11 +113,6 @@ export function receipt_date_rule(value: string, now: Date): RuleResult {
   if (!is_real_date(value)) return 'Enter a real date'
   if (is_future(value, now)) return 'The receipt date cannot be in the future'
   return undefined
-}
-
-/** CRLF and lone CR become LF, then the value is trimmed. What is counted and stored. */
-export function normalise_notes(value: string) {
-  return value.replace(/\r\n?/g, '\n').trim()
 }
 
 /**

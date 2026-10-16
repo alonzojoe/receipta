@@ -1,14 +1,13 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { LuPlus } from 'react-icons/lu'
 
-import { items_max } from '@/entities/receipt'
+import { items_max, summarise_receipt } from '@/entities/receipt'
 import { AppInput } from '@/shared/ui/app_input'
 import { Button } from '@/shared/ui/button'
 
 import { items_count_rule } from '../../model/field_rules'
 import { step_validators } from '../../model/field_validators'
 import { make_empty_item } from '../../model/receipt_form_values'
-import { summarise_receipt } from '../../model/receipt_totals'
 import type { ReceiptFormApi } from '../../model/use_receipt_form'
 import { FormField } from '../form_field'
 import { ItemRow } from '../item_row'

@@ -9,10 +9,6 @@ export const party_type_labels: Record<PartyType, string> = {
   organization: 'Organization',
 }
 
-/** Payment method values that are not an institution id. */
-export const cash_method = 'cash'
-export const other_method = 'other'
-
 /**
  * One line of the receipt. Every field the user types holds the text as typed
  * (`"19.99"`, `"1.5"`), so the input never rewrites itself under the cursor. Pure

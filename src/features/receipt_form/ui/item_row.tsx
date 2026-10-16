@@ -1,11 +1,11 @@
 import { LuTrash2 } from 'react-icons/lu'
 
+import { item_line_total } from '@/entities/receipt'
 import { format_centavos } from '@/shared/lib/format_currency'
 import { AppInput } from '@/shared/ui/app_input'
 import { Button } from '@/shared/ui/button'
 
 import { step_validators } from '../model/field_validators'
-import { item_line_total } from '../model/receipt_totals'
 import type { ReceiptFormApi } from '../model/use_receipt_form'
 import { FormField } from './form_field'
 import { ItemImageField } from './item_image_field'

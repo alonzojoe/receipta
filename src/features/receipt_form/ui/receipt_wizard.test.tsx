@@ -30,10 +30,15 @@ describe('the wizard shell', () => {
     expect(screen.queryByLabelText('Notes')).toBeNull()
   })
 
-  it('has no export, download or print control anywhere in the flow', () => {
-    seed_draft(4)
-    render_form()
-    expect(screen.queryByRole('button', { name: /export|download|print|pdf/i })).toBeNull()
+  it('has no export, download or print control on steps 1 to 3, and exactly two on Review', async () => {
+    seed_draft(1)
+    const { user } = render_form()
+    const controls = () => screen.queryAllByRole('button', { name: /export|download|print|pdf|image/i })
+    for (let step = 1; step <= 3; step += 1) {
+      expect(controls(), `step ${step}`).toEqual([])
+      await user.click(screen.getByRole('button', { name: 'Next' }))
+    }
+    expect(controls().map((button) => button.textContent)).toEqual(['Download PDF', 'Download image'])
   })
 
   it('moves focus to the step heading and announces the step on a change', async () => {
