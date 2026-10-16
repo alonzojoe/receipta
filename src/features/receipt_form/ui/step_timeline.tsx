@@ -86,7 +86,7 @@ export function StepTimeline({ current, on_select, details = {} }: StepTimelineP
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
           <div
-            className="h-full w-full origin-left rounded-full bg-primary transition-transform duration-200 ease-out motion-reduce:transition-none"
+            className="h-full w-full origin-left rounded-full bg-brand-fill transition-transform duration-200 ease-out motion-reduce:transition-none"
             style={{ transform: `scaleX(${current / steps.length})` }}
           />
         </div>
@@ -128,8 +128,14 @@ export function StepTimeline({ current, on_select, details = {} }: StepTimelineP
                     'flex size-8 shrink-0 items-center justify-center rounded-full transition-[background-color,border-color,color,box-shadow] duration-200 ease-out',
                     state === 'completed' &&
                       'bg-primary text-primary-foreground group-hover/step:bg-primary/85',
+                    // Dark only, and a FILL rather than ink: the mark violet is too dark to
+                    // read as a number or a 1px rim on this row. White on it measures
+                    // 6.55:1, the same pairing as the primary button, which is what the
+                    // active step is meant to echo. The lavender rim stays - it defines
+                    // the disc's edge at ~6:1 against the row, where a violet rim would
+                    // leave that edge at ~2.5:1.
                     state === 'current' &&
-                      'border-2 border-primary bg-card text-primary ring-4 ring-primary/20',
+                      'border-2 border-primary bg-card text-primary ring-4 ring-primary/20 dark:bg-brand-fill dark:text-brand-fill-foreground',
                     state === 'upcoming' &&
                       'border border-dashed border-control-border bg-muted text-muted-foreground',
                   )}
@@ -140,7 +146,7 @@ export function StepTimeline({ current, on_select, details = {} }: StepTimelineP
                   <span className="relative z-10 -mb-3 mt-1 min-h-3 w-0.5 flex-1 overflow-hidden rounded-full bg-border">
                     <span
                       className={cn(
-                        'absolute inset-0 origin-top bg-primary transition-transform duration-200 ease-out',
+                        'absolute inset-0 origin-top bg-brand-fill transition-transform duration-200 ease-out',
                         'motion-reduce:scale-y-100 motion-reduce:transition-opacity',
                         state === 'completed' ? 'scale-y-100' : 'scale-y-0 motion-reduce:opacity-0',
                       )}
