@@ -4,6 +4,8 @@ export type ExportError = (
   | { kind: 'photo_unreadable'; item: number }
   | { kind: 'too_large' }
   | { kind: 'timed_out' }
+  /** The two libraries could not be fetched: offline, or a request that never answered. */
+  | { kind: 'load_failed' }
   | { kind: 'blank' }
   | { kind: 'unmeasured' }
   | { kind: 'unknown' }
@@ -12,11 +14,18 @@ export type ExportError = (
 /** The pipeline throws this for a failure it understands, so nothing is guessed from text. */
 export class ExportFailure extends Error {
   readonly error: ExportError
+  /**
+   * Only on a timeout: settles when the abandoned work has actually finished. The libraries
+   * cannot be cancelled, so the run keeps its canvas until then, and the caller should not
+   * start another while it does.
+   */
+  readonly settled?: Promise<void>
 
-  constructor(error: ExportError) {
+  constructor(error: ExportError, settled?: Promise<void>) {
     super(`Export failed: ${error.kind}`)
     this.name = 'ExportFailure'
     this.error = error
+    this.settled = settled
   }
 }
 
@@ -63,7 +72,7 @@ export function blob_problem(blob: { size: number } | null): ExportError | undef
 
 const generic_message = 'The file could not be created. Your receipt is safe. Try again.'
 
-/** The four messages the spec gives, byte for byte. */
+/** The four messages the spec gives, byte for byte, and one for a failed library load. */
 export function export_error_message(error: ExportError) {
   switch (error.kind) {
     case 'photo_unreadable':
@@ -72,6 +81,8 @@ export function export_error_message(error: ExportError) {
       return 'This receipt is too large to make as an image on this device. Try fewer photos, or download the PDF.'
     case 'timed_out':
       return 'Making the file took too long. Try again.'
+    case 'load_failed':
+      return 'The export tools could not be loaded. Check your connection and try again.'
     case 'blank':
     case 'unmeasured':
     case 'unknown':

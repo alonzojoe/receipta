@@ -240,7 +240,8 @@ async function export_pdf(
  * never saves unless every check passed: that is the rule that no wrong file is ever handed
  * over. The whole run has a 30 second budget; the libraries cannot be cancelled, so on
  * timeout the result is ignored, the nodes and canvases are freed at once, and nothing is
- * saved even if a library resolves later.
+ * saved even if a library resolves later. The failure carries `settled`, which resolves when
+ * the abandoned work really ends, so the caller can keep other exports out until then.
  */
 export async function run_export(
   kind: ExportKind,
@@ -255,16 +256,22 @@ export async function run_export(
     if (!live) fail({ kind: 'timed_out' })
   }
 
+  const work = (kind === 'pdf' ? export_pdf : export_image)(view, ports, env, scope, alive).finally(() => scope.free())
+
   let timer: ReturnType<typeof setTimeout> | undefined
   const timeout = new Promise<never>((_, reject) => {
     timer = setTimeout(() => {
       live = false
       scope.free()
-      reject(new ExportFailure({ kind: 'timed_out' }))
+      // Its settling, win or lose, is what the caller waits for before another export starts.
+      const settled = work.then(
+        () => undefined,
+        () => undefined,
+      )
+      reject(new ExportFailure({ kind: 'timed_out' }, settled))
     }, env.timeout_ms)
   })
 
-  const work = (kind === 'pdf' ? export_pdf : export_image)(view, ports, env, scope, alive).finally(() => scope.free())
   // If the timeout wins, `work` may still settle later: its outcome is ignored.
   work.catch(() => undefined)
 

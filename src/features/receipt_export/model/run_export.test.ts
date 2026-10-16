@@ -453,6 +453,31 @@ describe('the 30 second timeout (criterion 65)', () => {
     expect(late.release).toHaveBeenCalled()
   })
 
+  it('hands the caller a promise that settles only when the abandoned work does', async () => {
+    vi.useFakeTimers()
+    let finish!: (canvas: RenderedCanvas) => void
+    const ports = make_ports({ rasterise: vi.fn(() => new Promise<RenderedCanvas>((resolve) => (finish = resolve))) })
+    const caught = run_export('png', view, ports, make_env()).then(
+      () => {
+        throw new Error('expected a timeout')
+      },
+      (cause: unknown) => cause as ExportFailure,
+    )
+    await vi.advanceTimersByTimeAsync(export_timeout_ms)
+    const failure = await caught
+    expect(failure.error.kind).toBe('timed_out')
+    expect(failure.settled).toBeInstanceOf(Promise)
+
+    let settled = false
+    void failure.settled?.then(() => (settled = true))
+    await vi.advanceTimersByTimeAsync(5_000)
+    expect(settled).toBe(false)
+
+    finish(make_canvas())
+    await vi.advanceTimersByTimeAsync(10)
+    expect(settled).toBe(true)
+  })
+
   it('also covers a stage before the rasteriser', async () => {
     vi.useFakeTimers()
     const env = make_env({ wait: () => new Promise<AssetFailure[]>(() => undefined) })

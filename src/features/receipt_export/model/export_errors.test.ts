@@ -25,6 +25,12 @@ describe('the messages (byte for byte from the spec)', () => {
     expect(export_error_message({ kind: 'timed_out' })).toBe('Making the file took too long. Try again.')
   })
 
+  it('tells the user to check the connection when the libraries do not load', () => {
+    expect(export_error_message({ kind: 'load_failed' })).toBe(
+      'The export tools could not be loaded. Check your connection and try again.',
+    )
+  })
+
   it.each(['blank', 'unmeasured', 'unknown'] as const)('gives the generic message for %s', (kind) => {
     expect(export_error_message({ kind })).toBe('The file could not be created. Your receipt is safe. Try again.')
   })
@@ -34,6 +40,7 @@ describe('the messages (byte for byte from the spec)', () => {
       { kind: 'photo_unreadable', item: 1 },
       { kind: 'too_large' },
       { kind: 'timed_out' },
+      { kind: 'load_failed' },
       { kind: 'blank' },
       { kind: 'unmeasured' },
       { kind: 'unknown' },
