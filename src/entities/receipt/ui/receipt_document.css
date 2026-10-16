@@ -1,0 +1,376 @@
+/*
+ * The receipt document. A fixed-size artefact, not a responsive page: if it reflowed, the
+ * file would depend on the screen it was made on. So every size here is a fixed pixel value
+ * from type_scale.ts (receipt-export spec, "Fixed pixel sizes"), and the carve-out from the
+ * fluid-sizing rule covers this one file.
+ *
+ * Rules this file keeps, each one a bug it was written to prevent:
+ *
+ * - Colour is var(--receipt-*) only. The values live in index.css :root and are never
+ *   overridden in .dark.
+ * - This sheet is unlayered, so it beats Tailwind's `@layer base { * { border-color } }`.
+ *   Under .dark that rule would give any bordered element a translucent white border, and
+ *   outline and shadow leak the same way (the task 1 spike took a 12,900 pixel difference to
+ *   0 with the `.receipt *` rule below).
+ * - No margin on a measured unit except horizontal `auto`. Pagination adds measured heights,
+ *   and vertical margins collapse, so a margin would make the sum wrong. Spacing is padding.
+ * - Every line height is a whole pixel (type_scale.ts), so every unit's height is an integer
+ *   and a 1 px rule lands on one device row at ratio 3 instead of blurring across three.
+ * - Three weights only, 400, 500 and 600, and no 700: size does little of the work here,
+ *   weight and colour do most of it, which is why a Stripe-style receipt reads calm.
+ * - No tabular-nums: the spike measured that the rasteriser changes the layout box but not
+ *   the ink, so right-aligned amounts overshoot by about 4 px. Right alignment is enough.
+ */
+
+.receipt {
+  box-sizing: border-box;
+  background: var(--receipt-paper);
+  color: var(--receipt-ink);
+  color-scheme: light;
+  font-family:
+    'Geist Variable', system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', 'Helvetica Neue',
+    Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+  outline: none;
+  box-shadow: none;
+  /* `.receipt *` below covers every descendant; the root needs the same, or it keeps the
+   * app's border and outline colour under .dark (invisible at width 0, but still a leak). */
+  border-color: var(--receipt-rule);
+  outline-color: var(--receipt-rule);
+}
+
+.receipt *,
+.receipt *::before,
+.receipt *::after {
+  box-sizing: border-box;
+  margin: 0;
+  border-color: var(--receipt-rule);
+  outline-color: var(--receipt-rule);
+  box-shadow: none;
+}
+
+.receipt-document,
+.receipt-specimens {
+  width: 600px;
+  padding: 40px;
+}
+
+.receipt-page {
+  width: 600px;
+  height: 849px;
+  padding: 40px;
+  overflow: hidden;
+}
+
+.receipt-page-body {
+  display: flex;
+  flex-direction: column;
+  height: 769px;
+}
+
+.receipt-page-body > * {
+  flex: none;
+}
+
+.receipt-page-body > .receipt-grow {
+  flex: 1 1 0;
+}
+
+/* The shared pieces of text. */
+
+/* Every label is the same muted grey at the same small size; every value is near-black. */
+.receipt-label,
+.receipt-small {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+  color: var(--receipt-muted);
+}
+
+.receipt-wrap {
+  overflow-wrap: anywhere;
+}
+
+/* The title row: "Receipt" top left, the mark top right on the same line, a violet rule under. */
+
+.receipt-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--receipt-accent);
+}
+
+.receipt-title {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
+}
+
+.receipt-mark {
+  display: block;
+  flex: none;
+  width: 28px;
+  height: 28px;
+}
+
+/* Receipt number and date: tight label / value pairs, no rules. */
+
+.receipt-meta {
+  padding-top: 12px;
+}
+
+.receipt-meta-row {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 12px;
+  line-height: 20px;
+}
+
+.receipt-meta-row dt {
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--receipt-muted);
+}
+
+.receipt-meta-row dd {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+/* Who it is from and who it is for: two columns of equal weight, label over name. */
+
+.receipt-parties {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  padding-top: 16px;
+}
+
+.receipt-party-name {
+  overflow-wrap: anywhere;
+}
+
+/* The amount as one sentence. */
+
+.receipt-lead {
+  padding: 16px 0;
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/*
+ * The item table. Fixed columns, never content-sized: every page of a PDF is its own table and
+ * must wrap a name exactly as the measurement did. 64 + 96 + 112 are type_scale.ts
+ * table_columns; the description takes the rest of the 520 px column.
+ */
+
+.receipt-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px 96px 112px;
+}
+
+.receipt-num {
+  padding-left: 12px;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.receipt-table-head {
+  padding: 6px 0;
+  border-top: 1px solid var(--receipt-rule);
+  border-bottom: 1px solid var(--receipt-rule);
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  color: var(--receipt-muted);
+}
+
+/* 8 above, 7 below and a 1 px rule: 16 px of chrome, so a row with a 56 px thumbnail is
+ * exactly the 72 px type_scale.ts calls photo_row_height. A row of text is 36. */
+.receipt-row {
+  padding: 8px 0 7px;
+  border-bottom: 1px solid var(--receipt-rule);
+}
+
+.receipt-description {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.receipt-thumb {
+  display: block;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border: 1px solid var(--receipt-rule);
+  border-radius: 6px;
+}
+
+.receipt-row-name {
+  flex: 1 1 0;
+  min-width: 0;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+/* A row with no photo, in a receipt where some rows have one: the 56 px column plus the
+ * 12 px gap stays empty, so every name starts at the same place. */
+.receipt-row-name-indent {
+  padding-left: 68px;
+}
+
+/* The summary, right-aligned to the Amount column's right edge. */
+
+.receipt-summary {
+  padding: 12px 0;
+}
+
+.receipt-summary-table {
+  width: 100%;
+  max-width: 280px;
+  margin-left: auto;
+}
+
+.receipt-summary-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.receipt-summary-row dd {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.receipt-summary-strong {
+  font-weight: 500;
+}
+
+/* Amount paid closes the summary, bold, the one figure in violet. */
+.receipt-summary-paid {
+  padding-top: 6px;
+  border-top: 1px solid var(--receipt-rule);
+  font-weight: 600;
+}
+
+.receipt-summary-paid dd {
+  color: var(--receipt-accent);
+}
+
+/* Payment and Notes: a small section, a heading, a hairline. */
+
+.receipt-section {
+  padding: 12px 0;
+}
+
+.receipt-section-title {
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--receipt-rule);
+  font-weight: 600;
+}
+
+.receipt-payment-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding-top: 8px;
+}
+
+.receipt-payment-cell {
+  display: flex;
+  align-items: center;
+  min-height: 28px;
+}
+
+.receipt-payment-method {
+  gap: 8px;
+  font-weight: 500;
+}
+
+.receipt-payment-logo {
+  display: block;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.receipt-notes-text {
+  padding-top: 8px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* The statement and the footer. */
+
+.receipt-statement {
+  padding-bottom: 12px;
+}
+
+.receipt-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--receipt-rule);
+}
+
+.receipt-footer-credit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.receipt-footer-wordmark {
+  display: block;
+  flex: none;
+  width: auto;
+  height: 16px;
+}
+
+.receipt-page-label {
+  white-space: nowrap;
+}
+
+/* Every page after the first, and every page but the last. */
+
+.receipt-running-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 16px;
+}
+
+.receipt-running-issuer {
+  flex: 1 1 0;
+  min-width: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.receipt-running-meta {
+  flex: 0 1 auto;
+  max-width: 50%;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.receipt-foot-band {
+  padding-top: 12px;
+  border-top: 1px solid var(--receipt-rule);
+}
