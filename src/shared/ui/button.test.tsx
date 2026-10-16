@@ -86,16 +86,30 @@ describe('Button', () => {
     }
 
     const theme = block('@theme inline')
-    for (const name of ['button', 'button-foreground', 'button-hover']) {
+    const exposed = ['button', 'button-foreground', 'button-hover', 'brand-fill', 'brand-fill-foreground']
+    for (const name of exposed) {
       // Anchored, not a substring: a declaration commented out with // or wrapped in
       // /* */ still satisfies toContain while contributing nothing to the build.
       expect(theme).toMatch(new RegExp(`^\\s*--color-${name}:\\s*var\\(--${name}\\);`, 'm'))
     }
 
+    /**
+     * The violet literal lives on --brand-fill, which the Button and the /create
+     * timeline's active step both consume; --button is an alias of it. Pinning the whole
+     * chain, not just the end of it: an alias that resolves to nothing still reads as a
+     * valid declaration, and this test exists because a token defined in the wrong place
+     * never reaches the utility that is supposed to use it.
+     */
     const dark = block('\\.dark')
-    expect(dark).toMatch(/--button:\s*oklch\(/)
-    expect(dark).toMatch(/--button-foreground:\s*oklch\(/)
+    expect(dark).toMatch(/--brand-fill:\s*oklch\(/)
+    expect(dark).toMatch(/--brand-fill-foreground:\s*oklch\(/)
+    expect(dark).toMatch(/--button:\s*var\(--brand-fill\);/)
+    expect(dark).toMatch(/--button-foreground:\s*var\(--brand-fill-foreground\);/)
     expect(dark).toMatch(/--button-hover:\s*color-mix\(/)
+
+    const root = block(':root')
+    expect(root).toMatch(/--brand-fill:\s*var\(--primary\);/)
+    expect(root).toMatch(/--button:\s*var\(--brand-fill\);/)
   })
 
   it('exposes variant and size as data attributes', () => {
