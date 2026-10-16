@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { default_open_id, questions } from '../model/questions'
@@ -107,6 +107,14 @@ describe('HomeFaq', () => {
     expect(screen.getAllByRole('region')).toHaveLength(1)
   })
 
+  /**
+   * Both halves wait on the condition rather than asserting it one tick after the click.
+   * Radix moves a panel's content and its `hidden` attribute across separate commits, and
+   * this accordion is single-open, so one click tears down the previously open item while
+   * building this one. Asserting immediately caught the panel mounted-but-still-hidden
+   * roughly once in ten runs under CPU load - a real race in the test, not in the
+   * component. `waitFor` polls, so it is as fast as before when the machine is idle.
+   */
   it('removes an answer from the accessibility tree again once it is closed', async () => {
     const user = userEvent.setup()
     render(<HomeFaq />)
@@ -114,16 +122,22 @@ describe('HomeFaq', () => {
     const button = screen.getByRole('button', { name: question })
 
     await user.click(button)
-    expect(screen.getByText(answer)).toBeVisible()
-    expect(screen.getByRole('region', { name: question })).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText(answer)).toBeVisible()
+      expect(screen.getByRole('region', { name: question })).toBeInTheDocument()
+    })
 
     await user.click(button)
+    // Outside the poll: the trigger's own state flips in the same commit as the click, so
+    // waiting on it would only delay a genuine failure by the full timeout.
     expect(button).toHaveAttribute('aria-expanded', 'false')
-    expect(screen.queryByText(answer)).toBeNull()
-    expect(screen.queryByRole('region', { name: question })).toBeNull()
-    const panel = panel_for(button)
-    expect(panel).toHaveAttribute('hidden')
-    expect(panel).toBeEmptyDOMElement()
+    await waitFor(() => {
+      expect(screen.queryByText(answer)).toBeNull()
+      expect(screen.queryByRole('region', { name: question })).toBeNull()
+      const panel = panel_for(button)
+      expect(panel).toHaveAttribute('hidden')
+      expect(panel).toBeEmptyDOMElement()
+    })
   })
 
   it('toggles with Enter and Space and keeps focus on the button', async () => {
@@ -178,15 +192,20 @@ describe('HomeFaq', () => {
     }
   })
 
+  /**
+   * `findByText`, not `getByText`: this clicks an item while the first one is open, so it
+   * is the same teardown-and-build case as the test above and had the same latent race.
+   * It had not been seen to fail, which is the only reason it looked fine.
+   */
   it('keeps the BIR answer plain', async () => {
     const user = userEvent.setup()
     render(<HomeFaq />)
     await user.click(screen.getByRole('button', { name: 'Is this a BIR official receipt?' }))
-    expect(screen.getByText(/not a tax document/)).toBeInTheDocument()
+    expect(await screen.findByText(/not a tax document/)).toBeInTheDocument()
     // Pinned in full: this is the one answer with legal weight, and the data file is
     // the only other place it lives.
     expect(
-      screen.getByText(
+      await screen.findByText(
         'No, and it should not be used as one. An official receipt has registration, numbering, and retention requirements that this tool does not meet. Receipta produces a proof-of-payment document you can send a customer, not a tax document.',
       ),
     ).toBeInTheDocument()
