@@ -82,16 +82,30 @@ describe('StepTimeline colours', () => {
     expect(upcoming).not.toContain('bg-primary')
   })
 
-  it('tracks progress in the brand violet, in both themes', () => {
+  /**
+   * The progress stays on `--primary`. The mark violet separated from its own empty track
+   * at only 1.89:1 in dark, against about 4.5:1 for lavender - both are dark colours, so
+   * the filled and empty halves of a gauge stopped being distinguishable. The violet
+   * belongs on the disc, which is identified by its rim and its white content, not on a
+   * bar whose only job is a boundary.
+   */
+  it('leaves the progress line and bar on primary, so the gauge stays readable', () => {
     const { container } = timeline(2)
-    const filled = [...container.querySelectorAll('*')].filter((el) =>
-      /(^|\s)bg-brand-fill(\s|$)/.test(el.className),
-    )
 
-    // The rail line between discs, and the card header's overall bar.
-    expect(filled.length).toBeGreaterThanOrEqual(2)
-    for (const el of filled) {
-      expect(el.className).not.toContain('bg-primary')
+    const brand = [...container.querySelectorAll('*')].filter((el) =>
+      /brand-fill/.test(el.className),
+    )
+    // Only the active disc may carry the brand fill.
+    expect(brand).toHaveLength(1)
+    expect(brand[0].className).toContain('dark:bg-brand-fill')
+
+    const bars = [...container.querySelectorAll('*')].filter((el) =>
+      /origin-left|origin-top/.test(el.className),
+    )
+    expect(bars.length).toBeGreaterThanOrEqual(2)
+    for (const bar of bars) {
+      expect(bar.className).toContain('bg-primary')
+      expect(bar.className).not.toContain('brand-fill')
     }
   })
 

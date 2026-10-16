@@ -86,7 +86,7 @@ export function StepTimeline({ current, on_select, details = {} }: StepTimelineP
         </div>
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
           <div
-            className="h-full w-full origin-left rounded-full bg-brand-fill transition-transform duration-200 ease-out motion-reduce:transition-none"
+            className="h-full w-full origin-left rounded-full bg-primary transition-transform duration-200 ease-out motion-reduce:transition-none"
             style={{ transform: `scaleX(${current / steps.length})` }}
           />
         </div>
@@ -134,6 +134,13 @@ export function StepTimeline({ current, on_select, details = {} }: StepTimelineP
                     // active step is meant to echo. The lavender rim stays - it defines
                     // the disc's edge at ~6:1 against the row, where a violet rim would
                     // leave that edge at ~2.5:1.
+                    //
+                    // The progress line and bar stay on --primary deliberately. The mark
+                    // violet separated from its own empty track at only 1.89:1 in dark,
+                    // against ~4.5:1 for lavender: both are dark colours, so the filled
+                    // and empty halves of a gauge stopped being distinguishable. The
+                    // violet belongs on the disc, which is identified by its rim and its
+                    // white content, not on a bar whose only job is a boundary.
                     state === 'current' &&
                       'border-2 border-primary bg-card text-primary ring-4 ring-primary/20 dark:bg-brand-fill dark:text-brand-fill-foreground',
                     state === 'upcoming' &&
@@ -146,7 +153,7 @@ export function StepTimeline({ current, on_select, details = {} }: StepTimelineP
                   <span className="relative z-10 -mb-3 mt-1 min-h-3 w-0.5 flex-1 overflow-hidden rounded-full bg-border">
                     <span
                       className={cn(
-                        'absolute inset-0 origin-top bg-brand-fill transition-transform duration-200 ease-out',
+                        'absolute inset-0 origin-top bg-primary transition-transform duration-200 ease-out',
                         'motion-reduce:scale-y-100 motion-reduce:transition-opacity',
                         state === 'completed' ? 'scale-y-100' : 'scale-y-0 motion-reduce:opacity-0',
                       )}
