@@ -10,7 +10,9 @@ import {
   find_interfaces,
   find_intl_number_format,
   find_raw_form_elements,
+  find_dynamic_export_library_imports,
   find_sibling_slice_imports,
+  find_static_export_library_imports,
 } from './source_rules'
 
 /**
@@ -178,5 +180,35 @@ describe('find_sibling_slice_imports', () => {
 
   it('does not apply to a page, which may compose widgets', () => {
     expect(find_sibling_slice_imports('/src/pages/home/ui/home.tsx', "import { A } from '@/widgets/site_header'")).toEqual([])
+  })
+})
+
+describe('find_static_export_library_imports and find_dynamic_export_library_imports', () => {
+  const path = '/src/features/receipt_export/lib/x.ts'
+
+  it.each([
+    "import html2canvas from 'html2canvas-pro'",
+    "import { jsPDF } from 'jspdf'",
+    "import type { jsPDF } from 'jspdf'",
+    "import 'html2canvas-pro/dist/x'",
+    "export { jsPDF } from 'jspdf'",
+  ])('flags the static %s', (code) => {
+    expect(count(find_static_export_library_imports(path, code))).toBe(1)
+  })
+
+  it.each([
+    "const a = await import('jspdf')",
+    "import { A } from 'react'",
+    "import { A } from './jspdf_adapter'",
+    "const a = 'import jsPDF from \"jspdf\"'",
+    "// import jsPDF from 'jspdf'",
+  ])('does not flag %s as static', (code) => {
+    expect(find_static_export_library_imports(path, code)).toEqual([])
+  })
+
+  it('finds dynamic imports of either library, and not look-alikes', () => {
+    expect(count(find_dynamic_export_library_imports(path, "await Promise.all([import('html2canvas-pro'), import('jspdf')])"))).toBe(2)
+    expect(find_dynamic_export_library_imports(path, "await import('./jspdf_adapter')")).toEqual([])
+    expect(find_dynamic_export_library_imports(path, "import { jsPDF } from 'jspdf'")).toHaveLength(1)
   })
 })

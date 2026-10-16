@@ -233,3 +233,33 @@ export function find_sibling_slice_imports(path: string, source: string): Hit[] 
     return Boolean(other && other.layer === own.layer && other.slice !== own.slice)
   }).map(({ specifier, line }) => ({ line, text: specifier }))
 }
+
+const export_libraries = /^(?:html2canvas-pro|html2canvas|jspdf)(?:\/|$)/
+
+/**
+ * A static import or re-export of html2canvas-pro or jspdf (type-only imports included), which
+ * would put the library in whichever chunk imports it. Both are loaded by `import()` in one
+ * file so `/create` does not pay for them until export is pressed.
+ */
+export function find_static_export_library_imports(path: string, source: string): Hit[] {
+  const file = parse(path, source)
+  const hits: Hit[] = []
+  walk(file, (node) => {
+    if (
+      (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
+      node.moduleSpecifier &&
+      ts.isStringLiteral(node.moduleSpecifier) &&
+      export_libraries.test(node.moduleSpecifier.text)
+    ) {
+      hits.push(hit(file, node))
+    }
+  })
+  return hits
+}
+
+/** A dynamic `import('html2canvas-pro')` or `import('jspdf')`. */
+export function find_dynamic_export_library_imports(path: string, source: string): Hit[] {
+  return import_specifiers(path, source)
+    .filter(({ specifier }) => export_libraries.test(specifier))
+    .map(({ specifier, line }) => ({ line, text: specifier }))
+}

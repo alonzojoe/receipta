@@ -1,6 +1,7 @@
-import type { FormEvent } from 'react'
+import type { FormEvent, ReactNode } from 'react'
 import toast from 'react-hot-toast'
 
+import type { ReceiptInput } from '@/entities/receipt'
 import { cn } from '@/shared/lib/utils'
 import { Section } from '@/shared/ui/section'
 
@@ -23,15 +24,20 @@ const step_descriptions = {
   parties: 'Who is issuing the receipt, and who it is for.',
   items: 'What was sold. Add a photo to any item.',
   payment: 'How you were paid, and when.',
-  review: 'Check everything before you go on.',
+  review: 'This is the receipt you will send. Check it, then download it.',
 } as const
+
+type ReceiptWizardProps = {
+  /** Renders the preview and the downloads on the Review step. Required: see `ReviewStep`. */
+  render_review: (values: ReceiptInput) => ReactNode
+}
 
 /**
  * The whole receipt form: one TanStack Form instance, a four-step wizard around it, and
  * the autosaved draft. Only the current step is in the DOM; unmounting a field keeps its
  * value in the form, so Back never loses anything.
  */
-export function ReceiptWizard() {
+export function ReceiptWizard({ render_review }: ReceiptWizardProps) {
   const { form, initial } = useReceiptForm()
   const {
     step_number,
@@ -113,7 +119,7 @@ export function ReceiptWizard() {
               {step_name === 'parties' && <PartiesStep form={form} />}
               {step_name === 'items' && <ItemsStep form={form} />}
               {step_name === 'payment' && <PaymentStep form={form} />}
-              {step_name === 'review' && <ReviewStep form={form} go_to={go_to} />}
+              {step_name === 'review' && <ReviewStep form={form} go_to={go_to} render_review={render_review} />}
             </div>
 
             <StepNav

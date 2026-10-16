@@ -12,8 +12,8 @@ const steps: readonly Step[] = [
     body: 'Your name or your company, who it is for, and what they paid for. Add a photo to any item.',
   },
   {
-    title: 'Review the summary',
-    body: 'Check the line items, the discount, and the total before anything is final.',
+    title: 'Preview the receipt',
+    body: 'See the receipt exactly as your customer will, with the line items, the discount and the total.',
   },
   {
     title: 'Export and send',
