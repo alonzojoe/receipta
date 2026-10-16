@@ -1,12 +1,16 @@
-import { today_local } from '@/entities/receipt'
+import {
+  cash_method,
+  normalise_notes,
+  notes_max_length,
+  notes_max_lines,
+  other_method,
+  today_local,
+} from '@/entities/receipt'
 import { AppInput } from '@/shared/ui/app_input'
 import { AppTextarea } from '@/shared/ui/app_textarea'
 
-import { normalise_notes } from '../../model/field_rules'
 import { step_validators } from '../../model/field_validators'
-import { cash_method, other_method } from '../../model/receipt_form_values'
 import type { ReceiptFormApi } from '../../model/use_receipt_form'
-import { notes_max_length, notes_max_lines } from '@/entities/receipt'
 import { FormField } from '../form_field'
 import { PaymentMethodPicker } from '../payment_method_picker'
 

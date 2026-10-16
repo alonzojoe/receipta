@@ -1,8 +1,7 @@
+import { payment_method_name, summarise_receipt } from '@/entities/receipt'
 import { format_centavos } from '@/shared/lib/format_currency'
 
-import { payment_method_name } from './payment_method'
 import type { ReceiptFormValues } from './receipt_form_values'
-import { summarise_receipt } from './receipt_totals'
 import type { StepName } from './step_rules'
 
 type DetailValues = Pick<

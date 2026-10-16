@@ -1,15 +1,8 @@
-import {
-  compute_totals,
-  line_total,
-  parse_discount,
-  parse_price,
-  parse_quantity,
-} from '@/entities/receipt'
-
-import type { ItemValues, ReceiptFormValues } from './receipt_form_values'
+import { compute_totals, line_total, parse_discount, parse_price, parse_quantity } from './money'
+import type { ItemInput, ReceiptInput } from './receipt_input'
 
 /** One line in centavos, or undefined while its quantity or price is not a valid number. */
-export function item_line_total(item: Pick<ItemValues, 'quantity' | 'price'>) {
+export function item_line_total(item: Pick<ItemInput, 'quantity' | 'price'>) {
   const quantity = parse_quantity(item.quantity)
   const price = parse_price(item.price)
   if (!quantity.ok || !price.ok) return undefined
@@ -29,7 +22,7 @@ export type ReceiptSummary = {
  * The live figures under the items. Uses only the lines that are valid so far, so the
  * subtotal grows as the user completes rows. All integer arithmetic, in `entities`.
  */
-export function summarise_receipt(values: Pick<ReceiptFormValues, 'items' | 'discount'>): ReceiptSummary {
+export function summarise_receipt(values: Pick<ReceiptInput, 'items' | 'discount'>): ReceiptSummary {
   const lines = values.items.flatMap((item) => {
     const quantity = parse_quantity(item.quantity)
     const price = parse_price(item.price)
@@ -66,7 +59,7 @@ export type ItemFigures = {
 }
 
 /** The numbers of one valid line, ready to format. Undefined while the line is invalid. */
-export function item_figures(item: Pick<ItemValues, 'quantity' | 'price'>): ItemFigures | undefined {
+export function item_figures(item: Pick<ItemInput, 'quantity' | 'price'>): ItemFigures | undefined {
   const quantity = parse_quantity(item.quantity)
   const price = parse_price(item.price)
   if (!quantity.ok || !price.ok) return undefined

@@ -1,6 +1,6 @@
 import { find_institution } from '@/shared/config/institutions'
 
-import { cash_method, other_method } from './receipt_form_values'
+import { cash_method, other_method } from './receipt_input'
 
 /** The name to show for a stored method: the institution, "Cash", or the Other text. */
 export function payment_method_name(method: string, other_text: string) {

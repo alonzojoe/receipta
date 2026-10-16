@@ -1,6 +1,6 @@
+import type { ReceiptSummary } from '@/entities/receipt'
 import { format_centavos } from '@/shared/lib/format_currency'
 
-import type { ReceiptSummary } from '../model/receipt_totals'
 
 type TotalsSummaryProps = { summary: ReceiptSummary }
 
