@@ -129,3 +129,22 @@ the disc is readable; its outline is not strong. The fix is decision 2.
 - **Lifting the progress line above 3:1** (lighter violet, wider line, brighter track).
 - **The strip below 1024px** matching the rail.
 - **Other violet fills** (badges, chips) should use `--brand-fill`.
+
+
+## Amendment after measurement
+
+The spec required the progress line and card header bar to take the mark violet. They
+were built that way, measured, and **reverted to `--primary` on the author's decision.**
+
+The figure that settled it: the violet fill separated from its own empty track at
+**1.89:1** in dark, against about 4.5:1 for lavender. Both are dark colours, so the filled
+and empty halves of the bar stopped being distinguishable. Nothing failed a criterion -
+the bar is `aria-hidden` and the step count is stated as text beside it - but a gauge that
+cannot show its own boundary is not doing its job.
+
+**Only the active step's disc takes the mark violet**, as a fill with white content, where
+it is legible and where it carries meaning. The criteria covering the progress line and
+bar are superseded by this amendment; the criteria covering the active disc stand.
+
+This is recorded rather than quietly edited because the spec was not wrong to ask - the
+request was explicit - and the measurement is what changed the answer.

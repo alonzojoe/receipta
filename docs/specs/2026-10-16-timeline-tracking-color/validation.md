@@ -12,8 +12,8 @@ calculations and two of them were out by a visible margin.
 | --- | --- | --- |
 | Active step's disc, dark | outline, `bg-card` with a violet number | **filled** `--brand-fill` with white content |
 | Active step's disc, light | outline, violet number | unchanged |
-| Rail progress line | `bg-primary` | `bg-brand-fill` |
-| Card header progress bar | `bg-primary` | `bg-brand-fill` |
+| Rail progress line | `bg-primary` | unchanged - see below |
+| Card header progress bar | `bg-primary` | unchanged - see below |
 | Everything else in the rail | - | unchanged |
 
 Unchanged on purpose, per the author's "no other change": the completed discs and their
@@ -31,9 +31,8 @@ compact strip below 1024px, and the focus ring.
 | Active fill vs the card | 2.69:1 | - | see exception |
 | Active disc's lavender rim vs the card | **6.50:1** | 3:1 | pass |
 | Rim vs the fill it encloses | 2.41:1 | - | not load-bearing |
-| Progress line and header bar | `rgb(96, 49, 241)` | the logo mark's violet | **exact** |
-| Progress vs the card | 2.69:1 | - | see exception |
-| **Progress fill vs its own empty track** | **1.89:1** | - | **accepted, see below** |
+| Progress line and header bar | `rgb(168, 139, 250)` | unchanged lavender | reverted |
+| Progress fill vs its own empty track | ~4.5:1 | - | unchanged |
 | Completed discs (unchanged) | content 6.07:1, rim 3.77:1 | - | unmoved |
 
 ### Light
@@ -63,7 +62,9 @@ reasons:
   exception the spec records, and it is noted beside the token in `index.css` so the next
   person to reuse `--brand-fill` as ink finds the reasoning rather than the precedent.
 
-### The figure that was missing, and the author's decision on it
+### The progress bar was recoloured, measured, and put back
+
+This is the part worth reading, because the measurement changed the design.
 
 The first version of this document recorded the progress against the *card* (2.69:1) and
 never measured it against **its own empty track**, which is the pair that actually shows
@@ -80,18 +81,24 @@ of the bar now differ far less than they did. Both colours are dark, and contras
 two dark colours is inherently low - no arrangement of this violet on this track reaches
 3:1 without changing one of them.
 
-**The author accepted it as it stands** ("accept as it is for now"), having been shown the
-measured figures and the alternatives. Nothing is required to change: the bar is
-`aria-hidden`, and "Step n of 4" states the same information as text immediately beside
-it, so 1.4.11 does not apply. The honest description is that the bar is now a weaker
-gauge than it was, and reads more as decoration than as a measure.
+**The author's decision, on seeing the figures: put the progress back to lavender**
+("or can you try to bring back the old color of progressbar?", then "yea i think its
+better"). Only the active step's disc keeps the mark violet.
 
-Two fixes were offered and declined for now, and stay available: darkening the dark-mode
-track so the violet reads against it as an inset groove (about 3:1), or keeping the bar
-lavender while the active disc alone takes the violet. Both are in Deferred.
+That is the right division, and the measurement is what showed it. Nothing *required* the
+change - the bar is `aria-hidden` and "Step n of 4" states the same information as text
+beside it, so 1.4.11 never applied. But a gauge whose filled and empty halves differ by
+1.89:1 has stopped being a gauge, and no arrangement of this violet on this track reaches
+3:1 without changing one of them.
 
-A lighter violet for the line is also Deferred, to be settled by eye on a real display
-rather than by another calculation.
+So the violet sits where it carries meaning and is legible - a filled disc identified by
+its 6.50:1 rim and its 6.55:1 white content - and not on a bar whose entire job is a
+boundary. The reasoning is in a comment beside the disc's classes, so the next person to
+wonder why the two differ finds it.
+
+Also considered and not taken: darkening the dark-mode track so the violet reads against
+it as an inset groove (about 3:1). It would have worked, at the cost of another token and
+a visual change to the bar nobody asked for. Deferred.
 
 ## Non-regression
 
@@ -122,11 +129,17 @@ Five mutations, each applied, run and reverted:
 
 | Mutation | Caught by |
 | --- | --- |
-| `dark:` prefix dropped from the fill | 2 tests |
+| `dark:` prefix dropped from the fill, repainting light mode | 3 tests |
 | the fill removed entirely | 1 test |
 | the rim recoloured to `brand-fill` (ink misuse) | 1 test |
-| the progress line returned to `bg-primary` | 1 test |
+| the progress line recoloured to `brand-fill` | 1 test |
+| the header bar recoloured to `brand-fill` | 1 test |
 | a completed disc recoloured (out of scope) | 2 tests |
+
+The last three matter more than they look: the progress being violet is exactly what was
+tried, measured and reverted, so the test now pins the decision rather than the code that
+happened to be written. Only one element in the whole component may carry `brand-fill`,
+and the test asserts that count.
 
 ## Not verified
 
