@@ -77,6 +77,9 @@ describe('the document files (white-background layer 1)', () => {
   })
 })
 
+/** Inherited colour properties: a global rule that sets one on `*` would reach the document in dark mode. */
+const inherited_colour_properties = ['caret-color', 'accent-color', 'text-decoration-color']
+
 describe('receipt_document.css', () => {
   it('declares its own background, colour, colour scheme and font on the root (criterion 16)', () => {
     const rules = rules_for(css, '.receipt')
@@ -90,6 +93,7 @@ describe('receipt_document.css', () => {
     expect(map['box-shadow']).toBe('none')
     expect(map['border-color']).toBe('var(--receipt-rule)')
     expect(map['outline-color']).toBe('var(--receipt-rule)')
+    for (const property of inherited_colour_properties) expect(map[property], property).toBe('var(--receipt-ink)')
   })
 
   it('resets border, outline and shadow colour on every descendant, unlayered (the dark leak)', () => {
@@ -98,6 +102,7 @@ describe('receipt_document.css', () => {
     expect(map['border-color']).toBe('var(--receipt-rule)')
     expect(map['outline-color']).toBe('var(--receipt-rule)')
     expect(map['box-shadow']).toBe('none')
+    for (const property of inherited_colour_properties) expect(map[property], property).toBe('var(--receipt-ink)')
     expect(css).not.toMatch(/@layer/)
   })
 

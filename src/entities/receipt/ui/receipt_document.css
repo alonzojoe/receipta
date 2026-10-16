@@ -42,6 +42,9 @@
    * app's border and outline colour under .dark (invisible at width 0, but still a leak). */
   border-color: var(--receipt-rule);
   outline-color: var(--receipt-rule);
+  caret-color: var(--receipt-ink);
+  accent-color: var(--receipt-ink);
+  text-decoration-color: var(--receipt-ink);
 }
 
 .receipt *,
@@ -51,6 +54,9 @@
   margin: 0;
   border-color: var(--receipt-rule);
   outline-color: var(--receipt-rule);
+  caret-color: var(--receipt-ink);
+  accent-color: var(--receipt-ink);
+  text-decoration-color: var(--receipt-ink);
   box-shadow: none;
 }
 
