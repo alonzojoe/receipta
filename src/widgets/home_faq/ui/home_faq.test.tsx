@@ -128,8 +128,10 @@ describe('HomeFaq', () => {
     })
 
     await user.click(button)
+    // Outside the poll: the trigger's own state flips in the same commit as the click, so
+    // waiting on it would only delay a genuine failure by the full timeout.
+    expect(button).toHaveAttribute('aria-expanded', 'false')
     await waitFor(() => {
-      expect(button).toHaveAttribute('aria-expanded', 'false')
       expect(screen.queryByText(answer)).toBeNull()
       expect(screen.queryByRole('region', { name: question })).toBeNull()
       const panel = panel_for(button)
@@ -190,15 +192,20 @@ describe('HomeFaq', () => {
     }
   })
 
+  /**
+   * `findByText`, not `getByText`: this clicks an item while the first one is open, so it
+   * is the same teardown-and-build case as the test above and had the same latent race.
+   * It had not been seen to fail, which is the only reason it looked fine.
+   */
   it('keeps the BIR answer plain', async () => {
     const user = userEvent.setup()
     render(<HomeFaq />)
     await user.click(screen.getByRole('button', { name: 'Is this a BIR official receipt?' }))
-    expect(screen.getByText(/not a tax document/)).toBeInTheDocument()
+    expect(await screen.findByText(/not a tax document/)).toBeInTheDocument()
     // Pinned in full: this is the one answer with legal weight, and the data file is
     // the only other place it lives.
     expect(
-      screen.getByText(
+      await screen.findByText(
         'No, and it should not be used as one. An official receipt has registration, numbering, and retention requirements that this tool does not meet. Receipta produces a proof-of-payment document you can send a customer, not a tax document.',
       ),
     ).toBeInTheDocument()
