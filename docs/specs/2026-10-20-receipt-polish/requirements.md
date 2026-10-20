@@ -22,7 +22,7 @@ export pipeline and the money rules are all untouched.
 | The title rule's colour | **`--receipt-rule`**, the same hairline grey as every other rule | The author's instruction. It also removes the only place where a structural line carried brand colour, which is what made it read as decoration rather than structure. |
 | The title rule's weight | **Unchanged at 2px** | The instruction was about colour. The title rule is still the heaviest in the document, which is what separates the title block from the metadata, and it keeps that job in grey. |
 | What stays violet | **The mark, and the "Amount paid" figure** | Two touches, down from three. The mark is violet by being the logo, not by a rule. The figure is the one number a reader is looking for. |
-| The mark's size in the footer | Sized to the wordmark's optical height, not the header's 28px | A 28px mark beside a 16px wordmark would dominate the credit it belongs to. |
+| The mark's size in the footer | **20px**, against the wordmark's 16px | First sized to the wordmark's own height; the author asked for it bigger. Taller is right anyway - a compact shape beside lowercase text reads smaller than it measures when their boxes match. Still well under the header's old 28px, which was large enough to compete with the credit it sits in. |
 
 ## Scope
 
@@ -73,6 +73,17 @@ Chrome automation is not available for this change (author instruction), so:
 - The light-versus-dark pixel diff is **not re-run**. The source-level reset test still
   passes, and no new colour property is introduced, but the pixel comparison that was run
   for the export work is not repeated here.
+
+## Also in this branch
+
+Two pieces that did not land with the export PR and ride along here:
+
+- **Money figures could split mid-number.** At the maximum valid line the Amount printed as
+  `₱9,999,998,90` then `0.00`. Figures are now `nowrap`, and the numeric columns are sized
+  from the real glyph widths of the widest value the limits allow - measured from the
+  shipped font files, not counted as characters, which recovered about 42px for the
+  description column.
+- **The export validation doc and its spec amendments.**
 
 ## Deferred
 

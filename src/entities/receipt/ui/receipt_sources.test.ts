@@ -4,7 +4,7 @@ import { declarations, rules_for } from '@/test/css_blocks'
 import { import_specifiers } from '@/test/source_rules'
 import { strip_code_comments, find_theme_utilities, find_dark_variants, find_current_color, find_foreign_css_colours, theme_token_names } from '@/test/white_rules'
 
-import { line_height, page_height, page_margin, page_usable_height, page_width, payment_logo_size, footer_wordmark_height, title_mark_size, thumbnail_radius, thumbnail_size, table_column_chars, numeric_cell_padding, type_scale } from '../model/type_scale'
+import { line_height, page_height, page_margin, page_usable_height, page_width, payment_logo_size, footer_wordmark_height, footer_mark_size, thumbnail_radius, thumbnail_size, table_column_chars, numeric_cell_padding, type_scale } from '../model/type_scale'
 
 /**
  * Layer 1 of the white-background proof (receipt-export spec): the files that render the
@@ -110,7 +110,7 @@ describe('receipt_document.css', () => {
     for (const value of [...Object.values(type_scale), ...Object.values(line_height)]) {
       expect(css, `${value}px`).toMatch(new RegExp(`(?<![\\d.])${value}px`))
     }
-    for (const value of [page_width, page_height, page_margin, page_usable_height, thumbnail_size, thumbnail_radius, payment_logo_size, footer_wordmark_height, title_mark_size]) {
+    for (const value of [page_width, page_height, page_margin, page_usable_height, thumbnail_size, thumbnail_radius, payment_logo_size, footer_wordmark_height, footer_mark_size]) {
       expect(css, `${value}px`).toMatch(new RegExp(`(?<![\\d.])${value}px`))
     }
   })

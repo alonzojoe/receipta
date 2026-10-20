@@ -43,36 +43,61 @@ export const content_width = page_width - 2 * page_margin
 export const thumbnail_size = 56
 export const thumbnail_radius = 6
 export const payment_logo_size = 28
-/** The Receipta mark at the top right, on the title's line. */
-export const title_mark_size = 28
 export const footer_wordmark_height = 16
+/** The Receipta mark beside the footer wordmark. Taller than the wordmark on purpose: a
+ *  compact shape next to lowercase text reads smaller than it measures. */
+export const footer_mark_size = 20
 /**
  * The item table's numeric columns, sized in characters of the body font (CSS `ch`, the advance
  * of "0"), not in pixels. The widest value each column can hold is knowable from the form's
- * limits, so a column is made that many characters wide plus room for the heavier punctuation
- * and the peso sign. A figure is never allowed to wrap (`white-space: nowrap`), so a column
- * that is too narrow would clip, never split a number; sizing in `ch` makes "too narrow"
- * impossible by construction whatever the font draws, because every digit is at most one `ch`
- * wide and the comma and the point are narrower.
+ * limits, so each column is sized from that string - but by its real WIDTH, not its character
+ * count, which is what `widest_chars` below computes.
  *
- * - qty: `9,999.999` is 9 characters.
- * - unit price: `₱999,999.99` is 11.
- * - amount: `₱9,999,998,900.00` is 17 (price 999,999.99 x quantity 9,999.999).
+ * Counting characters was the first version and it was far too generous: `\u20b19,999,998,900.00`
+ * is 17 characters but only about 14.2ch wide, because a comma and a point are each under a
+ * third of a digit. Those 3 wasted characters came out of the description column, which is the
+ * one that has to hold an item name beside a thumbnail.
  *
- * `type_scale.test.ts` derives those strings from the limits and fails if a limit grows past
- * a column. Rows are separate grids, so a fixed column is also what keeps them aligned, and
- * every page of a PDF must wrap a name exactly as the measurement did.
+ * A figure is never allowed to wrap (`white-space: nowrap`), so a column that is too narrow
+ * would overflow rather than split a number. The page clips at its edge, so an overflow is
+ * visible rather than silent - but the margin below means it cannot happen at the form's limits.
+ *
+ * Fractional, not rounded up to whole characters: rounding each column to an integer `ch`
+ * wasted most of what measuring the glyphs recovered.
+ *
+ * `type_scale.test.ts` builds the worst-case strings FROM `limits.ts` and fails if a limit
+ * grows past its column. Rows are separate grids, so a fixed column is also what keeps them
+ * aligned, and every page of a PDF must wrap a name exactly as the measurement did.
  */
-export const table_column_chars = { qty: 9, unit_price: 11, amount: 17 } as const
+const glyph_chars = { digit: 1.035, peso: 1.06, separator: 0.32 } as const
+
+/**
+ * The width of `text` in `ch`, from the advances of the shipped Geist files. "0" is the widest
+ * digit (0.663em at 400, 0.683 at 600, so a bold digit is 1.03ch of the 400-weight grid the
+ * columns are declared on); a comma or point is 0.201em, under a third of that; the peso sign
+ * is a little over one. Each weight is rounded up from the measured value, so the result is an
+ * upper bound rather than an estimate.
+ */
+export function widest_chars(text: string) {
+  let total = 0
+  for (const character of text) {
+    if (character >= '0' && character <= '9') total += glyph_chars.digit
+    else if (character === '\u20b1') total += glyph_chars.peso
+    else total += glyph_chars.separator
+  }
+  return total
+}
+
+export const table_column_chars = { qty: 7.9, unit_price: 10.0, amount: 14.8 } as const
 /** Left padding of a numeric cell, in px: the gap between one column's figure and the last. */
 export const numeric_cell_padding = 12
 /**
- * What the pagination tests assume a `ch` is worth in px. An assumption, not a measurement
- * (the width of Geist's "0" was not rasterised): 0.65em, a little above the 0.6em a sans
- * digit usually has, so the estimate errs towards a narrower description. Used by tests only;
- * the layout itself uses `ch`.
+ * What a `ch` is worth in px, as an upper bound. Read from the shipped Geist files rather
+ * than assumed: "0" is 0.663em at weight 400 and 0.683em at 600, so 0.70 is above every
+ * weight the document uses. The earlier 0.65 was called an upper bound and was below the
+ * real 400-weight value, which made the description's floor about 4px too generous.
  */
-export const ch_px_upper_bound = type_scale.body * 0.65
+export const ch_px_upper_bound = type_scale.body * 0.7
 /** The description column's width at its narrowest: the content column less the three numeric ones. */
 export const description_width_floor =
   content_width -

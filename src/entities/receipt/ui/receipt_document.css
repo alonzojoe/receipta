@@ -177,7 +177,7 @@
 
 .receipt-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) calc(9ch + 12px) calc(11ch + 12px) calc(17ch + 12px);
+  grid-template-columns: minmax(0, 1fr) calc(7.9ch + 12px) calc(10ch + 12px) calc(14.8ch + 12px);
 }
 
 /* A figure is never broken: not inside a number, and not between the peso sign and its digits. */
