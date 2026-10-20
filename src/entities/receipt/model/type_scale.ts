@@ -48,6 +48,19 @@ export const footer_wordmark_height = 16
  *  compact shape next to lowercase text reads smaller than it measures. */
 export const footer_mark_size = 20
 /**
+ * The paid stamp. `rotation_deg` is applied with `transform`, which does not change the
+ * layout box, so the measured height is the unrotated one - that is what keeps pagination
+ * honest. `wrapper_padding` is the room the rotated ink needs: a 150x54 box turned 6 degrees
+ * reaches about 7.7px beyond its box top and bottom, so the wrapper reserves more than that
+ * and the stamp cannot paint over the footer.
+ */
+export const paid_stamp = {
+  rotation_deg: -6,
+  wrapper_padding: 12,
+  border_width: 2,
+  radius: 8,
+} as const
+/**
  * The item table's numeric columns, sized in characters of the body font (CSS `ch`, the advance
  * of "0"), not in pixels. The widest value each column can hold is knowable from the form's
  * limits, so each column is sized from that string - but by its real WIDTH, not its character

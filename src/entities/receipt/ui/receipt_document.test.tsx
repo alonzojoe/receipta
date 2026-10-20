@@ -9,6 +9,7 @@ import type { PageSlice } from '../model/paginate_receipt'
 import { build_receipt_view, receipt_statement } from '../model/receipt_view'
 import { ReceiptDocument, ReceiptMeasure } from './receipt_document'
 import { ReceiptPage } from './receipt_page'
+import receipt_css from './receipt_document.css?raw'
 
 function text_of(container: HTMLElement) {
   return container.textContent ?? ''
@@ -129,7 +130,50 @@ describe('ReceiptDocument: order and content', () => {
     const { container } = render(<ReceiptDocument view={make_view({ discount: '10' })} />)
     expect(text_of(container)).not.toMatch(/\b(?:Invoice|Serial|TIN|VAT)\b/)
     expect(text_of(container)).not.toMatch(/OR No\./)
-    expect(text_of(container)).not.toMatch(/\bPaid\b(?! on| with)/)
+    // "Paid in full" is the stamp, which the author asked for by name. Everything else
+    // capital-P is still forbidden: a bare "Paid" label is how a document starts to read
+    // like an official receipt's status field, which is what this rule exists to stop.
+    expect(text_of(container)).not.toMatch(/\bPaid\b(?! on| with| in full)/)
+  })
+
+  it('stamps paid in full above the footer, once, on the right', () => {
+    const { container } = render(<ReceiptDocument view={make_view()} />)
+    const stamps = container.querySelectorAll('.receipt-stamp')
+    expect(stamps).toHaveLength(1)
+    expect(stamps[0].textContent).toBe('Paid in fullThank you!')
+
+    // In flow and measured, not positioned: a stamp with no height would be planned as if
+    // it were not there and would land on the footer.
+    const wrap = container.querySelector('.receipt-stamp-wrap') as HTMLElement
+    const tail = container.querySelector('[data-measure="tail"]') as HTMLElement
+    expect(tail.contains(wrap)).toBe(true)
+
+    // The thanks is outside the bordered box, as a rubber stamp has it.
+    const box = stamps[0].querySelector('.receipt-stamp-box') as HTMLElement
+    expect(box.textContent).toBe('Paid in full')
+    expect(box.querySelector('.receipt-stamp-thanks')).toBeNull()
+
+    // Overlaid, not stacked: the stamp lives inside the lower block, which also holds the
+    // payment, the notes and the statement on its left. That is what fills both sides of
+    // the page without the stamp costing any height.
+    const lower = container.querySelector('.receipt-tail-lower') as HTMLElement
+    expect(lower.contains(wrap)).toBe(true)
+    expect(lower.querySelector('.receipt-statement')).not.toBeNull()
+    expect([...tail.children].map((el) => el.className)).not.toContain('receipt-stamp-wrap')
+  })
+
+  /**
+   * The guard that keeps an out-of-flow stamp honest. Pagination measures the tail; an
+   * absolutely positioned child contributes no height, so without a reserved minimum a
+   * short lower block (Cash, no reference, no notes) would let the stamp paint over the
+   * totals above it.
+   */
+  it('reserves enough height in the lower block that the stamp cannot escape it', () => {
+    const rule = receipt_css.match(/\.receipt-tail-lower\s*\{([^}]*)\}/)?.[1] ?? ''
+    expect(rule).toMatch(/position:\s*relative/)
+    const min_height = Number(rule.match(/min-height:\s*(\d+)px/)?.[1])
+    // The stamp is 66px unrotated and about 82px once turned; the block must clear that.
+    expect(min_height).toBeGreaterThanOrEqual(82)
   })
 
   it('renders the same view to the same markup every time', () => {

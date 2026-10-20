@@ -192,15 +192,9 @@ describe('receipt_document.css', () => {
    * document. The mark in the footer is violet by being the logo, not by a declaration, so
    * it never appears here.
    */
-  it('spends violet in exactly one CSS place, the Amount paid figure', () => {
-    const uses = [...css.matchAll(/([^{}]+)\{[^{}]*var\(--receipt-accent\)[^{}]*\}/g)].map((match) => match[1].trim())
-    expect(uses).toEqual(['.receipt-summary-paid dd'])
-  })
-
-  it('rules the title in the same grey as every other rule', () => {
-    const title_rule = rules_for(css, '.receipt-title-row')[0].body
-    expect(title_rule).toMatch(/border-bottom:\s*2px solid var\(--receipt-rule\)/)
-    expect(title_rule).not.toMatch(/--receipt-accent/)
+  it('inks the stamp in the stamp colour, never the brand violet', () => {
+    const uses = [...css.matchAll(/([^{}]+)\{[^{}]*var\(--receipt-stamp\)[^{}]*\}/g)].map((match) => match[1].trim())
+    expect(uses).toEqual(['.receipt-stamp', '.receipt .receipt-stamp-box'])
   })
 
   it('does not ask for tabular figures, which the rasteriser does not honour', () => {

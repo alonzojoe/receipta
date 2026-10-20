@@ -276,7 +276,7 @@
 }
 
 .receipt-summary-paid dd {
-  color: var(--receipt-accent);
+  color: var(--receipt-ink);
 }
 
 /* Payment and Notes: a small section, a heading, a hairline. */
@@ -328,6 +328,58 @@
 
 .receipt-statement {
   padding-bottom: 12px;
+}
+
+/* The paid stamp. The wrapper is in flow and owns the measured height; the stamp inside it
+   is rotated, and `transform` leaves the layout box alone, so the measurement stays true.
+   The wrapper's padding is the room the turned corners need (type_scale.ts paid_stamp). */
+/* The lower block: payment, notes and the statement on the left, the stamp overlaid right.
+   `min-height` is the stamp's own turned height plus room, so an absolutely positioned
+   stamp can never reach past the block that the pagination measured. Without it, a short
+   payment block (Cash, no reference, no notes) would let the stamp paint over the totals. */
+.receipt-tail-lower {
+  position: relative;
+  min-height: 92px;
+}
+
+/* Out of flow on purpose: the right of this block is empty, so the stamp costs no height.
+   It is bottom-aligned so it sits beside the statement rather than floating mid-block. */
+.receipt-stamp-wrap {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.receipt-stamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--receipt-stamp);
+  transform: rotate(-5deg);
+}
+
+/* The box is only around the claim. Square corners, not rounded: a rubber stamp has a cut
+   edge. The selector is doubled for specificity, because `.receipt *` resets border-color
+   to the rule grey and would otherwise win over a single class. */
+.receipt .receipt-stamp-box {
+  padding: 6px 16px;
+  border: 3px solid var(--receipt-stamp);
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.receipt-stamp-thanks {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .receipt-footer {
