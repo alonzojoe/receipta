@@ -1,5 +1,3 @@
-import { createHash } from 'node:crypto'
-
 import { describe, expect, it } from 'vitest'
 
 import index_html from '../../index.html?raw'
@@ -51,10 +49,14 @@ describe('netlify.toml', () => {
    * the CSP and the browser blocks it: no error anyone sees, just the white flash the
    * script exists to prevent.
    */
-  it('hashes the inline theme script into the CSP, so editing it cannot silently break it', () => {
+  it('hashes the inline theme script into the CSP, so editing it cannot silently break it', async () => {
     expect(inline_scripts).toHaveLength(1)
 
-    const digest = createHash('sha256').update(inline_scripts[0]).digest('base64')
+    // Web Crypto rather than node:crypto: @types/node is not in tsconfig.app.json, so the
+    // node import type-checks fine under vitest and fails `tsc -b` - which is the command
+    // the deploy itself runs.
+    const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(inline_scripts[0]))
+    const digest = btoa(String.fromCharCode(...new Uint8Array(bytes)))
     const script_src = directive('script-src')
 
     expect(script_src, 'no script-src in the CSP').toBeDefined()
