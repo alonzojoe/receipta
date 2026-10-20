@@ -1,0 +1,72 @@
+# Netlify deployment.
+#
+# Receipta is a static single-page app with no backend: everything happens in the browser
+# and nothing is sent anywhere. The Privacy Policy says so, and the Content-Security-Policy
+# below is what makes that a rule the browser enforces rather than a promise in a document.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Pinned so a Netlify default upgrade cannot change the build underneath us. 22 is what
+  # the project is developed and tested on.
+  NODE_VERSION = "22"
+  # `npm run build` is `tsc -b && vite build`, so a type error fails the deploy rather than
+  # shipping. Netlify installs devDependencies by default; this makes that explicit.
+  NPM_FLAGS = "--include=dev"
+
+# TanStack Router handles routing in the browser, so every path must serve index.html and
+# let the app resolve it. Without this, /create and the legal pages 404 on a hard refresh
+# or when someone opens a link directly - which is exactly how a shared link arrives.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+
+  [headers.values]
+    # The app makes no third-party requests at all: fonts, institution logos and the brand
+    # assets are all served from here. `default-src 'self'` enforces that, so a dependency
+    # that starts phoning home is blocked rather than quietly doing it.
+    #
+    # script-src carries a hash for the one inline script in index.html, the theme guard
+    # that runs before first paint. It cannot be an external file - an external file is not
+    # guaranteed to run before the page renders, and a dark-mode user would see a white
+    # flash on every load. `netlify_config.test.ts` recomputes that hash from index.html
+    # and fails if the script changes without this being updated, because the symptom
+    # otherwise is a silent CSP block in production and the flash coming back.
+    #
+    # style-src needs 'unsafe-inline' for the inline style attributes Radix sets while
+    # positioning the payment picker. Nonces would be stronger and need a server to vary
+    # the header per response, which a static deploy does not have.
+    #
+    # img-src needs data: for item photos, which are stored as data URLs, and blob: for the
+    # canvas the PNG export produces.
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'sha256-AtVINnrbEQcp0EY0c8gUZIe+f8t64BObf/itrhJ4lDs='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+
+    # A receipt in progress sits in localStorage. Framing the app elsewhere is how that
+    # gets read by a page the user did not open.
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    # Nothing here uses the camera, the microphone or location. Item photos come from the
+    # file picker, which needs no permission.
+    Permissions-Policy = "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()"
+
+# Vite fingerprints every file in /assets, so the content at a given URL never changes.
+[[headers]]
+  for = "/assets/*"
+
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# The entry point is not fingerprinted, so it must be revalidated or a deploy does not
+# reach anyone still holding the old one.
+[[headers]]
+  for = "/index.html"
+
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
