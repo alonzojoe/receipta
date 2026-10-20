@@ -33,6 +33,8 @@ export type ReceiptFormValues = {
   recipient_name: string
   items: ItemValues[]
   discount: string
+  /** Why the discount was given. Optional, shown as `Discount (student)`. */
+  discount_description: string
   /** '' (not chosen), 'cash', 'other', or an institution id. */
   payment_method: string
   other_method: string
@@ -72,6 +74,7 @@ export function make_default_values(now: Date): ReceiptFormValues {
     recipient_name: '',
     items: [make_empty_item()],
     discount: '',
+    discount_description: '',
     payment_method: '',
     other_method: '',
     reference_no: '',

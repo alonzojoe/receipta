@@ -2,6 +2,7 @@ import { cash_method, compute_totals, other_method, parse_discount, parse_price,
 
 import {
   discount_cap_rule,
+  discount_description_rule,
   discount_rule,
   item_name_rule,
   items_count_rule,
@@ -44,7 +45,7 @@ export type StepFieldName = Exclude<keyof ReceiptFormValues, 'receipt_no'>
  */
 export const step_fields: Record<StepName, readonly StepFieldName[]> = {
   parties: ['issuer_type', 'issuer_name', 'recipient_type', 'recipient_name'],
-  items: ['items', 'discount'],
+  items: ['items', 'discount', 'discount_description'],
   payment: ['payment_method', 'other_method', 'reference_no', 'receipt_date', 'notes'],
   review: [],
 }
@@ -96,6 +97,13 @@ function validate_items(values: ReceiptFormValues): StepErrors {
   // The cap needs a complete subtotal. With any line invalid the subtotal is a partial
   // figure and a message quoting it would be wrong; the line errors block the step anyway.
   const every_line_valid = values.items.length > 0 && valid_lines.length === values.items.length
+  add(errors, 'discount_description', discount_description_rule(values.discount_description))
+  // A reason with no amount would be silently dropped: the row only renders with a discount
+  // above 0. Say so rather than discarding what someone typed.
+  if (values.discount_description.trim() !== '' && values.discount.trim() === '') {
+    add(errors, 'discount', 'Add the discount amount, or clear the description')
+  }
+
   const discount = parse_discount(values.discount)
   if (every_line_valid && discount.ok) {
     const totals = compute_totals(valid_lines, discount.value)

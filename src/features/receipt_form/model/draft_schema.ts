@@ -70,6 +70,7 @@ function read_values(value: unknown): ReceiptFormValues | undefined {
     recipient_name,
     items,
     discount,
+    discount_description,
     payment_method,
     other_method,
     reference_no,
@@ -91,6 +92,9 @@ function read_values(value: unknown): ReceiptFormValues | undefined {
     notes,
   ]
   if (!texts.every(is_text)) return undefined
+  // Deliberately NOT in `texts`: a draft stored before this field existed has no such key,
+  // and requiring a string here would reject the whole draft and lose the user's work.
+  if (discount_description !== undefined && !is_text(discount_description)) return undefined
 
   if (!Array.isArray(items) || items.length < items_min || items.length > items_max) {
     return undefined
@@ -109,6 +113,10 @@ function read_values(value: unknown): ReceiptFormValues | undefined {
     recipient_type,
     recipient_name: recipient_name as string,
     items: checked,
+    // Added after version 1 shipped. A draft already in someone's browser has no such
+    // field, and bumping the version would reject it as wrong_version and lose their work
+    // over a field they never filled. Missing reads as empty.
+    discount_description: typeof discount_description === 'string' ? discount_description : '',
     discount: discount as string,
     payment_method: payment_method as string,
     other_method: other_method as string,

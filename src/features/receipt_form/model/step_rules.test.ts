@@ -4,6 +4,7 @@ import { fixture_now, make_item, make_valid_values } from '@/test/receipt_fixtur
 
 import { make_default_values } from './receipt_form_values'
 import { clamp_step, step_fields, steps, validate_step } from './step_rules'
+import type { ReceiptFormValues } from './receipt_form_values'
 
 const now = fixture_now
 
@@ -194,5 +195,36 @@ describe('clamp_step', () => {
     expect(clamp_step(9, make_valid_values(), now)).toBe(4)
     expect(clamp_step(2.5, make_valid_values(), now)).toBe(1)
     expect(clamp_step(Number.NaN, make_valid_values(), now)).toBe(1)
+  })
+
+  describe('the discount description', () => {
+    const items = [{ id: 'a', name: 'Logo', quantity: '1', price: '100', image: null }]
+    const base = (over: Partial<ReceiptFormValues>) => ({ ...make_default_values(now), items, ...over })
+
+    it('is optional, like the amount', () => {
+      expect(validate_step('items', base({}), now)).toEqual({})
+      expect(validate_step('items', base({ discount: '10' }), now)).toEqual({})
+      expect(validate_step('items', base({ discount: '10', discount_description: 'student' }), now)).toEqual({})
+    })
+
+    /**
+     * The row only renders with a discount above 0, so a reason typed with no amount would
+     * be silently dropped. Discarding what someone typed is worse than a message.
+     */
+    it('blocks the step when a description is given with no amount', () => {
+      const errors = validate_step('items', base({ discount_description: 'student' }), now)
+      expect(errors.discount).toBe('Add the discount amount, or clear the description')
+    })
+
+    it('rejects a description over 40 characters, or with a control character', () => {
+      expect(validate_step('items', base({ discount: '10', discount_description: 'x'.repeat(41) }), now).discount_description)
+        .toMatch(/40 characters or fewer/)
+      expect(validate_step('items', base({ discount: '10', discount_description: 'a\nb' }), now).discount_description)
+        .toMatch(/single line/)
+    })
+
+    it('treats a whitespace-only description as empty', () => {
+      expect(validate_step('items', base({ discount_description: '   ' }), now)).toEqual({})
+    })
   })
 })

@@ -15,6 +15,13 @@ function reason_of(text: string) {
   return parsed.ok ? 'ok' : parsed.reason
 }
 
+/** A copy with one key absent, standing in for a draft stored before that key existed. */
+function without_key<T extends object>(values: T, key: keyof T) {
+  const copy = { ...values }
+  delete copy[key]
+  return copy
+}
+
 describe('parse_draft', () => {
   it('round-trips a draft', () => {
     const draft = make_draft({
@@ -127,5 +134,28 @@ describe('strip_images and has_images', () => {
     expect(has_images(stripped)).toBe(false)
     // The original is not mutated.
     expect(draft.values.items[0].image).toBe(tiny_jpeg)
+  })
+
+  /**
+   * The field was added after version 1 shipped. A draft already in someone's browser has
+   * no such key; bumping the version would reject it as wrong_version and lose their work
+   * over a field they never filled.
+   */
+  it('loads a draft saved before the discount description existed', () => {
+    const stored = JSON.stringify({ ...make_draft(), values: without_key(make_draft().values, 'discount_description') })
+    const parsed = parse_draft(stored)
+
+    expect(parsed.ok).toBe(true)
+    if (parsed.ok) expect(parsed.draft.values.discount_description).toBe('')
+  })
+
+  it('keeps a description through a save and restore', () => {
+    const draft = make_draft()
+    draft.values.discount = '100'
+    draft.values.discount_description = 'student'
+    const parsed = parse_draft(JSON.stringify(draft))
+
+    expect(parsed.ok).toBe(true)
+    if (parsed.ok) expect(parsed.draft.values.discount_description).toBe('student')
   })
 })
