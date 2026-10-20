@@ -11,11 +11,10 @@ import {
   type PaginationInput,
 } from './paginate_receipt'
 import {
-  description_width,
+  description_width_floor,
   line_height,
   page_usable_height,
   photo_row_height,
-  table_columns,
   thumbnail_size,
   type_scale,
 } from './type_scale'
@@ -255,10 +254,11 @@ describe('paginate_receipt: 37g, a row taller than any possible content', () => 
     )
     // An upper bound: no glyph is wider than 1em, and the name wraps anywhere.
     // The table has fixed columns: the name gets the description column less the thumbnail and
-    // its gap. The amount wraps by character in its own 112 px column, one em per glyph at most.
-    const amount_lines = Math.ceil((widest_amount.length * type_scale.body) / (table_columns.amount - 12))
-    const name_column = description_width - thumbnail_size - 12
-    const lines = Math.max(amount_lines, Math.ceil((name_max_length * type_scale.body) / name_column))
+    // its gap. A figure never wraps (one line, however wide its column), so only the name can
+    // grow a row. The description is taken at its narrowest estimate.
+    expect(widest_amount.length).toBeLessThanOrEqual(17)
+    const name_column = description_width_floor - thumbnail_size - 12
+    const lines = Math.ceil((name_max_length * type_scale.body) / name_column)
     return Math.max(thumbnail_size + 16, lines * line_height.body + 16)
   }
 
