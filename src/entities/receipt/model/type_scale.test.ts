@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
+import { make_input, make_item } from '@/test/document_fixtures'
+
+import { build_receipt_view } from './receipt_view'
+
 import {
   content_width,
   line_height,
@@ -9,8 +13,9 @@ import {
   page_width,
   photo_row_height,
   thumbnail_size,
-  description_width,
-  table_columns,
+  description_width_floor,
+  numeric_cell_padding,
+  table_column_chars,
   type_scale,
 } from './type_scale'
 
@@ -26,10 +31,25 @@ describe('type_scale', () => {
     expect(lead).toBeGreaterThan(body)
   })
 
-  it('keeps the table columns and the description inside the content column', () => {
-    expect(table_columns).toEqual({ qty: 64, unit_price: 96, amount: 112 })
-    expect(description_width + table_columns.qty + table_columns.unit_price + table_columns.amount).toBe(content_width)
-    expect(description_width).toBeGreaterThan(thumbnail_size * 3)
+  it('leaves the description a real column even when every numeric column is at its widest', () => {
+    expect(table_column_chars).toEqual({ qty: 9, unit_price: 11, amount: 17 })
+    expect(numeric_cell_padding).toBe(12)
+    expect(description_width_floor).toBeGreaterThan(thumbnail_size * 2)
+    expect(description_width_floor).toBeLessThan(content_width)
+  })
+
+  it('makes each numeric column at least as many characters wide as the widest value the limits allow', () => {
+    // Price 999,999.99 x quantity 9,999.999: the largest line the form accepts.
+    const view = build_receipt_view(
+      make_input({ items: [make_item({ quantity: '9999.999', price: '999999.99' })], discount: '' }),
+    )
+    const [line] = view.items
+    expect(line.quantity).toBe('9,999.999')
+    expect(line.unit_price).toBe('₱999,999.99')
+    expect(line.amount).toBe('₱9,999,998,900.00')
+    expect(table_column_chars.qty).toBeGreaterThanOrEqual(line.quantity.length)
+    expect(table_column_chars.unit_price).toBeGreaterThanOrEqual(line.unit_price.length)
+    expect(table_column_chars.amount).toBeGreaterThanOrEqual(line.amount.length)
   })
 
   it('has nothing below 13 px', () => {

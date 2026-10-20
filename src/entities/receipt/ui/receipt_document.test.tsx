@@ -436,3 +436,31 @@ describe('ReceiptPage: a one-page receipt and a split tail', () => {
     expect(last.querySelector('[data-measure="foot_band"]')).toBeNull()
   })
 })
+
+describe('ReceiptDocument: the largest line the form accepts', () => {
+  // Price 999,999.99 x quantity 9,999.999. The text was always right; what went wrong was a
+  // layout that broke it as `9,999.9` / `99` and `₱9,999,998,90` / `0.00`. jsdom has no layout,
+  // so this pins the markup the stylesheet rule acts on; the rule is pinned in the sources test.
+  const view = make_view({ items: [make_item({ name: 'Item', quantity: '9999.999', price: '999999.99' })], discount: '' })
+
+  it('prints each figure whole, in one text node of its own cell', () => {
+    const { container } = render(<ReceiptDocument view={view} />)
+    const cells = [...container.querySelectorAll('[data-measure="row"] [role="cell"]')]
+    expect(cells.map((cell) => cell.textContent)).toEqual(['Item', '9,999.999', '₱999,999.99', '₱9,999,998,900.00'])
+    for (const cell of cells.slice(1)) expect(cell.childNodes).toHaveLength(1)
+  })
+
+  it('gives the quantity, price and amount cells and their headings the no-break numeric class', () => {
+    const { container } = render(<ReceiptDocument view={view} />)
+    for (const row of ['[data-measure="row"]', '[data-measure="table_head"]']) {
+      const numeric = container.querySelectorAll(`${row} .receipt-num`)
+      expect(numeric).toHaveLength(3)
+    }
+  })
+
+  it('keeps the summary figures out of the wrapping text', () => {
+    const { container } = render(<ReceiptDocument view={view} />)
+    const figures = [...container.querySelectorAll('.receipt-summary-row dd')].map((dd) => dd.textContent)
+    expect(figures).toContain('₱9,999,998,900.00')
+  })
+})

@@ -4,7 +4,7 @@ import { declarations, rules_for } from '@/test/css_blocks'
 import { import_specifiers } from '@/test/source_rules'
 import { strip_code_comments, find_theme_utilities, find_dark_variants, find_current_color, find_foreign_css_colours, theme_token_names } from '@/test/white_rules'
 
-import { line_height, page_height, page_margin, page_usable_height, page_width, payment_logo_size, footer_wordmark_height, title_mark_size, thumbnail_radius, thumbnail_size, table_columns, type_scale } from '../model/type_scale'
+import { line_height, page_height, page_margin, page_usable_height, page_width, payment_logo_size, footer_wordmark_height, title_mark_size, thumbnail_radius, thumbnail_size, table_column_chars, numeric_cell_padding, type_scale } from '../model/type_scale'
 
 /**
  * Layer 1 of the white-background proof (receipt-export spec): the files that render the
@@ -160,9 +160,30 @@ describe('receipt_document.css', () => {
     expect(css).not.toMatch(/\bbold\b|font-weight:\s*[789]00/)
   })
 
-  it('declares the table columns from type_scale.ts, so a page wraps a name as the measurement did', () => {
-    const { qty, unit_price, amount } = table_columns
-    expect(css).toContain(`grid-template-columns: minmax(0, 1fr) ${qty}px ${unit_price}px ${amount}px`)
+  it('declares the table columns from type_scale.ts, in ch, so a figure always fits and a page wraps a name as the measurement did', () => {
+    const { qty, unit_price, amount } = table_column_chars
+    const pad = numeric_cell_padding
+    expect(css).toContain(
+      `grid-template-columns: minmax(0, 1fr) calc(${qty}ch + ${pad}px) calc(${unit_price}ch + ${pad}px) calc(${amount}ch + ${pad}px)`,
+    )
+    expect(rules_for(css, '.receipt-num')[0].body).toContain(`padding-left: ${pad}px`)
+  })
+
+  it('never breaks a figure: money and quantity cells do not wrap and do not break inside a word', () => {
+    for (const selector of ['.receipt-num', '.receipt-summary-row dd']) {
+      const map = Object.fromEntries(declarations(rules_for(css, selector)[0].body).map(({ property, value }) => [property, value]))
+      expect(map['white-space'], selector).toBe('nowrap')
+      expect(map['overflow-wrap'], selector).toBe('normal')
+    }
+    // Nothing that can break a number may appear in a rule for a numeric cell.
+    expect(rules_for(css, '.receipt-num')[0].body).not.toMatch(/anywhere|break-word|word-break/)
+  })
+
+  it('sets the heading row size on its cells, so a ch means the same in every row of the table', () => {
+    const head = Object.fromEntries(declarations(rules_for(css, '.receipt-table-head')[0].body).map(({ property, value }) => [property, value]))
+    expect(head['font-size']).toBeUndefined()
+    const cells = Object.fromEntries(declarations(rules_for(css, '.receipt-table-head > *')[0].body).map(({ property, value }) => [property, value]))
+    expect(cells['font-size']).toBe('13px')
   })
 
   it('spends violet in two CSS places, the rule under the title and the Amount paid figure (the mark is the third)', () => {
