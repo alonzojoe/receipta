@@ -27,6 +27,8 @@ export type ReceiptInput = {
   recipient_name: string
   items: readonly ItemInput[]
   discount: string
+  /** Why the discount was given. Optional. */
+  discount_description: string
   /** '' (not chosen), 'cash', 'other', or an institution id. */
   payment_method: string
   other_method: string

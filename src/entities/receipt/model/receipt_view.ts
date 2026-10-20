@@ -48,6 +48,12 @@ export type TotalsView = {
   subtotal: string | null
   /** `-₱50.00`, with an ASCII hyphen-minus. Present only with a discount above 0. */
   discount: string | null
+  /**
+   * `Discount` or `Discount (student)`. Built here rather than in the component so the
+   * document prints a string it was handed, and so one test over the view covers both the
+   * preview and both exports.
+   */
+  discount_label: string
   total: string
 }
 
@@ -88,6 +94,20 @@ function money_or_empty(centavos: number | undefined) {
  *
  * Party type is not an input here, so Individual and Organization cannot differ.
  */
+/**
+ * `Discount (student)` when a reason was given, `Discount` when not. Collapses inner
+ * whitespace so a pasted reason cannot print as `Discount (student    card)`.
+ *
+ * The reason is wrapped in Unicode isolates (U+2068 / U+2069). Without them a
+ * right-to-left phrase reorders the surrounding punctuation and the closing parenthesis
+ * lands on the wrong side of the label. They are invisible and carry through to both
+ * exports, since the document prints this string as it is given.
+ */
+function discount_label(description: string) {
+  const reason = description.trim().replace(/\s+/g, ' ')
+  return reason === '' ? receipt_labels.discount : `${receipt_labels.discount} (\u2068${reason}\u2069)`
+}
+
 export function build_receipt_view(input: ReceiptInput): ReceiptView {
   const summary = summarise_receipt(input)
   const has_discount = summary.discount !== undefined && summary.discount > 0
@@ -116,6 +136,7 @@ export function build_receipt_view(input: ReceiptInput): ReceiptView {
     totals: {
       subtotal: has_discount ? format_centavos(summary.subtotal) : null,
       discount: has_discount ? `-${money_or_empty(summary.discount)}` : null,
+      discount_label: discount_label(input.discount_description),
       total: money_or_empty(summary.total),
     },
     payment: {

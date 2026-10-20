@@ -5,6 +5,7 @@ import {
   items_max,
   items_min,
   money_message,
+  discount_description_max_length,
   name_max_length,
   normalise_notes,
   notes_max_length,
@@ -51,6 +52,15 @@ export function party_name_rule(value: string, label: string): RuleResult {
 
 export function item_name_rule(value: string): RuleResult {
   return text_rule(value, 'Item name', { min: 1, max: name_max_length })
+}
+
+/**
+ * Why the discount was given. Optional, at most 40 characters, one line. Empty passes:
+ * a discount with no reason is the common case and always has been.
+ */
+export function discount_description_rule(value: string): RuleResult {
+  if (value.trim() === '') return undefined
+  return text_rule(value, 'Discount description', { min: 1, max: discount_description_max_length })
 }
 
 /** The free-text method, only when the method is Other. 1 to 50 characters. */

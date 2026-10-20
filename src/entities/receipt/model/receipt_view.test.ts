@@ -18,6 +18,7 @@ function receipt(overrides: Partial<ReceiptInput> = {}): ReceiptInput {
     recipient_name: 'Acme Trading',
     items: [item('Logo design', '1', '1,500.00')],
     discount: '',
+    discount_description: '',
     payment_method: 'gcash',
     other_method: '',
     reference_no: '1234567890',
@@ -62,7 +63,7 @@ describe('build_receipt_view: content in display order', () => {
       paid_line: '₱1,500.00 paid on 16 October 2026',
       items: [{ name: 'Logo design', quantity: '1', unit_price: '₱1,500.00', amount: '₱1,500.00', image: null }],
       has_images: false,
-      totals: { subtotal: null, discount: null, total: '₱1,500.00' },
+      totals: { subtotal: null, discount: null, discount_label: 'Discount', total: '₱1,500.00' },
       payment: { name: 'GCash', icon: '/institutions/gcash.png', reference: '1234567890' },
       notes: null,
       statement: 'This is a proof of payment.',
@@ -78,19 +79,55 @@ describe('build_receipt_view: content in display order', () => {
 describe('build_receipt_view: the discount rows (criterion 5)', () => {
   it.each(['', '   ', '0', '0.00'])('shows only the Total when the discount is %j', (discount) => {
     const { totals } = build_receipt_view(receipt({ discount }))
-    expect(totals).toEqual({ subtotal: null, discount: null, total: '₱1,500.00' })
+    expect(totals).toEqual({ subtotal: null, discount: null, discount_label: 'Discount', total: '₱1,500.00' })
   })
 
   it('shows Subtotal, a hyphen-minus Discount and Total for a discount above 0', () => {
     const { totals } = build_receipt_view(receipt({ discount: '50' }))
-    expect(totals).toEqual({ subtotal: '₱1,500.00', discount: '-₱50.00', total: '₱1,450.00' })
+    expect(totals).toEqual({ subtotal: '₱1,500.00', discount: '-₱50.00', discount_label: 'Discount', total: '₱1,450.00' })
     expect(totals.discount?.startsWith('-')).toBe(true)
     expect(totals.discount).not.toContain('−')
   })
 
+  /**
+   * The author's example: `Discount (student)    -₱100`. The label is built in the view,
+   * so the preview and both exports print the same string.
+   */
+  it('names the discount when a description is given', () => {
+    const { totals } = build_receipt_view(receipt({ discount: '100', discount_description: 'student' }))
+    expect(totals.discount_label).toBe('Discount (\u2068student\u2069)')
+    expect(totals.discount).toBe('-₱100.00')
+  })
+
+  it('collapses whitespace in the description and ignores an empty one', () => {
+    expect(build_receipt_view(receipt({ discount: '50', discount_description: '  senior   citizen ' })).totals.discount_label)
+      .toBe('Discount (\u2068senior citizen\u2069)')
+    expect(build_receipt_view(receipt({ discount: '50', discount_description: '   ' })).totals.discount_label)
+      .toBe('Discount')
+  })
+
+  /**
+   * Isolates, not decoration: without them a right-to-left reason reorders the punctuation
+   * around it and the closing parenthesis prints on the wrong side. They are invisible, and
+   * the document prints this string unchanged, so both exports get the same protection.
+   */
+  it('isolates the reason so right-to-left text cannot flip the parentheses', () => {
+    const { totals } = build_receipt_view(receipt({ discount: '50', discount_description: 'طالب' }))
+    expect(totals.discount_label).toBe('Discount (\u2068طالب\u2069)')
+    expect(totals.discount_label.endsWith(')')).toBe(true)
+  })
+
+  it('leaves the figure untouched by the description, to the centavo', () => {
+    const plain = build_receipt_view(receipt({ discount: '100' })).totals
+    const named = build_receipt_view(receipt({ discount: '100', discount_description: 'student' })).totals
+    expect(named.discount).toBe(plain.discount)
+    expect(named.total).toBe(plain.total)
+    expect(named.subtotal).toBe(plain.subtotal)
+  })
+
   it('shows a zero total when the discount equals the subtotal', () => {
     const view = build_receipt_view(receipt({ items: [item('A', '1', '100')], discount: '100' }))
-    expect(view.totals).toEqual({ subtotal: '₱100.00', discount: '-₱100.00', total: '₱0.00' })
+    expect(view.totals).toEqual({ subtotal: '₱100.00', discount: '-₱100.00', discount_label: 'Discount', total: '₱0.00' })
   })
 
   it('shows no amount while the discount is more than the subtotal (the form refuses it first)', () => {

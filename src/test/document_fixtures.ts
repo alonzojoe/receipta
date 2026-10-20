@@ -16,6 +16,7 @@ export function make_input(overrides: Partial<ReceiptInput> = {}): ReceiptInput 
     recipient_name: 'Juan Dela Cruz',
     items: [make_item(), make_item({ name: 'Lamination', quantity: '1.5', price: '19.99' })],
     discount: '',
+    discount_description: '',
     payment_method: 'gcash',
     other_method: '',
     reference_no: '9876543210',

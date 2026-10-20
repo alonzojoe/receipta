@@ -18,6 +18,12 @@ export const thousandths_per_unit = 1000
 export const name_max_length = 100
 export const other_method_max_length = 50
 export const reference_max_length = 40
+/**
+ * The discount's reason, shown as `Discount (student)` in the summary's label cell. Short
+ * because that cell is narrow: 40 characters fits without the label wrapping under its own
+ * figure. Anything longer belongs in Notes.
+ */
+export const discount_description_max_length = 40
 export const notes_max_length = 300
 export const notes_max_lines = 5
 
