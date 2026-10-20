@@ -34,12 +34,18 @@ export function SiteHeader() {
           <nav className="hidden items-center gap-1 md:flex">
             {nav_links.map((link) => (
               <Button
-                key={link.href}
+                key={link.hash}
                 variant="ghost"
                 className="h-auto px-3 py-2"
                 asChild
               >
-                <a href={link.href}>{link.label}</a>
+                {/* A route link to the home page, not a bare `#id`. The header renders on
+                    every route, and a fragment resolves against the current one - on
+                    /create these pointed at /create#faq, where no such section exists, so
+                    they did nothing at all. */}
+                <Link to="/" hash={link.hash}>
+                  {link.label}
+                </Link>
               </Button>
             ))}
           </nav>

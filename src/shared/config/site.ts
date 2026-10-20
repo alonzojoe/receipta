@@ -8,6 +8,17 @@ export type NavLink = {
   href: string
 }
 
+/**
+ * A link to a section of the home page. It carries the element id, not `#id`, because it
+ * is rendered as a route link to `/` with that hash - a bare `#id` resolves against
+ * whatever route the header happens to be on, so on /create it pointed at /create#faq and
+ * did nothing. The header is on every route, so that was every page but the home page.
+ */
+export type SectionLink = {
+  label: string
+  hash: string
+}
+
 export const site = {
   name: 'Receipta',
   tagline: 'Send receipts, not screenshots.',
@@ -24,10 +35,10 @@ export const site = {
   },
 } as const
 
-export const nav_links: readonly NavLink[] = [
-  { label: 'How it works', href: '#how-it-works' },
-  { label: 'Why Receipta', href: '#why-receipta' },
-  { label: 'FAQ', href: '#faq' },
+export const nav_links: readonly SectionLink[] = [
+  { label: 'How it works', hash: 'how-it-works' },
+  { label: 'Why Receipta', hash: 'why-receipta' },
+  { label: 'FAQ', hash: 'faq' },
 ]
 
 export const footer_links: readonly NavLink[] = [
