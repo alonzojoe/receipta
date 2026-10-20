@@ -35,16 +35,6 @@ export function FirstTop({ view }: { view: ReceiptView }) {
     <div data-measure="first_top">
       <div className="receipt-title-row">
         <p className="receipt-title">{receipt_labels.title}</p>
-        {/* The mark, top right on the title's line. Violet by being the logo, not by a rule. */}
-        <img
-          src={logo_mark_src}
-          alt=""
-          data-logo="receipta"
-          width={256}
-          height={256}
-          loading="eager"
-          className="receipt-mark"
-        />
       </div>
 
       <dl className="receipt-meta">
@@ -253,17 +243,33 @@ function Footer({ label }: { label?: string }) {
     <div className="receipt-footer">
       <div className="receipt-footer-credit">
         <span className="receipt-label">{receipt_labels.generated_by}</span>
-        {/* The light wordmark only. LogoWordmark also renders the dark one and hides one of the
-            two with a `dark:` class, which on a dark-mode export shows near-white on white. */}
-        <img
-          src={wordmark_light_src}
-          alt="Receipta"
-          data-logo="receipta"
-          width={211}
-          height={48}
-          loading="eager"
-          className="receipt-footer-wordmark"
-        />
+        {/* The mark and the wordmark as one lockup. The mark is the document's only brand
+            colour besides the amount, and it sits here rather than in the header so there
+            is one logo in one place. Both keep data-logo: the rasteriser waits on those
+            images, and one that moved without the attribute would not be waited for. */}
+        <span className="receipt-footer-lockup">
+          <img
+            src={logo_mark_src}
+            alt=""
+            data-logo="receipta"
+            width={256}
+            height={256}
+            loading="eager"
+            className="receipt-footer-mark"
+          />
+          {/* The light wordmark only. LogoWordmark also renders the dark one and hides one of
+              the two with a `dark:` class, which on a dark-mode export shows near-white on
+              white. */}
+          <img
+            src={wordmark_light_src}
+            alt="Receipta"
+            data-logo="receipta"
+            width={211}
+            height={48}
+            loading="eager"
+            className="receipt-footer-wordmark"
+          />
+        </span>
       </div>
       {label !== undefined && <p className="receipt-label receipt-page-label">{label}</p>}
     </div>

@@ -186,9 +186,21 @@ describe('receipt_document.css', () => {
     expect(cells['font-size']).toBe('13px')
   })
 
-  it('spends violet in two CSS places, the rule under the title and the Amount paid figure (the mark is the third)', () => {
+  /**
+   * One place, not two. The rule under the title used to carry the accent and now matches
+   * every other rule, which leaves the Amount paid figure as the only coloured TEXT in the
+   * document. The mark in the footer is violet by being the logo, not by a declaration, so
+   * it never appears here.
+   */
+  it('spends violet in exactly one CSS place, the Amount paid figure', () => {
     const uses = [...css.matchAll(/([^{}]+)\{[^{}]*var\(--receipt-accent\)[^{}]*\}/g)].map((match) => match[1].trim())
-    expect(uses).toEqual(['.receipt-title-row', '.receipt-summary-paid dd'])
+    expect(uses).toEqual(['.receipt-summary-paid dd'])
+  })
+
+  it('rules the title in the same grey as every other rule', () => {
+    const title_rule = rules_for(css, '.receipt-title-row')[0].body
+    expect(title_rule).toMatch(/border-bottom:\s*2px solid var\(--receipt-rule\)/)
+    expect(title_rule).not.toMatch(/--receipt-accent/)
   })
 
   it('does not ask for tabular figures, which the rasteriser does not honour', () => {

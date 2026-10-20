@@ -102,7 +102,7 @@
   overflow-wrap: anywhere;
 }
 
-/* The title row: "Receipt" top left, the mark top right on the same line, a violet rule under. */
+/* The title row: "Receipt" alone, over a rule in the same grey as every other rule. */
 
 .receipt-title-row {
   display: flex;
@@ -110,20 +110,13 @@
   justify-content: space-between;
   gap: 16px;
   padding-bottom: 12px;
-  border-bottom: 2px solid var(--receipt-accent);
+  border-bottom: 2px solid var(--receipt-rule);
 }
 
 .receipt-title {
   font-size: 28px;
   line-height: 36px;
   font-weight: 600;
-}
-
-.receipt-mark {
-  display: block;
-  flex: none;
-  width: 28px;
-  height: 28px;
 }
 
 /* Receipt number and date: tight label / value pairs, no rules. */
@@ -350,6 +343,27 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* 20px against the wordmark's 16px, on the author's instruction to make it a bit bigger.
+   Deliberately taller than the wordmark rather than matched to it: the mark is a compact
+   shape and the wordmark is lowercase text, so matching their box heights makes the mark
+   read smaller than it measures. Still well under the header's old 28px, which was large
+   enough to compete with the credit it sits in. */
+.receipt-footer-mark {
+  display: block;
+  flex: none;
+  width: 20px;
+  height: 20px;
+}
+
+/* The mark and the wordmark are one lockup, so they sit closer to each other than the pair
+   sits to the label. A nested flex carries that, not a margin: the document forbids margins
+   because they escape the measured heights the pagination depends on. */
+.receipt-footer-lockup {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .receipt-footer-wordmark {
