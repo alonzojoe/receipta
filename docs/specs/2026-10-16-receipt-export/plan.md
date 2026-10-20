@@ -9,6 +9,12 @@ leaves a gap, the plan names it as a decision point, recommends, and says why. W
 spec is wrong or silent in a way that changes a test, the plan says so under "Spec gaps
 found while planning" and does not quietly pick.
 
+> **Amended after the build. See "Amendment after the layout redesign and the build" at the end
+> of this file.** The layout the plan describes (issuer-first header, 24 / 36 px scale, the long
+> BIR statement, "Receipt No.", a separate "Amount paid") was redesigned by the author
+> mid-build; lines that are stale are marked **[stale]** and left as written. The plan's
+> reasoning on the spike, the seam and the order of attack is unaffected.
+
 ## Order of attack, argued
 
 The riskiest part is rasterising: `html2canvas-pro` and `jsPDF` are not installed, nothing
@@ -352,13 +358,17 @@ Rules, as the spec states them, with the parts it leaves implicit made explicit:
   for ordinary names and notes. Five items with 100-character three-line names, a 5-line note
   and a discount is roughly 250 + 480 + 520 px, over 769, and paginates. The plan tests
   criterion 35 with ordinary content and tests the worst case separately, and tells the PM the
-  criterion is a typical case, not a guarantee.
+  criterion is a typical case, not a guarantee. **[Measured in task 12: it fails with ordinary
+  content too. Five plain items with a discount and a one-line note take two pages. Recorded as
+  failed in validation.md.]**
 - **A one-item receipt can be two pages.** With one item, a long note and a discount,
   `first_head + row + tail` can exceed 769. Rule 3 then puts the header and summary alone on
   page 1 and the item with the totals on page 2. That is the only outcome the "last row
   travels with the totals" rule allows, but a first page with no items is odd. **Recommend
   accepting it** (the alternative strands the totals, which the spec rejected) and testing it
-  as an eighth case. It needs the PM's eyes, not a silent choice.
+  as an eighth case. It needs the PM's eyes, not a silent choice. **[Overruled by the author:
+  the first page always carries an item row. The item and its totals stay on page 1 and the rest
+  of the tail closes page 2. See amendment A9.]**
 - **Criterion 37g** ("a row taller than any possible content") is stated as "worst case is
   shorter than usable height". The test builds the worst-case row from the *limits constants*
   (maximum name length, thumbnail, wrapped-name height from the type scale), so changing a
@@ -453,14 +463,15 @@ check compiled by `npm run build`; no runtime assertion is invented for it).
   anything outside `[A-Za-z0-9-]` and falls back to `receipta-receipt` if nothing is left, so a
   hand-edited draft cannot produce a path separator.
 - `type_scale.ts` holds 24 / 36 / 20 / 18 / 15 / 13 and the page constants (600, 849, 40, 769,
-  56, 28, 72). The CSS and the tests read the same numbers; task 6 asserts the CSS declares
+  56, 28, 72). **[stale: built as 28 / 18 / 14 / 13, with line heights, the table columns and the
+  mark size; see the amendment]** The CSS and the tests read the same numbers; task 6 asserts the CSS declares
   them.
 
 **qa-tester asserts (criteria 1-7 content, 9, 23-27, 49):**
 
 | Case | Assertion |
 | --- | --- |
-| Order | The view's fields, flattened in display order: issuer, number, date, recipient, amount, items, totals, payment, notes, statement |
+| Order | The view's fields, flattened in display order: issuer, number, date, recipient, amount, items, totals, payment, notes, statement **[stale: built order is number, date, issuer, recipient, amount sentence, items, totals, payment, notes, statement]** |
 | Discount 0 / blank | No Subtotal, no Discount, only Total |
 | Discount 50 | Subtotal, `-₱50.00`, Total |
 | The money fixtures | one item; many; fractional quantity; half-centavo; `999,999.99 x 9,999.999`; discount equals subtotal; `0.1 x 3` = `₱0.30`; `19.99 x 3` = `₱59.97`; discount `0`: exact strings to the centavo |
@@ -471,9 +482,9 @@ check compiled by `npm run build`; no runtime assertion is invented for it).
 | Party type | Individual and Organization give a deep-equal view for the same names |
 | Payment | institution (name and icon path from `institutions`), Cash (no icon, no reference even if one is stored), Other (text, no icon), reference only when present |
 | Notes | `<script>` stays literal text in the view; empty notes absent (not an empty string) |
-| Statement | The view carries exactly `This is a proof of payment, not a BIR Official Receipt.`; no input can remove it |
+| Statement | The view carries exactly `This is a proof of payment, not a BIR Official Receipt.`; no input can remove it **[stale: the sentence is `This is a proof of payment.`]** |
 | Filename | `receipta-REF-20261016-154212.pdf` and `.png`; a receipt no. of `../x/ñ` yields no separator; empty yields the fallback; a signature that took a party name would not compile |
-| Forbidden words | The view's strings contain none of `Invoice`, `OR No.`, `Serial`, `TIN`, `VAT`, `Paid` as a stamp |
+| Forbidden words | The view's strings contain none of `Invoice`, `OR No.`, `Serial`, `TIN`, `VAT`, `Paid` as a stamp (built: and no "Official Receipt" at all in the document) |
 
 **Verify.** `npm test -- entities/receipt`. Mutate `build_receipt_view` to show the Discount
 row at 0: the criterion 5 test fails; revert. `grep -nE "Intl|toFixed|parseFloat|Number\("
@@ -537,7 +548,11 @@ fail; revert. Remove the "reserve the last row" step: 38 must fail; revert.
 is about 5,400 to 5,700 document px, so 13.0 to 13.7 M pixels at 2x. The ratio only drops
 below 2 above about 6,670 document px and fails below 1.5x above about 11,850. So the adaptive
 branch is **a guard that today's limits cannot reach on a desktop**, and the plan does not
-pretend otherwise. It matters because a phone's practical ceiling is below the nominal one
+pretend otherwise. **[Wrong, measured in task 12: 50 items with 100-character names and 10 photos
+is 6,794 document px (ratio 1.98) and with unbreakable wide names 9,794 px (ratio 1.65). The
+branch fires on valid input under real limits, and the 50-item / 10-photo receipt of ordinary
+names is 2,802 px, not 5,400. The figures above were estimates from the first design's 48 px
+rows; the table rows are now 36 px.]** It matters because a phone's practical ceiling is below the nominal one
 (task 12), and because a future limit change should not become a silent failure. Unit tests
 prove the arithmetic; the wiring is proven by a forced-small-limit run.
 
@@ -595,8 +610,8 @@ with fixture strings as the `source_rules.ts` detectors are.
 | Root declares itself | The `.receipt-document` rule contains `background`, `color`, `color-scheme: light` and `font-family` |
 | Criterion 17 | A test parses `index.css`: every `--receipt-*` is inside `:root`, none inside any `.dark` block; the block extractor is tested on a fixture with a decoy `.dark` |
 | Palette contrast | Muted and accent on paper compute at the ratios the spec claims (a pure function over the hexes read from `index.css`) |
-| Order | Rendering `ReceiptDocument` from a fixed view, text order is issuer, number, date, recipient, amount, items, totals, payment, notes, statement, footer |
-| Type scale | The issuer size is the largest in `type_scale.ts` and the amount the largest number (criterion 2); the CSS declares each constant |
+| Order | Rendering `ReceiptDocument` from a fixed view, text order is issuer, number, date, recipient, amount, items, totals, payment, notes, statement, footer **[stale: see criterion 1']** |
+| Type scale | The issuer size is the largest in `type_scale.ts` and the amount the largest number (criterion 2); the CSS declares each constant **[stale: "Receipt" is the largest, then the amount sentence; criterion 2']** |
 | Statement | Always present in `ReceiptDocument`; no prop removes it; each `ReceiptPage` of a 3-page plan carries it (foot band, or in-flow on the last) |
 | Page model | `Page 1 of 3` spelled out on each page of a 3-page plan; none on a one-page plan; only the last page has the footer credit |
 | Running header | Issuer, number, date, `Page N of M`; no recipient, no amount, no logo image; `ñ` and CJK issuer names render as text |
@@ -753,7 +768,7 @@ the form plan.
 | same: `has an Edit button per section ...` | Per-section buttons removed | Rewrite for the single Edit row; names preserved; still asserts data intact on return |
 | same: `has no export, download or print control` | Now false by design | **Invert**: Download PDF and Download image exist and are buttons; the old assertion survives for steps 1 to 3 |
 | same: `puts the BIR notice directly after the totals` | The notice moves above the preview | Rewrite: the notice precedes the preview; the document carries its own statement after the payment |
-| same: `the BIR line` / `says "Official Receipt" exactly once across every step` | Review now contains two: the notice and the document statement | Change to exactly 0 on steps 1 to 3 and exactly 2 on Review, with the reason in the test; the forbidden-word patterns stay at zero |
+| same: `the BIR line` / `says "Official Receipt" exactly once across every step` | Review now contains two: the notice and the document statement **[stale: built as exactly 1 on Review, the notice; the document statement no longer contains the phrase]** | Change to exactly 0 on steps 1 to 3 and exactly 2 on Review, with the reason in the test; the forbidden-word patterns stay at zero **[built: 0, 0, 0, 1]** |
 | same: `never puts it in a label, heading or test id` | Must hold with the document present | Keep; it now also guards the document and the preview region's `aria-label` |
 | `receipt_wizard.test.tsx` line 33: `has no export, download or print control anywhere in the flow` | Review now has them | Rewrite as "only on Review" (steps 1 to 3 none; step 4 two) |
 | `receipt_wizard_keyboard.test.tsx` around line 62 | Asserts `body.textContent` contains `2026-10-01` | The document prints `1 October 2026`; update. `Juan Dela Cruz`, `Printing`, `₱1,520.00`, `Maya`, `Thank you` still appear. Add the two download buttons to the keyboard path (reachable by Tab, activated by Enter) |
@@ -955,3 +970,34 @@ pages, a selectable-text PDF, re-issuing the Receipt No., a product URL in the f
 PNG, per-user paper size, copy review. From this plan: an automated real-browser test for canvas
 and the pixel comparison (D6; the third feature this applies to), prefetching the export chunks
 on Review mount, and an FSD import-boundary lint rule.
+
+## Amendment after the layout redesign and the build
+
+**What changed in the design.** The author redesigned the layout mid-build. The plan's header,
+scale and wording are stale; `requirements.md` records the change, the reasoning and the
+author's instructions under "Amendment after the layout redesign" (A1 to A10), and marks
+criteria 1, 2, 4, 10 and 11 superseded. In the plan, the stale lines are the type scale in
+task 3, the statement string and the order tests in tasks 3 and 6, the BIR count in task 9 and
+the "Official Receipt" assertions that depend on it.
+
+**What changed in the plan's assumptions.** Measured in task 12, not assumed:
+
+| Plan said | Measured |
+| --- | --- |
+| The 50-item, 10-photo receipt is about 5,400 document px, 10,800 px at 2x | **2,802 px**, 5,604 px at 2x (6.7 M pixels), because rows are 36 px, not 48 |
+| The adaptive pixel ratio cannot be reached on a desktop under real limits | It **is** reached by valid input: 50 items of 100-character names with photos is 6,794 px, ratio 1.98; with unbreakable wide names 9,794 px, ratio 1.65, a 990 x 16,160 PNG |
+| 50 items without photos is about 4 pages, with 10 photos 6 to 7 | **4 and 5** |
+| A one-item receipt that overflows gets a header-only page 1 | The first page always carries an item (A9) |
+| Criterion 35 is a typical case | It fails for ordinary content: five plain items plus a discount and a one-line note is two pages |
+
+**Status of tasks 10 to 12.** Task 10: the static-import detector was proven to fail on both
+a static import and a dynamic import outside `load_ports.ts`; roadmap and `tech-stack.md`
+corrected; Privacy, Cookie and Terms pages re-read, no change needed. Task 11: two whole-flow
+tests added in `src/test/receipt_export_flow.test.tsx`. Task 12: recorded in `validation.md`,
+including the forced-limit run, the refusal paths and the timezone run. Items that need a
+human with a device (a real iPhone, Messenger and Viber, VoiceOver) are recorded there as
+author-facing, not as failures.
+
+**One recommendation the build earned.** Task 12's real-device canvas probe is still the only
+check of "the failure paths match what Safari does". The adaptive branch now being reachable
+makes it more, not less, important.

@@ -1,5 +1,13 @@
 # Receipt Export - Requirements
 
+> **Amended after the layout redesign. Read "Amendment after the layout redesign" at the end
+> before relying on the document sections below.** The author redesigned the receipt
+> mid-build; the header, type scale, item table, amount, statement wording and payment row
+> below describe the first design and are kept as written, not edited, so the change is
+> visible. Criteria **1, 2, 4, 10 and 11 are superseded** (restated as 1', 2', 4', 10', 11'
+> in the amendment); 6, 13, 19, 38 and 40 are amended in wording; the other criteria stand.
+> Validation results are in `validation.md`.
+
 ## Goal
 
 The receipt form collects everything and produces nothing. This spec is the other half of
@@ -36,7 +44,7 @@ document carries the statement on every export, with no switch to turn it off.
 | Document width | **600 CSS px, fixed**, 40 px padding all round. | 600 px is wide enough for a name column, an amount column and a thumbnail without crowding, and narrow enough that the image export is phone-shaped. It also maps cleanly to A4: 600 px = 210 mm, so 40 px of padding is 14 mm, a normal print margin, with no extra margin arithmetic. |
 | Palette | Plain hex custom properties, `--receipt-*`, defined in `src/index.css` under `:root` **only** and never overridden in `.dark`. Paper `#FFFFFF`, ink `#0F172A`, muted `#475569`, rule `#E2E8F0`, accent `#6D28D9` (use the app's own violet hex if it differs). | CLAUDE.md says colours live in `index.css`, so they do. The namespace is separate from the app tokens because the app tokens change under `.dark`, and because `html2canvas-pro` is cheapest and safest when no `oklch()` theme token reaches the node. Muted on white measures about 7.6:1, accent about 7:1. |
 | Fixed pixel sizes | The document's width, type sizes and image sizes are fixed pixel values. | This is a deliberate, scoped exception to the fluid-sizing rule in CLAUDE.md. The document is a fixed-size artefact, not a responsive page: if it reflowed, the exported file would depend on the screen it was made on. The exception covers the document files only. The preview wrapper around it is fluid. |
-| Type | Geist Variable, the app's own bundled font, self-hosted. Sizes: issuer name 24, amount 36, total 20, body 15, labels and secondary text 13. **Nothing below 13 px.** | A 600 px document viewed on a 390 pt phone is shown at about 0.65 scale, so 13 px reads as about 8.5 px. Anything smaller is unreadable in exactly the situation this audience uses it in. |
+| Type | **Superseded (A2): title 28, amount sentence 18, body 14, labels 13; weights 400, 500, 600.** Originally: Geist Variable, self-hosted, issuer name 24, amount 36, total 20, body 15, labels and secondary text 13. **Nothing below 13 px** (still true). | A 600 px document viewed on a 390 pt phone is shown at about 0.65 scale, so 13 px reads as about 8.5 px. Anything smaller is unreadable in exactly the situation this audience uses it in. |
 | Date format | `16 October 2026`, built from the stored `YYYY-MM-DD` parts, not `new Date('2026-10-16')`. | `5/6/2026` is ambiguous between day-first and month-first readers. The ISO string parses as UTC midnight, which is the wrong calendar day in any timezone behind UTC. Parsing the parts as local avoids it. |
 | Party type | The Individual / Organization choice is **not shown**. | It only changed a label on the form. A reader learns nothing from it, and "Business" on a receipt could be read as a registration claim. |
 | Discount rows | Subtotal and Discount rows appear **only when the discount is above 0**. With no discount, only Total is shown. | Matches the Review step's existing rule. A Subtotal equal to the Total is two identical numbers, which is noise. |
@@ -49,6 +57,9 @@ document carries the statement on every export, with no switch to turn it off.
 
 ### Reading order and the reasoning
 
+> **Superseded in part (amendment A1, A3).** The eye path is now title, receipt number and
+> date, the two parties, then the amount as one sentence.
+
 A receipt is read for **who it is from** and **how much**, in that order, then for what and
 how. The layout is a single column so that order is the vertical order. There is no
 two-column grid of metadata, because a reader should never have to decide where to look
@@ -58,6 +69,10 @@ Eye path: issuer name (largest bold text on the page, top left) then the amount 
 (largest number, directly below) then the recipient, then detail.
 
 ### Blocks, top to bottom
+
+> **Superseded (amendment A1 to A4, A7).** Blocks 1 and 2 (issuer-first header, summary row
+> with a 36 px amount) and block 3 (name, `qty x price` subline) were redesigned. The table
+> below is the first design.
 
 | # | Block | Content | Notes |
 | --- | --- | --- | --- |
@@ -107,6 +122,10 @@ text only.
 
 ### The not-a-BIR statement
 
+> **Superseded (amendment A6).** The sentence is now `This is a proof of payment.`, at the
+> 13 px label size. The placement rule (every page) is unchanged; the reasoning below that
+> depends on the words "not a BIR Official Receipt" no longer applies to the document.
+
 **Wording, exact:**
 
 > This is a proof of payment, not a BIR Official Receipt.
@@ -134,6 +153,10 @@ official receipt" tells them only what to refuse. The sentence is always present
 setting to remove it. Receipt No. is labelled "Receipt No.", never "OR No." or "Serial No.".
 
 ### Branding and the footer
+
+> **Amended (amendment A5).** The footer is unchanged. The Receipta mark now also sits at the
+> top right of the title row, which the paragraph "Why the logo is in the footer, not the
+> header" below argued against.
 
 **Footer text, exact:** `Generated by` followed by the Receipta logo (mark 24 px tall plus
 `wordmark_light.webp` at 16 px tall, the same pairing as the navbar, `Logo` in
@@ -448,25 +471,25 @@ A theme override that only *happens* to work in light mode is not white. Require
 
 **Document content**
 
-1. The document shows, in this order: issuer name, Receipt No. and date, recipient name, amount paid, each item, totals, payment, notes (when present), the statement, and the footer. Verified by a test that renders the document from a fixed `ReceiptFormValues` and asserts text order.
-2. The issuer name is the largest text by font size in the document, and the amount is the largest number. Verified by a test on the computed type scale constants.
+1. ~~The document shows, in this order: issuer name, Receipt No. and date, recipient name, amount paid, each item, totals, payment, notes (when present), the statement, and the footer. Verified by a test that renders the document from a fixed `ReceiptFormValues` and asserts text order.~~ **[SUPERSEDED - see Amendment, 1']**
+2. ~~The issuer name is the largest text by font size in the document, and the amount is the largest number. Verified by a test on the computed type scale constants.~~ **[SUPERSEDED - see Amendment, 2']**
 3. Individual and Organization produce identical output for the same names. The type is not rendered.
-4. Each item line shows its name, `quantity × price` and its line amount, and a thumbnail when it has an image.
+4. ~~Each item line shows its name, `quantity × price` and its line amount, and a thumbnail when it has an image.~~ **[SUPERSEDED - see Amendment, 4']**
 5. With a discount of 0 or blank, Subtotal and Discount are absent and only Total is shown. With a discount above 0, Subtotal, `-₱X.XX` Discount and Total are shown.
-6. Payment shows the institution's logo (from its local `icon` path) and name; "Cash" with no logo and no reference; the Other text with no logo. Reference No. shows only when present and the method is not Cash. Verified for all four cases against `institutions`.
+6. Payment shows the institution's logo (from its local `icon` path) and name; "Cash" with no logo and no reference; the Other text with no logo. Reference No. shows only when present and the method is not Cash. Verified for all four cases against `institutions`. *(Amended A7: the label is "Reference number".)*
 7. Notes appear with line breaks preserved when non-empty. With empty Notes there is no caption and no gap. A note containing `<script>` renders as literal text.
 8. A 100-character item name, a 100-character party name and a 5-line note render without truncation, clipping or overlap. Verified in a browser at the export size and recorded.
 9. The date is rendered as `16 October 2026` from the stored `YYYY-MM-DD`, and is correct in a test run with `TZ` set to a timezone behind UTC (for example `America/Los_Angeles`).
 
 **Statement and BIR line**
 
-10. The exact sentence `This is a proof of payment, not a BIR Official Receipt.` is in the document, at the body size, in every export, with no prop, setting or branch that removes it. Verified by a test, and by it appearing on **every** page of a multi-page PDF (in the foot band, or in-flow on the last page).
-11. No text in the document, the Review step, the filenames or the tests uses "Official Receipt" other than that sentence and the existing Review notice, or uses "OR No.", "Invoice", "Serial", "TIN", "VAT" or "Paid" as a stamp. Verified by a text search.
+10. ~~The exact sentence `This is a proof of payment, not a BIR Official Receipt.` is in the document, at the body size, in every export, with no prop, setting or branch that removes it. Verified by a test, and by it appearing on **every** page of a multi-page PDF (in the foot band, or in-flow on the last page).~~ **[SUPERSEDED - see Amendment, 10']**
+11. ~~No text in the document, the Review step, the filenames or the tests uses "Official Receipt" other than that sentence and the existing Review notice, or uses "OR No.", "Invoice", "Serial", "TIN", "VAT" or "Paid" as a stamp. Verified by a text search.~~ **[SUPERSEDED - see Amendment, 11']**
 12. No field, caption or element is added that implies registration or official status (see Out of scope).
 
 **Branding**
 
-13. The footer is `Generated by` plus the Receipta mark and the light wordmark, from `src/shared/assets/logo_mark.webp` and `wordmark_light.webp`. There is no URL and no timestamp.
+13. The footer is `Generated by` plus the Receipta mark and the light wordmark, from `src/shared/assets/logo_mark.webp` and `wordmark_light.webp`. There is no URL and no timestamp. *(Holds. Amended A5: the mark is also at the top right, so the footer is no longer the only place it appears.)*
 14. The document does not render `LogoWordmark` and imports no dark wordmark. Verified by a source test.
 15. The footer wordmark is the near-black one in a dark-mode export. Verified in the pixel comparison (criterion 22).
 
@@ -475,7 +498,7 @@ A theme override that only *happens* to work in light mode is not white. Require
 16. The document root sets its own `background`, `color`, `color-scheme: light` and font family, and nothing in its files uses a `dark:` variant, an app theme token class, or inherited `currentColor`. Verified by a source test that fails on any of them.
 17. `--receipt-*` properties are defined in `index.css` under `:root` and are not overridden in `.dark`. Verified by a test reading the stylesheet.
 18. With `.dark` on `<html>`, a browser walk of every element in the capture node finds every `background-color` transparent or `#FFFFFF`, and every `color` inside the palette. Recorded.
-19. `backgroundColor: '#ffffff'` is passed to the rasteriser.
+19. `backgroundColor: '#ffffff'` is passed to the rasteriser. *(Amended per plan D5: the keyword `white`, which is exactly #FFFFFF and passes the repository's colour-literal rule.)*
 20. An image export made in dark mode has every pixel at alpha 255 and the four corner pixels at `rgb(255,255,255)`.
 21. A PDF export made in dark mode has a pure white page background on every page, including the running header and foot band.
 22. The same draft exported in light mode and in dark mode gives PNGs that decode to **identical pixels**. Recorded, with the difference count.
@@ -500,7 +523,7 @@ A theme override that only *happens* to work in light mode is not white. Require
 
 33. The PDF is A4 portrait. Verified by the page size in the file.
 34. The PDF paginates automatically: no control, prompt or setting is involved. A receipt that does not fit one page produces as many pages as needed.
-35. A receipt of 1 to 5 items without photos is a single page with no page indicator.
+35. A receipt of 1 to 5 items without photos is a single page with no page indicator. *(Fails as written, measured in validation: five plain items with a discount and a one-line note take two pages. See the amendment's open decisions.)*
 36. Pagination is a pure function of measured heights (rows and blocks, each rounded up to a whole pixel) and the page constraints. It has no rows-per-page constant. Verified by a test in which rows of different heights give different page counts, and by a search for a rows-per-page number.
 37. Boundary cases, each a unit test on the pagination function, each asserting that every item appears exactly once, in order, and that no row is split:
     a. **Rows end exactly at the page limit**: the last row that fits to the pixel stays on the page (`<=`), and the page has no spurious empty successor.
@@ -510,9 +533,9 @@ A theme override that only *happens* to work in light mode is not white. Require
     e. **A mix**: photo rows and plain rows alternating, giving page counts different from c and d.
     f. **One item with a 100-character name that wraps** to three lines, placed first, last, and exactly on the boundary.
     g. **A row taller than any possible content**: the worst case at maximum name length is shorter than the usable page height.
-38. In every case in criterion 37 the last item row is on the same page as the totals, payment, notes, statement and footer. Totals are never alone on a page, and never on a page with no item row. Tested including the case where the items end exactly at the page limit, which must move the last row to the final page.
+38. In every case in criterion 37 the last item row is on the same page as the totals, payment, notes, statement and footer. *(Amended A9: when the last row and the whole tail cannot share a page, the row keeps the **totals** and the rest of the tail closes the receipt on the next page.)* Totals are never alone on a page, and never on a page with no item row. Tested including the case where the items end exactly at the page limit, which must move the last row to the final page.
 39. Every page after the first has a running header with the issuer name, Receipt No., date and `Page N of M`, rendered by the document component, and no recipient, amount or logo. An issuer name with `ñ` and non-Latin characters draws correctly.
-40. Every page of a multi-page PDF shows `Page N of M` spelled out, with the correct N and M, and every page's foot band or in-flow block shows the statement. A one-page PDF shows neither indicator nor foot band. Verified by a test of the page model and by looking at every page of the real output.
+40. Every page of a multi-page PDF shows `Page N of M` spelled out, with the correct N and M, and every page's foot band or in-flow block shows the statement. A one-page PDF shows neither indicator nor foot band. Verified by a test of the page model and by looking at every page of the real output. *(Amended A8: on the last page `Page N of M` sits at the right of the footer line rather than beneath it.)*
 41. Any single page of a multi-page PDF, taken alone, shows the issuer, the Receipt No., the page indicator and the statement. Recorded by opening each page of the 50-item output by itself.
 42. A 50-item receipt with 10 photos, and one with 50 items and none, are each exported as real PDFs. Every page is looked at: no row, thumbnail or line of text is cut by a page boundary. Page count recorded for each.
 43. Margins are 14 mm left and right and the document is not scaled beyond `210 mm / 600 px`. Measured on the output and recorded.
@@ -611,3 +634,81 @@ Recorded so they are not mistaken for omissions.
 - **Pixel-regression snapshots in CI.** The pixel comparison here is a manual, recorded
   check.
 - **Copy review** of the statement and error messages by someone other than the implementer.
+
+## Amendment after the layout redesign
+
+The receipt was built to the design above, shown to the author, and redesigned. This section
+records what changed and why. It is an amendment, not a rewrite: the text above is the
+first design, left as written, so a reader can see what was asked for and what was built.
+
+### The author's instructions
+
+These are the author's instructions as relayed to the implementer; they are quoted from the
+relay, not from a transcript, so the exact original wording may differ slightly.
+
+- The receipt ref and date **as the header**, with the **parties below** it.
+- **Smaller type throughout.**
+- **The amount moved into the summary.**
+- The statement reduced to **"This is a proof of payment."**
+- **The date dropped from the payment row.**
+- **The reference number made conditional.**
+- **"Date paid" relabelled "Date".**
+
+The layout that resulted follows a Stripe-style receipt (the direction named in
+`type_scale.ts` and `receipt_blocks.tsx`): a large title, then small, tight text, with weight
+and colour rather than size carrying the emphasis.
+
+### What was built, against what was specified
+
+| # | Was specified | Was built | Why |
+| --- | --- | --- | --- |
+| A1 | Issuer-first header: "Issued by" and the 24 px issuer name left, "RECEIPT", Receipt No. and Date right; then a summary row with the recipient | **"Receipt" (28 px, 600) with the Receipta mark (28 px) at the right, over a 2 px violet rule. Then Receipt number and Date as a label/value block. Then Issued by and Issued to side by side, label over name. Then the amount sentence.** | The author's instruction: the receipt ref and date are the header, the parties sit below it. Two equal columns give the parties equal weight, which a receipt between two people should have. |
+| A2 | 24 / 36 / 20 / 18 / 15 / 13, three bold weights in use | **28 / 18 / 14 / 13, line heights 36 / 26 / 20 / 18, weights 400, 500, 600 only.** Nothing below 13 px, as before | "Smaller type throughout." The 13 px floor is kept: a 600 px document on a 390 pt phone is about 0.65 scale. Line heights are whole pixels so a 1 px rule lands on one device row at ratio 3; measured in the spike, a fractional position blurs it across three. |
+| A3 | Amount paid as a 36 px figure in the summary row, directly under the issuer | **The amount is one sentence, `₱1,234.56 paid on 16 October 2026` (18 px, 600), and the summary closes with an `Amount paid` row (violet, 600) under Total.** The summary row block no longer exists | "The amount moved into the summary." The sentence also carries the date the payment row used to. |
+| A4 | Two columns: a name with a `2 x P150.00` subline, and a right-aligned amount | **A four-column table: Description, Qty, Unit price, Amount** (fixed 64 / 96 / 112 px; the description takes the rest). A heading row opens the table on every page that has rows | The author's layout shows the three numbers a reader checks in their own columns. The columns are fixed, not content-sized, so a PDF page wraps a name exactly as the measurement did. A row of text is 36 px, a row with a thumbnail 72 px. |
+| A5 | The Receipta mark in the footer only, deliberately not in the header | **The mark is also at the top right of the title row.** The footer credit is unchanged | **Not among the author's relayed instructions.** It is part of the redesigned layout as built, and it reverses a decision this spec argued for. Recorded as built and flagged for the author to confirm or remove. |
+| A6 | `This is a proof of payment, not a BIR Official Receipt.`, body size | **`This is a proof of payment.`, at the 13 px label size, muted.** The words "Official Receipt" no longer appear anywhere in the document | The author's instruction. See the consequence below. |
+| A7 | A "Paid with" block, with the date elsewhere | **A "Payment" section: a heading and a hairline, then `Payment method` and `Reference number` as two columns.** The reference column exists only when a reference is present and the method is not Cash; otherwise `Payment method` stands alone, never an empty cell or a heading over nothing. No date, no amount | "The date dropped from the payment row", "the reference number made conditional", "Date paid relabelled Date". The date is in the metadata block and the sentence, the amount in the sentence, Total and Amount paid: a fourth copy is not information. Labels read "Receipt number" and "Reference number", not "No." |
+| A8 | A running header, a foot band, and the page indicator beneath the footer | **Same units, restyled.** Running header: issuer, then number, date and `Page N of M` right-aligned, then the table heading row. Foot band: the statement and `REF - Page N of M`. On the last page `Page N of M` sits right of the `Generated by` line, so the indicator adds no height (0 in the pagination input) | The label shares a line the footer already has. |
+| A9 | Last row travels with the whole tail; a one-item receipt that does not fit gets a header-only page 1 (plan recommendation) | **The first page always carries an item row (author decision).** A single item that does not fit with its tail keeps the item and the totals on page 1; payment, notes, statement and footer close page 2. A multi-row receipt whose last row cannot share a page with the whole tail does the same: the last row keeps the **totals**, the rest of the tail closes the receipt | A header-only first page reads as a broken document, and stranding the totals was rejected in the first design. Criterion 38 is amended to say the last row travels with the *totals*. |
+| A10 | Accent `#6D28D9`; `tabular-nums` on amounts; `backgroundColor: '#ffffff'` | **Accent `#6c3aed` (the app's own violet, 6.06:1 on white, the spec allowed "the app's own violet hex"); no `tabular-nums`; the keyword `white`** | The spike measured that the rasteriser changes the layout box for `tabular-nums` but not the ink, so right-aligned amounts overshoot by about 4 px; right alignment is enough. `white` is exactly #FFFFFF and passes the colour-literal rule (plan D5). |
+
+### Criteria superseded
+
+Superseded criteria are **not deleted**; they are struck through above and restated here.
+
+| Was | Now | Why it is superseded |
+| --- | --- | --- |
+| 1 | **1'.** The document shows, in this order: the title and mark, Receipt number, Date, issuer, recipient, the amount sentence, each item as a table row, totals (Subtotal and Discount only with a discount, then Total, then Amount paid), payment, notes (when present), the statement, and the footer. Verified by a test that renders the document from a fixed view and asserts text order | The order is the author's new order (A1, A3) |
+| 2 | **2'.** "Receipt" is the largest text by size (28 px), and the amount sentence (18 px, 600) is the next largest and carries the largest number. Verified by a test on the type scale constants | There is no issuer-first header and no 36 px amount (A1 to A3) |
+| 4 | **4'.** Each item row shows its name, quantity, unit price and line amount, each in its own column, and a thumbnail when it has an image | `quantity x price` is no longer a subline (A4); the three numbers are columns |
+| 10 | **10'.** The exact sentence `This is a proof of payment.` is in the document, at the label size, in every export, with no prop, setting or branch that removes it, and on **every** page of a multi-page PDF (in the foot band, or in-flow on the last page) | New wording and size (A6) |
+| 11 | **11'.** "Official Receipt" appears **nowhere in the document**; on the Review step it appears only in the existing notice, once. "OR No.", "Invoice", "Serial", "TIN" and "VAT" appear nowhere. "Paid" is never a stamp (`Amount paid` is a label and "paid on" is part of the amount sentence) | The statement no longer contains the phrase (A6) |
+
+Amended in wording only, still in force: 6 (label), 13 (also see A5), 19 (keyword), 38 (A9),
+40 (A8). Plan decisions D5 (keyword `white`) and D1 (render slot) stand as written.
+
+### The consequence of A6, stated plainly
+
+The first design argued that the not-an-Official-Receipt claim had to travel with whichever
+page is forwarded alone, so every page carried the full sentence. Now every page carries
+`This is a proof of payment.`, which says what the document is but no longer says what it is
+not. **A page forwarded alone no longer states that it is not a BIR Official Receipt.** The
+page notice above the preview (unchanged, criterion 53) still does, but it is not in the
+file. That is the author's decision and it is recorded as a trade, not hidden: the original
+reasoning ("a bare 'not an official receipt' tells them only what to refuse") and the
+author's ("one plain sentence") pull in different directions, and he chose. If the BIR line
+is wanted in the file again, it is a one-constant change in `receipt_view.ts` and the tests
+that name the sentence.
+
+### Open decisions for the author
+
+1. **Criterion 35** fails as written (validation records the measurement). Either amend it
+   to "1 to 4 items" (which holds with a discount, a note and a reference), or tighten the
+   layout so five fit. Not decided here.
+2. **A5, the mark at the top right.** Keep, or remove to restore the first design's rule.
+3. **A6, the statement.** Whether the file should say "not a BIR Official Receipt" again.
+
+Recorded rather than quietly edited because the first design was not wrong to ask: it was
+specified before there was anything to look at, and the author's instructions on seeing the
+real render are what changed the answer.

@@ -39,7 +39,8 @@ Turning the preview into something sendable.
 
 - Export as PDF
 - Export as PNG
-- Export library chosen and justified — still open, see `tech-stack.md`
+- Export library chosen and justified — `html2canvas-pro` rasterises and `jsPDF` assembles the
+  PDF, both loaded on the first export click. Decided and installed, see `tech-stack.md`
 - Toast feedback on export success and failure
 - Verify output fidelity: fonts, peso sign, images, page bounds
 

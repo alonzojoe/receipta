@@ -464,10 +464,10 @@ is nearly here; its absence is accurate.
 
 **Review and the BIR line**
 
-59. Review shows every field listed in the "Review step" section, formatted with the shared formatter, and Discount only when above 0.
+59. ~~Review shows every field listed in the "Review step" section, formatted with the shared formatter, and Discount only when above 0.~~ **[Superseded by receipt-export criteria 50 and 51: Review shows the receipt document as it will be sent, built from the same shared formatter, with Discount only when above 0. The plain summary is removed.]**
 60. Review's Edit link for each section goes to that step and Back returns with data intact.
-61. Review has no export, download, or print control.
-62. The Review notice states the receipt is not a BIR Official Receipt and is visible without scrolling past the totals at 320px.
+61. ~~Review has no export, download, or print control.~~ **[Superseded by receipt-export criterion 56: Review has Download PDF and Download image. Steps 1 to 3 still have none, asserted in `receipt_wizard.test.tsx`.]**
+62. The Review notice states the receipt is not a BIR Official Receipt and is visible without scrolling past the totals at 320px. **[Amended by receipt-export criterion 53: the notice is unchanged and now sits above the preview, so it is visible before the document.]**
 63. No label, heading, or test id in the wizard says "Official Receipt", "OR No.", "Invoice No.", "Serial", "TIN", or "VAT". Verified by a text search over the rendered wizard at every step.
 
 **UI quality bar**

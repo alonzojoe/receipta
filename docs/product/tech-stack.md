@@ -49,11 +49,14 @@ of repo consistency over tooling convenience. The cost: after
 
 ## Export: html2canvas-pro + jsPDF
 
-Decided 2026-10-11. Not installed yet — it lands with Phase 2, since nothing consumes it
-before then.
+Decided 2026-10-11. Installed 2026-10-16 with the receipt export feature
+(`html2canvas-pro` ^2.5.0, `jspdf` ^4.2.1). Both are loaded with a dynamic `import()` on the
+first export click, in one file (`features/receipt_export/lib/load_ports.ts`), so neither is
+in the entry chunk.
 
 The receipt preview is rasterised by `html2canvas-pro`, which gives the PNG directly.
-`jsPDF` then wraps that raster into a PDF sized to the receipt. One pipeline, two outputs.
+`jsPDF` then wraps each page's raster into an A4 PDF, paginated from measured row heights. One
+pipeline, two outputs.
 
 **Why rasterise instead of a real PDF renderer.** Both PNG and PDF ship in v1, and PNG
 needs a rasteriser regardless. Choosing `@react-pdf/renderer` would not replace that
@@ -80,15 +83,23 @@ nothing real.
 
 **Two mitigations, both required.**
 
-1. **Render at 3× scale.** A ~600 px receipt at 3× is 1800 px, above the ~1748 px needed
-   for 300 dpi at A5 width. No visible blur in print.
-2. **The receipt preview uses fixed hex colours and never dark mode.** A receipt is a
+1. **Render at 3× for the PDF, 2× for the image.** This was written for print: a 600 px
+   document at 3× is 1800 px, above the ~1748 px needed for 300 dpi at A5 width. The PDF is now
+   A4, where 1800 px across is about 218 dpi, which is sharp for text on white but is not
+   300 dpi, and the figure was never a guarantee of print quality. The PNG is a chat asset: 2×
+   gives 1200 px, about one phone screen, and 3× added file size and canvas pressure for
+   nothing visible on a phone. The image ratio is adaptive (never below 1.5×), because a tall
+   receipt can exceed a mobile canvas limit.
+2. **The receipt document uses fixed hex colours (`--receipt-*` custom properties, defined in
+   `:root` only) and never dark mode.** A receipt is a
    document, not UI: black on white regardless of the app's theme. This is the correct
    design call on its own, and it also removes the `oklch()` export risk entirely, since
    no theme token reaches the rasterised node.
 
-Phase 2 must still verify in real output: the ₱ sign renders, Geist embeds or falls back
-cleanly, item images appear, and the receipt fits its page bounds.
+Phase 2 had to verify in real output that the ₱ sign renders, Geist embeds, item images
+appear, and the receipt fits its page bounds. That is recorded in
+`docs/specs/2026-10-16-receipt-export/validation.md`. The one thing it could not verify is a
+real phone's canvas limit, which is the author's to check.
 
 ## Still open
 
