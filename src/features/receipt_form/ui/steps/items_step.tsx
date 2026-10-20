@@ -88,23 +88,47 @@ export function ItemsStep({ form }: ItemsStepProps) {
       </form.Field>
 
       <div className="flex flex-col gap-4 border-t border-border pt-6">
-        <form.Field
-          name="discount"
-          validators={{ ...step_validators('items', 'discount'), onChangeListenTo: ['items'] }}
-        >
-          {(field) => (
-            <FormField
-              field={field}
-              label="Discount"
-              requirement="optional"
-              hint="A peso amount taken off the subtotal. Leave blank for none."
-            >
-              {(control) => (
-                <AppInput {...control} type="text" inputMode="decimal" autoComplete="off" adornment="₱" />
-              )}
-            </FormField>
-          )}
-        </form.Field>
+        {/* Amount first, description second: the amount is the field that changes the
+            total, and the reason only qualifies it. They stack on a phone, where
+            side-by-side would leave the description too narrow to read what was typed. */}
+        <div className="grid gap-4 sm:grid-cols-[1fr_2fr]">
+          <form.Field
+            name="discount"
+            validators={{
+              ...step_validators('items', 'discount'),
+              onChangeListenTo: ['items', 'discount_description'],
+            }}
+          >
+            {(field) => (
+              <FormField
+                field={field}
+                label="Discount"
+                requirement="optional"
+                hint="A peso amount taken off the subtotal."
+              >
+                {(control) => (
+                  <AppInput {...control} type="text" inputMode="decimal" autoComplete="off" adornment="₱" />
+                )}
+              </FormField>
+            )}
+          </form.Field>
+
+          <form.Field
+            name="discount_description"
+            validators={step_validators('items', 'discount_description')}
+          >
+            {(field) => (
+              <FormField
+                field={field}
+                label="Discount description"
+                requirement="optional"
+                hint="What the discount was for. Shown on the receipt as Discount (student)."
+              >
+                {(control) => <AppInput {...control} type="text" autoComplete="off" />}
+              </FormField>
+            )}
+          </form.Field>
+        </div>
 
         <form.Subscribe selector={(state) => summarise_receipt(state.values)}>
           {(summary) => <TotalsSummary summary={summary} />}
