@@ -157,7 +157,7 @@ function Summary({ totals, measured }: { totals: TotalsView; measured: boolean }
               <dd>{totals.subtotal}</dd>
             </div>
             <div className="receipt-summary-row">
-              <dt>{receipt_labels.discount}</dt>
+              <dt>{totals.discount_label}</dt>
               <dd>{totals.discount}</dd>
             </div>
           </>
