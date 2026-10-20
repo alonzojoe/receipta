@@ -322,9 +322,15 @@ export function Tail({ view, part = 'whole', label }: { view: ReceiptView; part?
               of the same block, so both sides of the page are used and the stamp costs no
               height of its own. The block reserves enough height that the stamp always
               fits inside it, which is what keeps the measured tail honest. */}
-          <div className="receipt-tail-lower">
-            <Payment payment={view.payment} />
-            {view.notes !== null && <Notes notes={view.notes} />}
+          <Payment payment={view.payment} />
+          {view.notes !== null && <Notes notes={view.notes} />}
+          {/* The statement and the stamp share a row: both sides of the page are used, and
+              the row's height is measured like everything else. An absolutely positioned
+              stamp filled the same space for free, but it also sat on top of a long
+              reference number, the end of a long note and the footer's rule - nothing
+              catches that, because an out-of-flow child adds no height for the page plan
+              to notice. */}
+          <div className="receipt-statement-row">
             <p className="receipt-label receipt-statement">{receipt_statement}</p>
             <PaidStamp />
           </div>

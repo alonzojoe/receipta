@@ -28,10 +28,10 @@ on the same day** — that is recorded in Deferred rather than left to be discov
 | Decision | Choice | Why |
 | --- | --- | --- |
 | Where | **Right-aligned in the tail, between the statement and the footer**, on the last page only | It is the empty area the author pointed at, and the tail is where the money has just been stated. It belongs with the total, not floating in the page. |
-| How it is placed | **A measured block in normal flow**, not absolutely positioned | Pagination measures every unit it deals out. An absolutely positioned stamp has no height, so a page would be planned as if it were not there and the stamp would land on top of the footer. This is the same reason the document forbids margins. |
-| Rotation | **−6°, by `transform`** | A stamp that is perfectly square reads as a badge, not a stamp. `transform` does not change the layout box, so the measured height is unaffected; the box carries enough padding that the rotated ink stays inside it. |
-| Shape | A rounded rectangle with a 2px border, not an oval or a circle | Two lines of text at different sizes fit a rectangle. An oval would force either a tiny second line or a very wide stamp. |
-| Colour | **Violet**, `--receipt-accent` | It is the one mark on the document that is meant to be noticed after the amount. This makes two uses of the accent, up from one; the author's "three violet touches" rule is not broken. |
+| How it is placed | **In flow, in a row with the statement**, not absolutely positioned | Tried both. Absolute positioning fills the empty right for free, and it also sat on top of a long reference number, the end of a long note, and the footer's rule - caught in review. Nothing detects that: an out-of-flow child adds no height, so the page plan sees no overflow and the overlap is silent. In flow costs the row its height and cannot overlap anything. |
+| Rotation | **−5°, by `transform`**, declared once in `type_scale.ts` and pinned against the stylesheet | A stamp that is perfectly square reads as a badge. `transform` does not change the layout box, so the angle costs no height. The constant and the CSS drifted apart once (−6 against −5, with this spec quoting a third value) because nothing read the constant; a test now pins them together. |
+| Shape | A square-cornered rectangle with a 3px border, with `Thank you!` **outside** the box | Matched to the author's reference image, which arrived after the first draft of this spec. A rubber stamp has a cut edge, not a rounded one, and the thanks sits under the box rather than inside it. |
+| Colour | **Red**, its own `--receipt-stamp` (`#b03a2e`, 6.02:1 on the paper) | The author's instruction, and right: a stamp reads as something pressed onto the paper after the fact, where the brand violet would look printed with the document. The author then moved the Amount paid figure to ink as well, which left `--receipt-accent` unused - it is removed rather than left defined, because a dead token keeps a vacuous guard test alive. |
 | Words | `PAID IN FULL` over `Thank you` | The author's words. Uppercase and tracked on the first line because that is what a stamp looks like; sentence case on the second because it is a human line, not a label. |
 | On multi-page PDFs | **Last page only** | It belongs with the total. A stamp on every page would read as a watermark and would compete with the running header. |
 
@@ -49,16 +49,16 @@ exports without any of those changing.
 1. The document shows the stamp once, after the statement and before the footer.
 2. It reads `PAID IN FULL` on the first line and `Thank you` on the second.
 3. It is right-aligned within the content column.
-4. It is rotated by a small negative angle, applied with `transform` so the layout box and
-   therefore the measured height are unchanged.
-5. The rotated ink stays inside the element's own box: the box's padding is large enough
-   that no part of the border or text is painted outside it at the chosen angle.
+4. It is rotated by `paid_stamp_rotation_deg`, applied with `transform`, and a test pins
+   the stylesheet to that constant so the two cannot drift.
+5. The stamp is in flow. No rule in the document stylesheet positions it absolutely, and
+   no reserved minimum height stands in for being measured.
 6. On a multi-page PDF the stamp appears on the last page only, and never in the foot band
    of an earlier page.
 7. The tail is still measured as one unit, and its measured height includes the stamp.
-8. `--receipt-accent` is used in exactly two places in the document stylesheet: the
-   "Amount paid" figure and the stamp. The existing test that pins that list is updated,
-   not deleted.
+8. The document spends no violet at all. `--receipt-accent` is removed from the palette,
+   and a test fails on any `var(--receipt-*)` the palette does not define, so a dangling
+   reference cannot sit in the stylesheet painting nothing.
 9. No margin is introduced anywhere in the document stylesheet.
 10. Nothing below 13px, and every line height a whole pixel.
 11. The white-paper guarantee is unaffected: no `dark:` variant, no theme token, and the
@@ -76,9 +76,9 @@ No browser is available (author instruction), so:
   `transform`.** If `html2canvas-pro` does not honour rotation, the stamp renders square —
   which is a cosmetic miss, not a broken document, and the layout is unaffected either way
   because the box is unrotated. Recorded as unverified rather than claimed.
-- **Criterion 5 cannot be measured in jsdom.** The padding is derived from the geometry of
-  rotating a box of known size, stated in the validation notes as arithmetic rather than
-  measurement, for the author to confirm on screen.
+- **Criterion 5 is now a source-level check**, which is stronger than the arithmetic it
+  replaced: the first version reserved a height calculated from an assumed 190px stamp
+  width, and nothing clamped that width. Being in flow removes the assumption entirely.
 - The light-versus-dark pixel diff is not re-run.
 
 ## Deferred
@@ -89,3 +89,19 @@ No browser is available (author instruction), so:
   receipt.
 - A distressed or textured stamp edge. It would need a raster or an SVG filter, and
   filters are another thing the rasteriser has not been proven to honour.
+
+
+## What review changed
+
+The first implementation was absolutely positioned, which filled the empty right of the
+payment block for free. Review found it could sit on top of a long reference number, the
+end of a long note, and the footer's rule - and that **nothing would catch it**, because an
+out-of-flow child contributes no height, so `measure_layout`'s overflow check sees a page
+that fits.
+
+The reserved `min-height` that was meant to make it safe only guaranteed the block was tall
+enough to contain the stamp. It said nothing about the content the stamp was laid over, and
+its 92px came from arithmetic on an assumed stamp width that nothing enforced.
+
+It is now in flow, in a row with the statement. The row is as tall as the stamp, which is
+the price, and in exchange the overlap is not possible rather than merely unlikely.

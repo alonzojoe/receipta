@@ -5,6 +5,7 @@ import { import_specifiers } from '@/test/source_rules'
 import { strip_code_comments, find_theme_utilities, find_dark_variants, find_current_color, find_foreign_css_colours, theme_token_names } from '@/test/white_rules'
 
 import { line_height, page_height, page_margin, page_usable_height, page_width, payment_logo_size, footer_wordmark_height, footer_mark_size, thumbnail_radius, thumbnail_size, table_column_chars, numeric_cell_padding, type_scale } from '../model/type_scale'
+import { paid_stamp_rotation_deg } from '../model/type_scale'
 
 /**
  * Layer 1 of the white-background proof (receipt-export spec): the files that render the
@@ -195,6 +196,25 @@ describe('receipt_document.css', () => {
   it('inks the stamp in the stamp colour, never the brand violet', () => {
     const uses = [...css.matchAll(/([^{}]+)\{[^{}]*var\(--receipt-stamp\)[^{}]*\}/g)].map((match) => match[1].trim())
     expect(uses).toEqual(['.receipt-stamp', '.receipt .receipt-stamp-box'])
+  })
+
+  /**
+   * The constant and the stylesheet drifted apart once: -6 in type_scale.ts, -5 in the CSS,
+   * -6 again in the spec. Nothing noticed, because nothing read the constant.
+   */
+  it('turns the stamp by the angle the model declares', () => {
+    const stamp = rules_for(css, '.receipt-stamp')[0].body
+    expect(stamp).toContain(`rotate(${paid_stamp_rotation_deg}deg)`)
+  })
+
+  /**
+   * Closes a gap the reviewer found: 'takes colour from --receipt-* only' would happily pass
+   * a `var(--receipt-accent)` that no longer exists, painting nothing.
+   */
+  it('uses no --receipt-* property that the palette does not define', () => {
+    const used = new Set([...css.matchAll(/var\((--receipt-[a-z-]+)\)/g)].map((match) => match[1]))
+    const defined = new Set([...index_css.matchAll(/(--receipt-[a-z-]+):/g)].map((match) => match[1]))
+    for (const property of used) expect(defined, `${property} is used but never defined`).toContain(property)
   })
 
   it('does not ask for tabular figures, which the rasteriser does not honour', () => {

@@ -333,22 +333,20 @@
 /* The paid stamp. The wrapper is in flow and owns the measured height; the stamp inside it
    is rotated, and `transform` leaves the layout box alone, so the measurement stays true.
    The wrapper's padding is the room the turned corners need (type_scale.ts paid_stamp). */
-/* The lower block: payment, notes and the statement on the left, the stamp overlaid right.
-   `min-height` is the stamp's own turned height plus room, so an absolutely positioned
-   stamp can never reach past the block that the pagination measured. Without it, a short
-   payment block (Cash, no reference, no notes) would let the stamp paint over the totals. */
-.receipt-tail-lower {
-  position: relative;
-  min-height: 92px;
+/* The statement left, the stamp right, on one measured row. The row is as tall as the
+   stamp, which is the price of the stamp being in flow - and in flow is what stops it
+   painting over the payment row, the notes or the footer rule. `align-items: flex-end`
+   keeps the statement on the baseline it had before the stamp existed. */
+.receipt-statement-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-/* Out of flow on purpose: the right of this block is empty, so the stamp costs no height.
-   It is bottom-aligned so it sits beside the statement rather than floating mid-block. */
 .receipt-stamp-wrap {
-  position: absolute;
-  right: 0;
-  bottom: 0;
   display: flex;
+  flex: none;
   justify-content: flex-end;
 }
 
