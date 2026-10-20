@@ -51,7 +51,9 @@ export function HomeHero() {
                 </Link>
               </CtaButton>
               <CtaButton variant="outline" asChild>
-                <a href="#how-it-works">How it works</a>
+                <Link to="/" hash="how-it-works">
+                  How it works
+                </Link>
               </CtaButton>
             </div>
           </Reveal>
