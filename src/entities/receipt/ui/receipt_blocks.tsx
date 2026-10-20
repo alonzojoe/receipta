@@ -238,6 +238,33 @@ function Notes({ notes }: { notes: string }) {
   )
 }
 
+/**
+ * The paid-in-full stamp, in the empty space above the footer on the last page.
+ *
+ * In normal flow and measured, not absolutely positioned: pagination deals out units by
+ * their measured height, and a stamp with no height would be planned as if it were not
+ * there and would land on the footer. The rotation is a `transform`, which does not change
+ * the layout box, so the measured height is the unrotated one; the wrapper's padding is
+ * sized from the geometry of turning the box, so the rotated ink stays inside it.
+ *
+ * The claim is safe to print unconditionally: a Receipta receipt records one payment that
+ * has already happened, and the amount paid is the total after any discount. There is no
+ * state where a receipt exists and this is false. A partial-payment feature would have to
+ * make this conditional on the same day.
+ */
+function PaidStamp() {
+  return (
+    <div className="receipt-stamp-wrap">
+      {/* One rotated group: the bordered box carries the claim, the thanks sits under the
+          box rather than inside it, as a rubber stamp does. */}
+      <div className="receipt-stamp">
+        <p className="receipt-stamp-box">Paid in full</p>
+        <p className="receipt-stamp-thanks">Thank you!</p>
+      </div>
+    </div>
+  )
+}
+
 function Footer({ label }: { label?: string }) {
   return (
     <div className="receipt-footer">
@@ -291,9 +318,22 @@ export function Tail({ view, part = 'whole', label }: { view: ReceiptView; part?
       {part !== 'rest' && <Summary totals={view.totals} measured={part === 'whole'} />}
       {part !== 'totals' && (
         <>
+          {/* Payment, notes and the statement sit left; the stamp overlays the empty right
+              of the same block, so both sides of the page are used and the stamp costs no
+              height of its own. The block reserves enough height that the stamp always
+              fits inside it, which is what keeps the measured tail honest. */}
           <Payment payment={view.payment} />
           {view.notes !== null && <Notes notes={view.notes} />}
-          <p className="receipt-label receipt-statement">{receipt_statement}</p>
+          {/* The statement and the stamp share a row: both sides of the page are used, and
+              the row's height is measured like everything else. An absolutely positioned
+              stamp filled the same space for free, but it also sat on top of a long
+              reference number, the end of a long note and the footer's rule - nothing
+              catches that, because an out-of-flow child adds no height for the page plan
+              to notice. */}
+          <div className="receipt-statement-row">
+            <p className="receipt-label receipt-statement">{receipt_statement}</p>
+            <PaidStamp />
+          </div>
           <Footer label={label} />
         </>
       )}

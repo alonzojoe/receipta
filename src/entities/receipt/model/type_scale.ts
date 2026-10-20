@@ -48,6 +48,15 @@ export const footer_wordmark_height = 16
  *  compact shape next to lowercase text reads smaller than it measures. */
 export const footer_mark_size = 20
 /**
+ * The paid stamp's rotation, in degrees. It lives here rather than only in the stylesheet so
+ * a test can pin the two together: the constant and the CSS drifted apart once already, -6
+ * here against -5 there, with the spec quoting a third value.
+ *
+ * `transform` does not change the layout box, so this angle costs no height. The stamp sits
+ * in flow beside the statement, which is what keeps it from painting over the payment row.
+ */
+export const paid_stamp_rotation_deg = -5
+/**
  * The item table's numeric columns, sized in characters of the body font (CSS `ch`, the advance
  * of "0"), not in pixels. The widest value each column can hold is knowable from the form's
  * limits, so each column is sized from that string - but by its real WIDTH, not its character

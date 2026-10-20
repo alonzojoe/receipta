@@ -9,6 +9,7 @@ import type { PageSlice } from '../model/paginate_receipt'
 import { build_receipt_view, receipt_statement } from '../model/receipt_view'
 import { ReceiptDocument, ReceiptMeasure } from './receipt_document'
 import { ReceiptPage } from './receipt_page'
+import receipt_css from './receipt_document.css?raw'
 
 function text_of(container: HTMLElement) {
   return container.textContent ?? ''
@@ -129,7 +130,48 @@ describe('ReceiptDocument: order and content', () => {
     const { container } = render(<ReceiptDocument view={make_view({ discount: '10' })} />)
     expect(text_of(container)).not.toMatch(/\b(?:Invoice|Serial|TIN|VAT)\b/)
     expect(text_of(container)).not.toMatch(/OR No\./)
-    expect(text_of(container)).not.toMatch(/\bPaid\b(?! on| with)/)
+    // "Paid in full" is the stamp, which the author asked for by name. The trailing
+    // lookahead rejects a lowercase continuation, so "Paid in fullness" is still caught,
+    // while allowing the next block's text to run straight on - textContent concatenates,
+    // so the document reads "...Paid in fullThank you!" with no space between them.
+    // Everything else
+    // capital-P is still forbidden: a bare "Paid" label is how a document starts to read
+    // like an official receipt's status field, which is what this rule exists to stop.
+    expect(text_of(container)).not.toMatch(/\bPaid\b(?! on\b| with\b| in full(?![a-z]))/)
+  })
+
+  it('stamps paid in full beside the statement, once, on the right', () => {
+    const { container } = render(<ReceiptDocument view={make_view()} />)
+    const stamps = container.querySelectorAll('.receipt-stamp')
+    expect(stamps).toHaveLength(1)
+    expect(stamps[0].textContent).toBe('Paid in fullThank you!')
+
+    // The thanks sits outside the bordered box, as a rubber stamp has it.
+    const box = stamps[0].querySelector('.receipt-stamp-box') as HTMLElement
+    expect(box.textContent).toBe('Paid in full')
+    expect(box.querySelector('.receipt-stamp-thanks')).toBeNull()
+
+    // Statement left, stamp right, in one row.
+    const row = container.querySelector('.receipt-statement-row') as HTMLElement
+    expect([...row.children].map((el) => el.className.split(' ').pop())).toEqual([
+      'receipt-statement',
+      'receipt-stamp-wrap',
+    ])
+  })
+
+  /**
+   * The stamp was briefly absolutely positioned, which filled the same space for free and
+   * silently sat on top of a long reference number, the end of a long note and the footer's
+   * rule. Nothing catches that: an out-of-flow child adds no height, so the page plan sees
+   * no overflow. This pins the stamp in flow rather than trusting a reserved minimum.
+   */
+  it('keeps the stamp in flow, so its height is measured like everything else', () => {
+    const row = receipt_css.match(/\.receipt-statement-row\s*\{([^}]*)\}/)?.[1] ?? ''
+    const wrap = receipt_css.match(/\.receipt-stamp-wrap\s*\{([^}]*)\}/)?.[1] ?? ''
+
+    expect(row).toMatch(/display:\s*flex/)
+    expect(wrap).not.toMatch(/position:\s*absolute/)
+    expect(receipt_css).not.toMatch(/\.receipt-tail-lower/)
   })
 
   it('renders the same view to the same markup every time', () => {

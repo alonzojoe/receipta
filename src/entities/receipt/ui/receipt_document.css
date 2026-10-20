@@ -276,7 +276,7 @@
 }
 
 .receipt-summary-paid dd {
-  color: var(--receipt-accent);
+  color: var(--receipt-ink);
 }
 
 /* Payment and Notes: a small section, a heading, a hairline. */
@@ -328,6 +328,56 @@
 
 .receipt-statement {
   padding-bottom: 12px;
+}
+
+/* The paid stamp. The wrapper is in flow and owns the measured height; the stamp inside it
+   is rotated, and `transform` leaves the layout box alone, so the measurement stays true.
+   The wrapper's padding is the room the turned corners need (type_scale.ts paid_stamp). */
+/* The statement left, the stamp right, on one measured row. The row is as tall as the
+   stamp, which is the price of the stamp being in flow - and in flow is what stops it
+   painting over the payment row, the notes or the footer rule. `align-items: flex-end`
+   keeps the statement on the baseline it had before the stamp existed. */
+.receipt-statement-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.receipt-stamp-wrap {
+  display: flex;
+  flex: none;
+  justify-content: flex-end;
+}
+
+.receipt-stamp {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--receipt-stamp);
+  transform: rotate(-5deg);
+}
+
+/* The box is only around the claim. Square corners, not rounded: a rubber stamp has a cut
+   edge. The selector is doubled for specificity, because `.receipt *` resets border-color
+   to the rule grey and would otherwise win over a single class. */
+.receipt .receipt-stamp-box {
+  padding: 6px 16px;
+  border: 3px solid var(--receipt-stamp);
+  font-size: 18px;
+  line-height: 26px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.receipt-stamp-thanks {
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .receipt-footer {

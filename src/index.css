@@ -115,7 +115,11 @@
   --receipt-ink: #0f172a;
   --receipt-muted: #475569;
   --receipt-rule: #e2e8f0;
-  --receipt-accent: #6c3aed;
+  /* Stamp ink. Red, not the brand violet: a stamp reads as something pressed onto the paper
+   * after the fact, and the brand colour would make it look printed with the document. 6.02:1
+   * on the paper, so it clears AA as text. Like every --receipt-* value it is defined here
+   * only and never in .dark - the document does not follow the theme. */
+  --receipt-stamp: #b03a2e;
 
   /*
    * Easing.

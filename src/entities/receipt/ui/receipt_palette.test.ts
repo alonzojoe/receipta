@@ -28,13 +28,13 @@ describe('the --receipt-* palette (criterion 17)', () => {
   const in_root = receipt_properties((selector) => selector === ':root')
   const palette = Object.fromEntries(in_root.map(({ property, value }) => [property, value]))
 
-  it('defines paper, ink, muted, rule and accent in :root, as plain hex', () => {
+  it('defines paper, ink, muted, rule and stamp in :root, as plain hex', () => {
     expect(Object.keys(palette).sort()).toEqual([
-      '--receipt-accent',
       '--receipt-ink',
       '--receipt-muted',
       '--receipt-paper',
       '--receipt-rule',
+      '--receipt-stamp',
     ])
     for (const value of Object.values(palette)) expect(value).toMatch(/^#[0-9a-f]{6}$/i)
     expect(palette['--receipt-paper'].toLowerCase()).toBe('#ffffff')
@@ -52,11 +52,12 @@ describe('the --receipt-* palette (criterion 17)', () => {
     expect(found).toEqual([{ property: '--receipt-ink', value: '#ffffff' }])
   })
 
-  it('keeps text readable on the paper: ink, muted and accent at 4.5:1 or better', () => {
+  it('keeps text readable on the paper: ink, muted and the stamp at 4.5:1 or better', () => {
     const paper = palette['--receipt-paper']
     expect(contrast(palette['--receipt-ink'], paper)).toBeGreaterThan(15)
     expect(contrast(palette['--receipt-muted'], paper)).toBeGreaterThan(7)
-    expect(contrast(palette['--receipt-accent'], paper)).toBeGreaterThan(4.5)
+    // The stamp is text as well as a border, so it clears AA rather than only 3:1.
+    expect(contrast(palette['--receipt-stamp'], paper)).toBeGreaterThan(4.5)
   })
 
   it('measures contrast correctly (black on white is 21:1)', () => {
