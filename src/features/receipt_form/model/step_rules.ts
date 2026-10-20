@@ -98,13 +98,16 @@ function validate_items(values: ReceiptFormValues): StepErrors {
   // figure and a message quoting it would be wrong; the line errors block the step anyway.
   const every_line_valid = values.items.length > 0 && valid_lines.length === values.items.length
   add(errors, 'discount_description', discount_description_rule(values.discount_description))
-  // A reason with no amount would be silently dropped: the row only renders with a discount
-  // above 0. Say so rather than discarding what someone typed.
-  if (values.discount_description.trim() !== '' && values.discount.trim() === '') {
+
+  const discount = parse_discount(values.discount)
+  // A reason with no discount would be silently dropped: the row renders only when the
+  // discount is ABOVE 0, so "0" and "0.00" drop it just as surely as an empty field does.
+  // Checking the raw text missed both. Say so rather than discarding what someone typed.
+  const discounts_nothing = !discount.ok || discount.value === 0
+  if (values.discount_description.trim() !== '' && discounts_nothing) {
     add(errors, 'discount', 'Add the discount amount, or clear the description')
   }
 
-  const discount = parse_discount(values.discount)
   if (every_line_valid && discount.ok) {
     const totals = compute_totals(valid_lines, discount.value)
     if (!totals.ok) add(errors, 'discount', discount_cap_rule(discount.value, totals.subtotal))

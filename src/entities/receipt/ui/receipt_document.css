@@ -256,6 +256,13 @@
   gap: 16px;
 }
 
+/* A reason can be 40 characters with no spaces, which is one unbreakable word. Without
+   these the label refuses to shrink and pushes the figure out of its column. */
+.receipt-summary-row dt {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 /* The label may wrap; the figure may not, and keeps its width. */
 .receipt-summary-row dd {
   flex: none;

@@ -15,8 +15,8 @@ A discount can now say what it was for. Both the amount and the description stay
 | Decision | Choice | Why |
 | --- | --- | --- |
 | The field | `discount_description`, free text, **40 characters** | It renders inside the summary's label cell, which is narrow. 40 characters fits `Discount (…)` without the label wrapping under the figure. Notes already exist for anything longer. |
-| Where in the form | The Items step, in the same row as the amount: **description left, amount right** | The author's "divide the column into 2". The description is the wider of the two, because an amount is at most 10 characters and a reason is a phrase. |
-| A description with no amount | **Blocks Next**, with a message asking for the amount or an empty description | The row only renders when there is a discount above 0, so a description typed without an amount would be silently discarded. Discarding what someone typed is worse than a message. |
+| Where in the form | The Items step, in the same row: **amount left, description right** | The author's "divide the column into 2", then "Discount comes first before its description". The amount is what changes the total; the reason only qualifies it. The description still takes the wider share, because an amount is at most 10 characters and a reason is a phrase. |
+| A description with no **effective** discount | **Blocks Next**, with a message asking for the amount or an empty description | The row renders only when the discount is above 0, so a description typed against an empty field, `0`, or `0.00` would all be silently discarded. The first implementation checked the raw text and missed the last two. |
 | An amount with no description | **Fine, unchanged** | This is the existing behaviour and the common case. |
 | How it renders | `Discount (student)` in the label cell, the figure unchanged | The author's example. Parentheses rather than a colon or a dash, because the label is already a noun and the reason qualifies it. |
 | Whitespace | Trimmed, inner runs collapsed to single spaces, control characters rejected | The same treatment every other free-text field in this form gets. |
@@ -33,7 +33,7 @@ Out of scope: the discount amount's own rules (already specified), percentage di
 ## Acceptance criteria
 
 1. The Items step shows a discount description field beside the discount amount, in one
-   row, description left and amount right.
+   row, **amount left and description right**.
 2. Both fields are optional. A receipt with neither, with only an amount, and with both,
    all pass the step.
 3. A description with no amount fails the step with its own message, naming what to do.

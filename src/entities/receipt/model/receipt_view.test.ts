@@ -95,15 +95,26 @@ describe('build_receipt_view: the discount rows (criterion 5)', () => {
    */
   it('names the discount when a description is given', () => {
     const { totals } = build_receipt_view(receipt({ discount: '100', discount_description: 'student' }))
-    expect(totals.discount_label).toBe('Discount (student)')
+    expect(totals.discount_label).toBe('Discount (\u2068student\u2069)')
     expect(totals.discount).toBe('-₱100.00')
   })
 
   it('collapses whitespace in the description and ignores an empty one', () => {
     expect(build_receipt_view(receipt({ discount: '50', discount_description: '  senior   citizen ' })).totals.discount_label)
-      .toBe('Discount (senior citizen)')
+      .toBe('Discount (\u2068senior citizen\u2069)')
     expect(build_receipt_view(receipt({ discount: '50', discount_description: '   ' })).totals.discount_label)
       .toBe('Discount')
+  })
+
+  /**
+   * Isolates, not decoration: without them a right-to-left reason reorders the punctuation
+   * around it and the closing parenthesis prints on the wrong side. They are invisible, and
+   * the document prints this string unchanged, so both exports get the same protection.
+   */
+  it('isolates the reason so right-to-left text cannot flip the parentheses', () => {
+    const { totals } = build_receipt_view(receipt({ discount: '50', discount_description: 'طالب' }))
+    expect(totals.discount_label).toBe('Discount (\u2068طالب\u2069)')
+    expect(totals.discount_label.endsWith(')')).toBe(true)
   })
 
   it('leaves the figure untouched by the description, to the centavo', () => {

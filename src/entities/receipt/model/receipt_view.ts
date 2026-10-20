@@ -97,10 +97,15 @@ function money_or_empty(centavos: number | undefined) {
 /**
  * `Discount (student)` when a reason was given, `Discount` when not. Collapses inner
  * whitespace so a pasted reason cannot print as `Discount (student    card)`.
+ *
+ * The reason is wrapped in Unicode isolates (U+2068 / U+2069). Without them a
+ * right-to-left phrase reorders the surrounding punctuation and the closing parenthesis
+ * lands on the wrong side of the label. They are invisible and carry through to both
+ * exports, since the document prints this string as it is given.
  */
 function discount_label(description: string) {
   const reason = description.trim().replace(/\s+/g, ' ')
-  return reason === '' ? receipt_labels.discount : `${receipt_labels.discount} (${reason})`
+  return reason === '' ? receipt_labels.discount : `${receipt_labels.discount} (\u2068${reason}\u2069)`
 }
 
 export function build_receipt_view(input: ReceiptInput): ReceiptView {

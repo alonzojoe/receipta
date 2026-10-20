@@ -211,9 +211,23 @@ describe('clamp_step', () => {
      * The row only renders with a discount above 0, so a reason typed with no amount would
      * be silently dropped. Discarding what someone typed is worse than a message.
      */
-    it('blocks the step when a description is given with no amount', () => {
-      const errors = validate_step('items', base({ discount_description: 'student' }), now)
+    it.each([
+      ['an empty amount', ''],
+      ['a zero amount', '0'],
+      ['a zero amount with decimals', '0.00'],
+      ['a whitespace amount', '   '],
+    ])('blocks the step when a description is given with %s', (_label, discount) => {
+      const errors = validate_step('items', base({ discount, discount_description: 'student' }), now)
       expect(errors.discount).toBe('Add the discount amount, or clear the description')
+    })
+
+    /**
+     * `0` and `0.00` parse fine and render no Discount row, so the raw-text check passed
+     * them while the description was dropped - the exact failure the rule exists to stop.
+     */
+    it('does not block when the amount actually discounts something', () => {
+      expect(validate_step('items', base({ discount: '0.01', discount_description: 'student' }), now).discount)
+        .toBeUndefined()
     })
 
     it('rejects a description over 40 characters, or with a control character', () => {

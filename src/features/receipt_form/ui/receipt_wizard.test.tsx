@@ -230,6 +230,20 @@ describe('the gate and the visible errors agree (divergence)', () => {
       values: make_valid_values({ issuer_name: '', recipient_name: '' }),
     },
     {
+      // A reason with no effective discount: the pure gate blocks it, so the mounted
+      // discount field must show the message too.
+      name: 'items: a discount description with no amount',
+      step: 'items',
+      step_number: 2,
+      values: make_valid_values({ discount: '', discount_description: 'student' }),
+    },
+    {
+      name: 'items: a discount description over 40 characters',
+      step: 'items',
+      step_number: 2,
+      values: make_valid_values({ discount: '50', discount_description: 'x'.repeat(41) }),
+    },
+    {
       name: 'items: empty name, bad price, bad quantity, bad discount',
       step: 'items',
       step_number: 2,

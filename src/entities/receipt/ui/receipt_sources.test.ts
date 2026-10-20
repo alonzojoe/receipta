@@ -217,6 +217,23 @@ describe('receipt_document.css', () => {
     for (const property of used) expect(defined, `${property} is used but never defined`).toContain(property)
   })
 
+  /**
+   * A discount reason can be 40 characters with no spaces, which is one unbreakable word.
+   * A flex item refuses to shrink below its content by default, so without these the label
+   * pushes the figure out of its column and the receipt prints a misaligned total. Deleting
+   * the rule broke nothing until this test existed.
+   */
+  it('lets the summary label shrink and wrap, so a long reason cannot push the figure out', () => {
+    const label = rules_for(css, '.receipt-summary-row dt')[0]?.body ?? ''
+    expect(label, 'no .receipt-summary-row dt rule').not.toBe('')
+    expect(label).toMatch(/min-width:\s*0/)
+    expect(label).toMatch(/overflow-wrap:\s*anywhere/)
+
+    // The figure keeps its width and never wraps, which is what it is shrinking against.
+    const figure = rules_for(css, '.receipt-summary-row dd')[0].body
+    expect(figure).toMatch(/white-space:\s*nowrap/)
+  })
+
   it('does not ask for tabular figures, which the rasteriser does not honour', () => {
     expect(css).not.toMatch(/tabular-nums|font-variant-numeric/)
   })
