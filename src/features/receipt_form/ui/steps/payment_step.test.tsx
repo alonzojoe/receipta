@@ -1,9 +1,10 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import { beforeEach, describe, expect, it } from 'vitest'
 
 import { institutions } from '@/shared/config/institutions'
 import { fixture_now, make_valid_values } from '@/test/receipt_fixtures'
 import { render_form, seed_draft } from '@/test/receipt_form_harness'
+import { other_method } from '@/entities/receipt'
 
 beforeEach(() => {
   localStorage.clear()
@@ -53,10 +54,102 @@ describe('Payment step: the picker', () => {
     expect(active_option()?.textContent).toBe(first)
 
     await user.keyboard('gc')
-    expect(options().map((option) => option.textContent)).toEqual(['GCash'])
+    // The institutions filter; Cash and Other do not. They are the way out of a search
+    // that finds nothing, so they are kept on screen rather than filtered away exactly
+    // when they are needed.
+    expect(options().map((option) => option.textContent)).toEqual(['GCash', 'Other (specify)', 'Cash'])
     await user.keyboard('{Enter}')
     expect(options()).toHaveLength(0)
     expect(trigger()).toHaveTextContent('GCash')
+  })
+
+  /**
+   * The bug this replaces: the empty state read "No match. Choose Other to type your own"
+   * while cmdk had filtered Other off the screen. The advice was correct and unreachable,
+   * which is worse than none - it names a way out the reader cannot take without first
+   * clearing what they typed.
+   */
+  it('keeps Cash and Other selectable when a search matches no institution', async () => {
+    seed_draft(3, make_valid_values({ payment_method: '' }))
+    const { user } = render_form()
+    await user.click(trigger())
+    await user.keyboard('paypal')
+
+    expect(options().map((option) => option.textContent)).toEqual(['Other (specify)', 'Cash'])
+    expect(screen.getByText(/No bank or wallet matches/)).toHaveTextContent('paypal')
+  })
+
+  /**
+   * cmdk highlights the first rendered item and Enter takes it. When a search matches no
+   * institution, the only items left are the two fallbacks - and with Cash first, someone
+   * who typed a bank's name and pressed Enter silently recorded a CASH payment. Other is
+   * first for that reason, so this test is the reason the order is what it is.
+   */
+  it('chooses Other, not Cash, when Enter follows a search that found nothing', async () => {
+    seed_draft(3, make_valid_values({ payment_method: '', other_method: '' }))
+    const { user } = render_form()
+    await user.click(trigger())
+    await user.keyboard('paypal')
+    await user.keyboard('{Enter}')
+
+    expect(trigger()).toHaveTextContent('Other')
+    expect(trigger()).not.toHaveTextContent('Cash')
+  })
+
+  /**
+   * A search is a weaker signal than a value the user entered deliberately. Overwriting it
+   * loses work that cannot be recovered, and the search text is still on screen to retype.
+   */
+  it('does not overwrite an Other value the user already typed', async () => {
+    seed_draft(3, make_valid_values({ payment_method: other_method, other_method: 'Remittance' }))
+    const { user } = render_form()
+    await user.click(trigger())
+    await user.keyboard('paypal')
+    await user.click(screen.getByRole('option', { name: /Other \(specify\)/ }))
+
+    expect(screen.getByLabelText(/other payment method/i)).toHaveValue('Remittance')
+  })
+
+  it('carries the searched text into the Other field, so it is not typed twice', async () => {
+    seed_draft(3, make_valid_values({ payment_method: '', other_method: '' }))
+    const { user } = render_form()
+    await user.click(trigger())
+    await user.keyboard('paypal')
+    await user.click(screen.getByRole('option', { name: /Other \(specify\)/ }))
+
+    expect(trigger()).toHaveTextContent('Other')
+    await waitFor(() =>
+      expect(screen.getByLabelText(/other payment method/i)).toHaveValue('paypal'),
+    )
+  })
+
+  it('does not clear an existing Other value when nothing was searched', async () => {
+    seed_draft(3, make_valid_values({ payment_method: other_method, other_method: 'Remittance' }))
+    const { user } = render_form()
+    await user.click(trigger())
+    await user.click(screen.getByRole('option', { name: /Other \(specify\)/ }))
+
+    expect(screen.getByLabelText(/other payment method/i)).toHaveValue('Remittance')
+  })
+
+  /**
+   * Asserting the Other field is absent after choosing Cash proves nothing: it is only
+   * rendered when Other is the method, so it is absent either way. The check has to be
+   * that the VALUE was not written - so choose Cash with a query typed, then switch to
+   * Other and find the field still empty.
+   */
+  it('never writes to the Other field when Cash is chosen, whatever was searched', async () => {
+    seed_draft(3, make_valid_values({ payment_method: '', other_method: '' }))
+    const { user } = render_form()
+    await user.click(trigger())
+    await user.keyboard('paypal')
+    await user.click(screen.getByRole('option', { name: /Cash/ }))
+    expect(trigger()).toHaveTextContent('Cash')
+
+    await user.click(trigger())
+    await user.click(screen.getByRole('option', { name: /Other \(specify\)/ }))
+
+    expect(await screen.findByLabelText(/other payment method/i)).toHaveValue('')
   })
 
   it('closes on Escape and keeps the previous choice', async () => {
