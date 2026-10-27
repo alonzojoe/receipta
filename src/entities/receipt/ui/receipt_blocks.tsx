@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import logo_mark_src from '@/shared/assets/logo_mark.webp'
 import wordmark_light_src from '@/shared/assets/wordmark_light.webp'
 
+import { thumbnail_size } from '../model/type_scale'
 import {
   receipt_labels,
   receipt_statement,
@@ -106,9 +107,17 @@ export function ItemRow({ item, number, reserve_column }: ItemRowProps) {
             src={item.image ?? ''}
             alt=""
             data-item={number}
-            width={56}
-            height={56}
+            width={thumbnail_size}
+            height={thumbnail_size}
             loading="eager"
+            /*
+             * The source is up to 800px on its longest edge and is painted into 56px, so
+             * the browser downsamples a large bitmap every time this repaints. `async`
+             * keeps that off the main thread, and the explicit box means it never has to
+             * reflow around a late decode. The export needs the full source, so the image
+             * itself cannot be smaller.
+             */
+            decoding="async"
             className="receipt-thumb"
           />
         )}

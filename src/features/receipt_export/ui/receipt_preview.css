@@ -12,10 +12,24 @@
   max-width: 100%;
   margin-inline: auto;
   overflow: hidden;
+  /*
+   * The preview is a whole document - several pages of it - held inside a transform. Paint
+   * is the cost here, not layout or React: `contain` tells the browser nothing inside can
+   * affect anything outside, so it can skip the subtree when it is not on screen and keep
+   * its painted output to this box.
+   */
+  contain: layout paint style;
 }
 
 .receipt-preview-sheet {
   width: calc(var(--doc-width) * 1px);
   transform: scale(var(--scale));
   transform-origin: top left;
+  /*
+   * Promotes the scaled sheet to its own compositing layer, so scrolling the page moves a
+   * cached texture instead of re-rasterising a 600px-wide document at a fractional scale
+   * on every frame. The texture is bounded by the frame's `contain: paint` above, so this
+   * is not the usual will-change memory trap.
+   */
+  will-change: transform;
 }
