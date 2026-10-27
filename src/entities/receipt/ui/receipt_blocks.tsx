@@ -288,6 +288,7 @@ function Footer({ label }: { label?: string }) {
         * rel: the receipt is a file that gets forwarded, so the link opens away from
         * whatever page is showing it and is given no referrer.
         */}
+      <div className="receipt-footer-credit-block">
       <a
         className="receipt-footer-credit"
         href={site.url}
@@ -323,17 +324,13 @@ function Footer({ label }: { label?: string }) {
           />
         </span>
       </a>
-      {/*
-        * The address itself, right-aligned on the footer's line. It is printed as well as
-        * linked because the exports are rasterised: in a PDF or a PNG the anchor is dead
-        * pixels, so the text IS the way someone gets here. Underlined for the same reason
-        * a printed URL is - it reads as an address rather than as a stray phrase.
-        *
-        * The page label sits under it rather than beside it: both want the right edge, and
-        * on a multi-page receipt a single line would run "...netlify.app Page 2 of 3",
-        * which reads as one string.
-        */}
-      <div className="receipt-footer-right">
+        {/*
+          * The address under the credit, so the two read as one block of provenance rather
+          * than as two things at opposite ends of the footer. It is printed as well as
+          * linked because the exports are rasterised: in a PDF or a PNG the anchor is dead
+          * pixels, so this text is the only way a reader gets here - which is also why it
+          * is underlined, the way a printed address is.
+          */}
         <a
           className="receipt-label receipt-footer-url"
           href={site.url}
@@ -342,8 +339,8 @@ function Footer({ label }: { label?: string }) {
         >
           {site.url}
         </a>
-        {label !== undefined && <p className="receipt-label receipt-page-label">{label}</p>}
       </div>
+      {label !== undefined && <p className="receipt-label receipt-page-label">{label}</p>}
     </div>
   )
 }

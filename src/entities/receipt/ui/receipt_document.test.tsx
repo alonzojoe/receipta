@@ -378,14 +378,23 @@ describe('ReceiptDocument: footer (criteria 13, 14)', () => {
     expect(url_rule).toMatch(/text-decoration:\s*underline/)
   })
 
-  it('keeps the page label under the address, not beside it', () => {
+  /**
+   * Credit and address are one block on the left; the page label owns the right edge. They
+   * were briefly at opposite ends of the footer, which read as two unrelated things rather
+   * than as one statement of where the receipt came from.
+   */
+  it('keeps the address under the credit, with the page label on the right', () => {
     const { container } = render(<ReceiptDocument view={make_view()} />)
-    const right = container.querySelector('.receipt-footer-right') as HTMLElement
+    const block = container.querySelector('.receipt-footer-credit-block') as HTMLElement
 
-    expect(right.querySelector('.receipt-footer-url')).not.toBeNull()
-    const rule = receipt_css.match(/\.receipt-footer-right\s*\{([^}]*)\}/)?.[1] ?? ''
+    expect(block.querySelector('.receipt-footer-credit')).not.toBeNull()
+    expect(block.querySelector('.receipt-footer-url')).not.toBeNull()
+    // The page label is NOT inside the credit block.
+    expect(block.querySelector('.receipt-page-label')).toBeNull()
+
+    const rule = receipt_css.match(/\.receipt-footer-credit-block\s*\{([^}]*)\}/)?.[1] ?? ''
     expect(rule).toMatch(/flex-direction:\s*column/)
-    expect(rule).toMatch(/align-items:\s*flex-end/)
+    expect(rule).toMatch(/align-items:\s*flex-start/)
   })
 
   it('names the wordmark Receipta once, for a reader of the markup', () => {

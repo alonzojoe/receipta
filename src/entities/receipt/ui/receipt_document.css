@@ -430,11 +430,13 @@
   height: 16px;
 }
 
-.receipt-footer-right {
+/* The credit and the address as one block: provenance belongs together, and the footer's
+   right edge is the page label's. */
+.receipt-footer-credit-block {
   display: flex;
-  flex: none;
+  min-width: 0;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
   gap: 2px;
 }
 
@@ -447,7 +449,9 @@
   color: var(--receipt-muted);
   text-decoration: underline;
   text-underline-offset: 2px;
-  white-space: nowrap;
+  /* It may wrap rather than widen the footer: the address is long and the page label owns
+     the other end of this line. */
+  overflow-wrap: anywhere;
 }
 
 .receipt-page-label {
