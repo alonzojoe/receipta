@@ -78,7 +78,11 @@ describe('HomePage', () => {
     const { container } = render_home()
     await screen.findByRole('heading', { level: 1 })
 
-    const sheet = container.querySelector('.hero-receipt') as HTMLElement
+    // On the SHEET, not the frame: inert disables pointer events too, so putting it on the
+    // frame silently killed the hover that straightens the tilt.
+    const frame = container.querySelector('.hero-receipt') as HTMLElement
+    const sheet = container.querySelector('.hero-receipt-sheet') as HTMLElement
+    expect(frame).not.toHaveAttribute('inert')
     expect(sheet).toHaveAttribute('aria-hidden', 'true')
     expect(sheet).toHaveAttribute('inert')
 
@@ -91,11 +95,23 @@ describe('HomePage', () => {
    * export from dark mode is identical to one from light. A theme token reaching it would
    * break that silently, and the only symptom would be a dark receipt in a downloaded PDF.
    */
+  /**
+   * The tilt straightening on hover is the one piece of the old mock worth keeping: it
+   * makes the sheet read as an object lying on the page rather than a panel. It broke once
+   * already, silently, when `inert` went on the frame and took pointer events with it.
+   */
+  it('keeps the hover that straightens the tilt', () => {
+    expect(hero_css).toMatch(/\.hero-receipt\s*\{[^}]*rotate:\s*1deg/)
+    expect(hero_css).toMatch(/\.hero-receipt:hover\s*\{[^}]*rotate:\s*0deg/)
+    // Reduced motion drops the transition, not the straightening.
+    expect(hero_css).toMatch(/prefers-reduced-motion/)
+  })
+
   it('keeps the hero sheet on the receipt palette, never the app theme', async () => {
     const { container } = render_home()
     await screen.findByRole('heading', { level: 1 })
 
-    const sheet = container.querySelector('.hero-receipt') as HTMLElement
+    const sheet = container.querySelector('.hero-receipt-sheet') as HTMLElement
     expect(sheet.querySelector('.receipt')).not.toBeNull()
     // The fade over the cut edge must be paper-coloured, or it paints a grey band across
     // white paper in dark mode.

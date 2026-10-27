@@ -27,13 +27,17 @@ export function HeroReceipt() {
   const style = { '--doc-width': page_width } as CSSProperties
 
   return (
-    // `inert`, not just `aria-hidden`. The document's footer carries two real links - the
-    // credit and the printed address - and aria-hidden does not take them out of the tab
-    // order. A keyboard user would land on links they cannot see, inside a frame clipped at
-    // 420px, so focusing one would scroll the clipped sheet and shift it. inert removes the
-    // subtree from both the tab order and the accessibility tree.
-    <div className="hero-receipt" style={style} aria-hidden="true" inert>
-      <div className="hero-receipt-sheet">
+    // The frame stays interactive and the SHEET is inert, not the other way round. `inert`
+    // also disables pointer events, so putting it on the frame killed the hover that
+    // straightens the tilt - the one piece of the old mock worth keeping.
+    //
+    // inert rather than aria-hidden alone, because the document's footer carries two real
+    // links - the credit and the printed address - and aria-hidden hides them from a
+    // screen reader while leaving them tabbable. A keyboard user would land on links they
+    // cannot see, inside a frame clipped at 420px, so focusing one scrolls the clipped
+    // sheet and shifts it.
+    <div className="hero-receipt" style={style}>
+      <div className="hero-receipt-sheet" aria-hidden="true" inert>
         <ReceiptDocument view={demo_receipt} />
       </div>
     </div>
