@@ -27,7 +27,12 @@ export function HeroReceipt() {
   const style = { '--doc-width': page_width } as CSSProperties
 
   return (
-    <div className="hero-receipt" style={style} aria-hidden="true">
+    // `inert`, not just `aria-hidden`. The document's footer carries two real links - the
+    // credit and the printed address - and aria-hidden does not take them out of the tab
+    // order. A keyboard user would land on links they cannot see, inside a frame clipped at
+    // 420px, so focusing one would scroll the clipped sheet and shift it. inert removes the
+    // subtree from both the tab order and the accessibility tree.
+    <div className="hero-receipt" style={style} aria-hidden="true" inert>
       <div className="hero-receipt-sheet">
         <ReceiptDocument view={demo_receipt} />
       </div>

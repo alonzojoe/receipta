@@ -11,8 +11,10 @@
   position: relative;
   width: calc(var(--doc-width) * var(--hero-scale) * 1px);
   max-width: 100%;
-  /* Shows the top of the receipt only. The hero is not the place to read a whole document. */
-  height: 420px;
+  /* Shows the top of the receipt only: the hero is not the place to read a whole document.
+     A maximum rather than a fixed height, which CLAUDE.md allows and which also means a
+     shorter receipt would not leave empty paper below it. */
+  max-height: 420px;
   overflow: hidden;
   border-radius: 12px;
   /* A sheet lying on the page: the shadow and the tilt are what stop a white rectangle in
