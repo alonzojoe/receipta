@@ -43,12 +43,28 @@ describe('HomePage', () => {
     ])
   })
 
-  it('formats the mock receipt amounts as pesos', async () => {
+  /**
+   * The hero shows the REAL document now, from the real view model, rather than a card
+   * that resembled one. The card had already drifted - a `PAID` chip the receipt does not
+   * have, no receipt number, no payment method, no statement - and that gap only widens as
+   * the document changes. This asserts the things only the real one has.
+   */
+  it('shows the real receipt in the hero, not a mock of one', async () => {
     render_home()
     await screen.findByRole('heading', { level: 1 })
 
-    expect(screen.getByText('₱1,125.00')).toBeInTheDocument()
-    expect(screen.getByText('₱750.00')).toBeInTheDocument()
+    // Money through the real formatter: 2 x 450 + 650, less a 100 discount.
+    expect(screen.getByText('₱1,550.00')).toBeInTheDocument()
+    expect(screen.getByText('-₱100.00')).toBeInTheDocument()
+    // Twice: the Total and the Amount paid row below it, which is what the real document
+    // does and the mock did not.
+    expect(screen.getAllByText('₱1,450.00')).toHaveLength(2)
+
+    // Only the real document carries these.
+    expect(screen.getByText('REF-20261027-104530')).toBeInTheDocument()
+    expect(screen.getByText(/Discount \(/)).toHaveTextContent('regular client')
+    expect(screen.getByText('This is a proof of payment.')).toBeInTheDocument()
+    expect(screen.queryByText('PAID')).toBeNull()
   })
 
   it('shows the institutions people are paid through', async () => {
