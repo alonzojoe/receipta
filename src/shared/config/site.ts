@@ -27,6 +27,7 @@ export const site = {
    * the footer's href, and nowhere else.
    */
   url: 'https://receipta-app.netlify.app',
+
   tagline: 'Send receipts, not screenshots.',
   description:
     'Turn a GCash, Maya, MariBank, or bank transfer payment into a clean receipt you can send in seconds.',

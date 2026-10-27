@@ -430,6 +430,26 @@
   height: 16px;
 }
 
+.receipt-footer-right {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+/* Underlined like a printed address. In the exports the anchor is dead pixels, so the
+   underline is what tells a reader this is somewhere they can go. It carries
+   `receipt-label` for its size: 13px is the document's floor, chosen so nothing falls
+   below about 8.5px at the preview's 0.65 scale, so this is as small as it can honestly
+   go rather than as small as it could be made. */
+.receipt-footer-url {
+  color: var(--receipt-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
 .receipt-page-label {
   white-space: nowrap;
 }

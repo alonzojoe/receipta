@@ -323,7 +323,27 @@ function Footer({ label }: { label?: string }) {
           />
         </span>
       </a>
-      {label !== undefined && <p className="receipt-label receipt-page-label">{label}</p>}
+      {/*
+        * The address itself, right-aligned on the footer's line. It is printed as well as
+        * linked because the exports are rasterised: in a PDF or a PNG the anchor is dead
+        * pixels, so the text IS the way someone gets here. Underlined for the same reason
+        * a printed URL is - it reads as an address rather than as a stray phrase.
+        *
+        * The page label sits under it rather than beside it: both want the right edge, and
+        * on a multi-page receipt a single line would run "...netlify.app Page 2 of 3",
+        * which reads as one string.
+        */}
+      <div className="receipt-footer-right">
+        <a
+          className="receipt-label receipt-footer-url"
+          href={site.url}
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          {site.url}
+        </a>
+        {label !== undefined && <p className="receipt-label receipt-page-label">{label}</p>}
+      </div>
     </div>
   )
 }
