@@ -1,0 +1,58 @@
+/*
+ * The hero's receipt. The document inside is a fixed 600px wide and always white; this
+ * shrinks it to fit the hero and frames it as a sheet.
+ *
+ * The scale is a CSS variable rather than a measured number: unlike the export preview,
+ * nothing here depends on knowing the rendered height, so there is no reason to measure.
+ */
+.hero-receipt {
+  --hero-scale: 0.58;
+
+  position: relative;
+  width: calc(var(--doc-width) * var(--hero-scale) * 1px);
+  max-width: 100%;
+  /* Shows the top of the receipt only: the hero is not the place to read a whole document.
+     A maximum rather than a fixed height, which CLAUDE.md allows and which also means a
+     shorter receipt would not leave empty paper below it. */
+  max-height: 420px;
+  overflow: hidden;
+  border-radius: 12px;
+  /* A sheet lying on the page: the shadow and the tilt are what stop a white rectangle in
+     dark mode reading as a panel that failed to re-theme. */
+  box-shadow: var(--shadow-xl);
+  rotate: 1deg;
+  transition: rotate 300ms var(--ease-out);
+  /* It is a whole document in the first screen of the landing page. */
+  contain: layout paint style;
+}
+
+.hero-receipt:hover {
+  rotate: 0deg;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-receipt {
+    transition: none;
+  }
+}
+
+.hero-receipt-sheet {
+  width: calc(var(--doc-width) * 1px);
+  transform: scale(var(--hero-scale));
+  transform-origin: top left;
+}
+
+/*
+ * The cut edge, faded rather than sliced. `--receipt-paper` and not a theme token: the
+ * sheet below it is always white, so the fade must be white in both themes or it shows as
+ * a grey band across the paper.
+ */
+.hero-receipt::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 72px;
+  background: linear-gradient(to bottom, transparent, var(--receipt-paper));
+  pointer-events: none;
+}

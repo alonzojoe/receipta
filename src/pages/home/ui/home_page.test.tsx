@@ -11,6 +11,7 @@ import { home_route } from '@/app/routes/home_route'
 import { root_route } from '@/app/routes/root_route'
 import { institutions } from '@/shared/config/institutions'
 import { site } from '@/shared/config/site'
+import hero_css from '@/widgets/home_hero/ui/hero_receipt.css?raw'
 
 function render_home() {
   const router = createRouter({
@@ -43,12 +44,79 @@ describe('HomePage', () => {
     ])
   })
 
-  it('formats the mock receipt amounts as pesos', async () => {
+  /**
+   * The hero shows the REAL document now, from the real view model, rather than a card
+   * that resembled one. The card had already drifted - a `PAID` chip the receipt does not
+   * have, no receipt number, no payment method, no statement - and that gap only widens as
+   * the document changes. This asserts the things only the real one has.
+   */
+  it('shows the real receipt in the hero, not a mock of one', async () => {
     render_home()
     await screen.findByRole('heading', { level: 1 })
 
-    expect(screen.getByText('₱1,125.00')).toBeInTheDocument()
-    expect(screen.getByText('₱750.00')).toBeInTheDocument()
+    // Money through the real formatter: 2 x 450 + 650, less a 100 discount.
+    expect(screen.getByText('₱1,550.00')).toBeInTheDocument()
+    expect(screen.getByText('-₱100.00')).toBeInTheDocument()
+    // Twice: the Total and the Amount paid row below it, which is what the real document
+    // does and the mock did not.
+    expect(screen.getAllByText('₱1,450.00')).toHaveLength(2)
+
+    // Only the real document carries these.
+    expect(screen.getByText('REF-20261027-104530')).toBeInTheDocument()
+    expect(screen.getByText(/Discount \(/)).toHaveTextContent('regular client')
+    expect(screen.getByText('This is a proof of payment.')).toBeInTheDocument()
+    expect(screen.queryByText('PAID')).toBeNull()
+  })
+
+  /**
+   * The document's footer carries two real links. `aria-hidden` hides them from a screen
+   * reader but leaves them tabbable, so a keyboard user would land on links they cannot
+   * see, inside a frame clipped at 420px - focusing one scrolls the clipped sheet and
+   * shifts it. `inert` is what removes them from both.
+   */
+  it('puts nothing focusable inside the decorative hero receipt', async () => {
+    const { container } = render_home()
+    await screen.findByRole('heading', { level: 1 })
+
+    // On the SHEET, not the frame: inert disables pointer events too, so putting it on the
+    // frame silently killed the hover that straightens the tilt.
+    const frame = container.querySelector('.hero-receipt') as HTMLElement
+    const sheet = container.querySelector('.hero-receipt-sheet') as HTMLElement
+    expect(frame).not.toHaveAttribute('inert')
+    expect(sheet).toHaveAttribute('aria-hidden', 'true')
+    expect(sheet).toHaveAttribute('inert')
+
+    // It does contain links - that is why inert is needed rather than optional.
+    expect(sheet.querySelectorAll('a').length).toBeGreaterThan(0)
+  })
+
+  /**
+   * The sheet is white in both themes on purpose: the document carries fixed colours so an
+   * export from dark mode is identical to one from light. A theme token reaching it would
+   * break that silently, and the only symptom would be a dark receipt in a downloaded PDF.
+   */
+  /**
+   * The tilt straightening on hover is the one piece of the old mock worth keeping: it
+   * makes the sheet read as an object lying on the page rather than a panel. It broke once
+   * already, silently, when `inert` went on the frame and took pointer events with it.
+   */
+  it('keeps the hover that straightens the tilt', () => {
+    expect(hero_css).toMatch(/\.hero-receipt\s*\{[^}]*rotate:\s*1deg/)
+    expect(hero_css).toMatch(/\.hero-receipt:hover\s*\{[^}]*rotate:\s*0deg/)
+    // Reduced motion drops the transition, not the straightening.
+    expect(hero_css).toMatch(/prefers-reduced-motion/)
+  })
+
+  it('keeps the hero sheet on the receipt palette, never the app theme', async () => {
+    const { container } = render_home()
+    await screen.findByRole('heading', { level: 1 })
+
+    const sheet = container.querySelector('.hero-receipt-sheet') as HTMLElement
+    expect(sheet.querySelector('.receipt')).not.toBeNull()
+    // The fade over the cut edge must be paper-coloured, or it paints a grey band across
+    // white paper in dark mode.
+    expect(hero_css).toMatch(/var\(--receipt-paper\)/)
+    expect(hero_css).not.toMatch(/var\(--(background|card|foreground|muted|border)\)/)
   })
 
   it('shows the institutions people are paid through', async () => {

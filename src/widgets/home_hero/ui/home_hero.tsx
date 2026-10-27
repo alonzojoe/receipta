@@ -5,7 +5,7 @@ import { CtaButton } from '@/shared/ui/cta_button'
 import { Reveal } from '@/shared/ui/reveal'
 import { Section } from '@/shared/ui/section'
 
-import { MockReceipt } from './mock_receipt'
+import { HeroReceipt } from './hero_receipt'
 
 export function HomeHero() {
   return (
@@ -60,7 +60,7 @@ export function HomeHero() {
         </div>
 
         <Reveal delay={200} className="flex w-full justify-center lg:justify-end">
-          <MockReceipt />
+          <HeroReceipt />
         </Reveal>
       </div>
     </Section>
