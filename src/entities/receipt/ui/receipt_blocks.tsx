@@ -1,8 +1,10 @@
 import type { ReactNode } from 'react'
 
 import logo_mark_src from '@/shared/assets/logo_mark.webp'
+import { site } from '@/shared/config/site'
 import wordmark_light_src from '@/shared/assets/wordmark_light.webp'
 
+import { thumbnail_size } from '../model/type_scale'
 import {
   receipt_labels,
   receipt_statement,
@@ -106,9 +108,17 @@ export function ItemRow({ item, number, reserve_column }: ItemRowProps) {
             src={item.image ?? ''}
             alt=""
             data-item={number}
-            width={56}
-            height={56}
+            width={thumbnail_size}
+            height={thumbnail_size}
             loading="eager"
+            /*
+             * The source is up to 800px on its longest edge and is painted into 56px, so
+             * the browser downsamples a large bitmap every time this repaints. `async`
+             * keeps that off the main thread, and the explicit box means it never has to
+             * reflow around a late decode. The export needs the full source, so the image
+             * itself cannot be smaller.
+             */
+            decoding="async"
             className="receipt-thumb"
           />
         )}
@@ -268,7 +278,23 @@ function PaidStamp() {
 function Footer({ label }: { label?: string }) {
   return (
     <div className="receipt-footer">
-      <div className="receipt-footer-credit">
+      {/*
+        * A real link, so the preview and anyone reading the HTML can follow it. It is NOT
+        * clickable in the PDF or the PNG: both are rasterised, so the anchor becomes
+        * pixels. A live PDF link needs a jsPDF annotation placed over this element's
+        * measured rect, which is its own piece of work and cannot be verified without
+        * opening a real PDF.
+        *
+        * rel: the receipt is a file that gets forwarded, so the link opens away from
+        * whatever page is showing it and is given no referrer.
+        */}
+      <div className="receipt-footer-credit-block">
+      <a
+        className="receipt-footer-credit"
+        href={site.url}
+        target="_blank"
+        rel="noreferrer noopener"
+      >
         <span className="receipt-label">{receipt_labels.generated_by}</span>
         {/* The mark and the wordmark as one lockup. The mark is the document's only brand
             colour besides the amount, and it sits here rather than in the header so there
@@ -297,6 +323,22 @@ function Footer({ label }: { label?: string }) {
             className="receipt-footer-wordmark"
           />
         </span>
+      </a>
+        {/*
+          * The address under the credit, so the two read as one block of provenance rather
+          * than as two things at opposite ends of the footer. It is printed as well as
+          * linked because the exports are rasterised: in a PDF or a PNG the anchor is dead
+          * pixels, so this text is the only way a reader gets here - which is also why it
+          * is underlined, the way a printed address is.
+          */}
+        <a
+          className="receipt-label receipt-footer-url"
+          href={site.url}
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          {site.url}
+        </a>
       </div>
       {label !== undefined && <p className="receipt-label receipt-page-label">{label}</p>}
     </div>

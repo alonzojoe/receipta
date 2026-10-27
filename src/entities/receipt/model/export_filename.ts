@@ -1,18 +1,63 @@
 export type ExportKind = 'pdf' | 'png'
 
-const unsafe = /[^A-Za-z0-9-]/g
+const unsafe = /[^a-z0-9]+/g
 const fallback_stem = 'receipt'
-const max_stem_length = 60
+const max_name_length = 40
+
+function two(value: number) {
+  return String(value).padStart(2, '0')
+}
 
 /**
- * `receipta-REF-20261016-154212.pdf`.
- *
- * It takes the Receipt No. and nothing else, so a party name cannot reach a filename by
- * construction. The number is the form's own, but a hand-edited draft can hold anything,
- * so everything outside letters, digits and hyphen is dropped: no separator, dot, space or
- * non-ASCII character can survive into a path.
+ * `MMDDYYYYHHMMSS` in the device's local time, which is what the author asked for. It is the
+ * moment of export, not the receipt's own date: two exports of the same receipt get
+ * different names rather than one silently replacing the other in a downloads folder.
  */
-export function build_export_filename(receipt_no: string, kind: ExportKind) {
-  const cleaned = receipt_no.replace(unsafe, '').replace(/^-+|-+$/g, '').slice(0, max_stem_length)
-  return `receipta-${cleaned === '' ? fallback_stem : cleaned}.${kind}`
+function stamp(now: Date) {
+  return [
+    two(now.getMonth() + 1),
+    two(now.getDate()),
+    now.getFullYear(),
+    two(now.getHours()),
+    two(now.getMinutes()),
+    two(now.getSeconds()),
+  ].join('')
+}
+
+/**
+ * The recipient's name as one snake_case word: `Juan Dela Cruz` becomes `juan_dela_cruz`.
+ *
+ * Everything outside a-z and 0-9 becomes a separator, so no dot, slash, space or non-ASCII
+ * character can reach a path. A name written entirely in a non-Latin script therefore
+ * reduces to nothing, which is why the caller falls back rather than trusting this to
+ * return something usable.
+ */
+function snake(name: string) {
+  return name
+    // NFKD splits an accented letter into its base and a combining mark, and the mark is
+    // then dropped: `Peña` becomes `pena`, not `pe_a`. Without this an accent reads as a
+    // separator and cuts the name in half, which matters here - ñ is ordinary in Filipino
+    // surnames. It also folds fullwidth and other compatibility forms to plain letters.
+    .normalize('NFKD')
+    .replace(/\p{M}+/gu, '')
+    .toLowerCase()
+    .replace(unsafe, '_')
+    .replace(/^_+|_+$/g, '')
+    .slice(0, max_name_length)
+    .replace(/_+$/, '')
+}
+
+/**
+ * `juan_dela_cruz_receipt_10272026102045.pdf`.
+ *
+ * Named for the recipient, on the author's instruction. Note this is a deliberate reversal:
+ * the first version took the Receipt No. and nothing else, so that a party's name could not
+ * reach a filename by construction. The file is saved to the user's own device and they
+ * asked for it to be recognisable there, which is a fair trade - but a receipt sent on is a
+ * file whose name now carries a customer's name, and that is the thing that changed.
+ */
+export function build_export_filename(recipient: string, kind: ExportKind, now: Date) {
+  const name = snake(recipient)
+  const stem = name === '' ? fallback_stem : `${name}_${fallback_stem}`
+  return `${stem}_${stamp(now)}.${kind}`
 }

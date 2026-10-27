@@ -93,7 +93,6 @@ describe('the whole export flow', () => {
       await walk_to_review(user)
       const preview = () => screen.getByRole('region', { name: 'Receipt preview' }).textContent
       const before = preview()
-      const receipt_no = values.receipt_no
 
       await user.click(button('Download PDF'))
 
@@ -108,7 +107,7 @@ describe('the whole export flow', () => {
 
       // Handed over under the right name, then said so, once, in the toast and the live region.
       await waitFor(() => expect(ports.save).toHaveBeenCalledTimes(1))
-      expect(vi.mocked(ports.save).mock.calls[0][1]).toBe(`receipta-${receipt_no}.pdf`)
+      expect(vi.mocked(ports.save).mock.calls[0][1]).toMatch(new RegExp(String.raw`_receipt_\d{14}\.pdf$`))
       expect(vi.mocked(ports.save).mock.calls[0][0]).toBeInstanceOf(Blob)
       await waitFor(() => expect(button('Download PDF')).toBeEnabled())
       expect(toast.success).toHaveBeenCalledWith('PDF created')
@@ -117,7 +116,7 @@ describe('the whole export flow', () => {
 
       await user.click(button('Download image'))
       await waitFor(() => expect(ports.save).toHaveBeenCalledTimes(2))
-      expect(vi.mocked(ports.save).mock.calls[1][1]).toBe(`receipta-${receipt_no}.png`)
+      expect(vi.mocked(ports.save).mock.calls[1][1]).toMatch(new RegExp(String.raw`_receipt_\d{14}\.png$`))
       await waitFor(() => expect(toast.success).toHaveBeenLastCalledWith('Image created'))
 
       // Exporting changed nothing: the same step, the same document text (receipt number
