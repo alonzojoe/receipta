@@ -153,7 +153,7 @@ async function export_image(
   alive()
   canvas.release()
 
-  const filename = build_export_filename(view.receipt_no, 'png')
+  const filename = build_export_filename(view.recipient, 'png', new Date())
   ports.save(blob, filename)
   return { filename, warnings: logo_warnings(failures, view) }
 }
@@ -230,7 +230,7 @@ async function export_pdf(
   const problem = blob_problem(pdf)
   if (problem) fail(problem)
 
-  const filename = build_export_filename(view.receipt_no, 'pdf')
+  const filename = build_export_filename(view.recipient, 'pdf', new Date())
   ports.save(pdf, filename)
   return { filename, warnings: [...warnings] }
 }

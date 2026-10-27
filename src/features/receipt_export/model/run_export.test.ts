@@ -96,7 +96,7 @@ afterEach(() => {
 })
 
 describe('the image export', () => {
-  it('rasterises the document once at 2x, white, 600 wide, and saves receipta-<no>.png', async () => {
+  it('rasterises the document once at 2x, white, 600 wide, and saves <recipient>_receipt_<stamp>.png', async () => {
     const ports = make_ports()
     const outcome = await run_export('png', view, ports, make_env())
     expect(ports.rasterise).toHaveBeenCalledTimes(1)
@@ -107,8 +107,12 @@ describe('the image export', () => {
       height: 5400,
     })
     expect(ports.save).toHaveBeenCalledTimes(1)
-    expect(ports.save).toHaveBeenCalledWith(expect.any(Blob), 'receipta-REF-20261016-154212.png')
-    expect(outcome).toEqual({ filename: 'receipta-REF-20261016-154212.png', warnings: [] })
+    // The stamp is the moment of export, so this pins the SHAPE rather than a frozen
+    // value: recipient in snake_case, then receipt, then MMDDYYYYHHMMSS.
+    const png_name = new RegExp(String.raw`^juan_dela_cruz_receipt_\d{14}\.png$`)
+    expect(ports.save).toHaveBeenCalledWith(expect.any(Blob), expect.stringMatching(png_name))
+    expect(outcome.filename).toMatch(png_name)
+    expect(outcome.warnings).toEqual([])
   })
 
   it('paints an opaque keyword white: not transparent, not absent, not a hex', async () => {
@@ -128,7 +132,7 @@ describe('the image export', () => {
 })
 
 describe('the PDF export', () => {
-  it('hands assemble_pdf one image per page, in order, titled Receipt <no>, and saves receipta-<no>.pdf', async () => {
+  it('hands assemble_pdf one image per page, in order, titled Receipt <no>, and saves <recipient>_receipt_<stamp>.pdf', async () => {
     const ports = make_ports()
     const pages: string[] = []
     ports.rasterise.mockImplementation(async () => {
@@ -145,8 +149,11 @@ describe('the PDF export', () => {
     expect(options).toEqual({ title: 'Receipt REF-20261016-154212' })
     expect(options).not.toHaveProperty('author')
     expect(JSON.stringify(options)).not.toMatch(/Juan|Mabini/)
-    expect(ports.save).toHaveBeenCalledWith(expect.any(Blob), 'receipta-REF-20261016-154212.pdf')
-    expect(outcome.filename).toBe('receipta-REF-20261016-154212.pdf')
+    expect(ports.save).toHaveBeenCalledWith(expect.any(Blob), expect.stringMatching(new RegExp(String.raw`^juan_dela_cruz_receipt_\d{14}\.pdf$`)))
+    expect(outcome.filename).toMatch(new RegExp(String.raw`^juan_dela_cruz_receipt_\d{14}\.pdf$`))
+    // The PDF's own metadata still carries no party name - only the filename does, which
+    // is the deliberate trade the author asked for.
+    expect(JSON.stringify(options)).not.toMatch(/Juan|Mabini/)
   })
 
   it('rasterises each page at 3x, white, at the page size', async () => {
