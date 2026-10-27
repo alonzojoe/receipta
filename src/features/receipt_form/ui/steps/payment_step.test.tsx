@@ -57,7 +57,7 @@ describe('Payment step: the picker', () => {
     // The institutions filter; Cash and Other do not. They are the way out of a search
     // that finds nothing, so they are kept on screen rather than filtered away exactly
     // when they are needed.
-    expect(options().map((option) => option.textContent)).toEqual(['GCash', 'Cash', 'Other (specify)'])
+    expect(options().map((option) => option.textContent)).toEqual(['GCash', 'Other (specify)', 'Cash'])
     await user.keyboard('{Enter}')
     expect(options()).toHaveLength(0)
     expect(trigger()).toHaveTextContent('GCash')
@@ -75,8 +75,39 @@ describe('Payment step: the picker', () => {
     await user.click(trigger())
     await user.keyboard('paypal')
 
-    expect(options().map((option) => option.textContent)).toEqual(['Cash', 'Other (specify)'])
+    expect(options().map((option) => option.textContent)).toEqual(['Other (specify)', 'Cash'])
     expect(screen.getByText(/No bank or wallet matches/)).toHaveTextContent('paypal')
+  })
+
+  /**
+   * cmdk highlights the first rendered item and Enter takes it. When a search matches no
+   * institution, the only items left are the two fallbacks - and with Cash first, someone
+   * who typed a bank's name and pressed Enter silently recorded a CASH payment. Other is
+   * first for that reason, so this test is the reason the order is what it is.
+   */
+  it('chooses Other, not Cash, when Enter follows a search that found nothing', async () => {
+    seed_draft(3, make_valid_values({ payment_method: '', other_method: '' }))
+    const { user } = render_form()
+    await user.click(trigger())
+    await user.keyboard('paypal')
+    await user.keyboard('{Enter}')
+
+    expect(trigger()).toHaveTextContent('Other')
+    expect(trigger()).not.toHaveTextContent('Cash')
+  })
+
+  /**
+   * A search is a weaker signal than a value the user entered deliberately. Overwriting it
+   * loses work that cannot be recovered, and the search text is still on screen to retype.
+   */
+  it('does not overwrite an Other value the user already typed', async () => {
+    seed_draft(3, make_valid_values({ payment_method: other_method, other_method: 'Remittance' }))
+    const { user } = render_form()
+    await user.click(trigger())
+    await user.keyboard('paypal')
+    await user.click(screen.getByRole('option', { name: /Other \(specify\)/ }))
+
+    expect(screen.getByLabelText(/other payment method/i)).toHaveValue('Remittance')
   })
 
   it('carries the searched text into the Other field, so it is not typed twice', async () => {

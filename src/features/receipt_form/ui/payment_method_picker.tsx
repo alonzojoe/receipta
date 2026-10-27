@@ -107,7 +107,11 @@ export function PaymentMethodPicker({ control, on_other_searched }: PaymentMetho
                 type your own" while cmdk had filtered Other off the screen - advice the
                 reader could not act on without first clearing what they typed. Other is
                 now always rendered below, so the message does not need to describe it. */}
-            <CommandEmpty>No bank or wallet matches “{query.trim()}”.</CommandEmpty>
+            <CommandEmpty className="break-words">
+              {query.trim() === ''
+                ? 'No bank or wallet matches that.'
+                : `No bank or wallet matches “${query.trim()}”.`}
+            </CommandEmpty>
             {institutions_by_category().map((group) => (
               <CommandGroup key={group.value} heading={group.label}>
                 {group.items.map((institution) => (
@@ -129,10 +133,10 @@ export function PaymentMethodPicker({ control, on_other_searched }: PaymentMetho
                 match every query would make the list claim they MATCH "paypal", which
                 they do not. */}
             <CommandGroup forceMount heading="Something else">
-              <CommandItem forceMount value="Cash" data-checked={chosen === cash_method} onSelect={() => choose(cash_method)}>
-                <MethodIcon method={cash_method} />
-                Cash
-              </CommandItem>
+              {/* Other before Cash on purpose. cmdk highlights the first rendered item, and
+                  Enter takes it - so when a search matches no institution these two are all
+                  that is left and Cash was being chosen silently for someone who had typed
+                  a bank's name. Other is what the fallback exists for. */}
               <CommandItem
                 forceMount
                 value="Other (specify)"
@@ -141,6 +145,10 @@ export function PaymentMethodPicker({ control, on_other_searched }: PaymentMetho
               >
                 <MethodIcon method={other_method} />
                 Other (specify)
+              </CommandItem>
+              <CommandItem forceMount value="Cash" data-checked={chosen === cash_method} onSelect={() => choose(cash_method)}>
+                <MethodIcon method={cash_method} />
+                Cash
               </CommandItem>
             </CommandGroup>
           </CommandList>
