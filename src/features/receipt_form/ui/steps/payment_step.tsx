@@ -22,7 +22,15 @@ export function PaymentStep({ form }: PaymentStepProps) {
       <form.Field name="payment_method" validators={step_validators('payment', 'payment_method')}>
         {(field) => (
           <FormField field={field} label="Payment method" requirement="required">
-            {(control) => <PaymentMethodPicker control={control} />}
+            {(control) => (
+              <PaymentMethodPicker
+                control={control}
+                // The search text becomes the Other value, so a failed search is not typed
+                // twice. It goes in as typed: trimming and the length limit belong to
+                // other_method_rule, the same as text entered by hand.
+                on_other_searched={(searched) => form.setFieldValue('other_method', searched)}
+              />
+            )}
           </FormField>
         )}
       </form.Field>
