@@ -25,11 +25,16 @@
   width: calc(var(--doc-width) * 1px);
   transform: scale(var(--scale));
   transform-origin: top left;
-  /*
-   * Promotes the scaled sheet to its own compositing layer, so scrolling the page moves a
-   * cached texture instead of re-rasterising a 600px-wide document at a fractional scale
-   * on every frame. The texture is bounded by the frame's `contain: paint` above, so this
-   * is not the usual will-change memory trap.
-   */
-  will-change: transform;
 }
+
+/*
+ * `will-change: transform` was here and has been removed. The reasoning for it was wrong
+ * twice over: `contain: paint` on the frame clips what is drawn, it does not bound the
+ * layer, which would be the whole sheet at roughly 600 x 5000px; and a plain page scroll
+ * does not repaint a transformed subtree anyway, so there was no repaint for it to avoid.
+ * It was an unmeasured guess with a real memory cost, which is worse than doing nothing.
+ *
+ * If the preview is still slow, the measured suspect is the thumbnails: each is stored at
+ * up to 800px and painted into 56px. A small preview-only copy stored beside the full one
+ * would fix that properly. See the spec's Deferred section.
+ */

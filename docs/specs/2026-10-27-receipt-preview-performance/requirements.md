@@ -32,6 +32,11 @@ test pins that.
 Everything outside `a-z` and `0-9` becomes a separator, so no dot, slash, space or
 non-ASCII character can reach a path. The name is capped at 40 characters.
 
+**Accents fold to their base letter first.** `Peña` becomes `pena`, not `pe_a` - without
+NFKD normalisation an accent reads as a separator and cuts the name in half, and ñ is
+ordinary in Filipino surnames, so this is the common case here rather than an edge one.
+Found in review.
+
 ## The lag
 
 The preview is a whole document — up to six pages of it — held inside a `transform: scale`,
@@ -43,7 +48,7 @@ Three changes, all paint-side:
 | Change | Why |
 | --- | --- |
 | `contain: layout paint style` on the preview frame | Tells the browser nothing inside affects anything outside, so it can skip the subtree when it is off screen and keep painted output inside the box. |
-| `will-change: transform` on the scaled sheet | Promotes it to its own compositing layer, so scrolling moves a cached texture instead of re-rasterising a 600px document at a fractional scale every frame. The frame's `contain: paint` bounds that texture, so this is not the usual memory trap. |
+| ~~`will-change: transform` on the scaled sheet~~ **Removed in review** | The reasoning was wrong twice: `contain: paint` clips what is drawn, it does not bound the layer, which would be the whole sheet at roughly 600 x 5000px; and a plain page scroll does not repaint a transformed subtree anyway, so there was no repaint to avoid. An unmeasured guess with a real memory cost is worse than doing nothing. |
 | `decoding="async"` and an explicit box on the thumbnails | An 800px source painted into 56px is downsampled on every repaint. `async` keeps that off the main thread; the explicit box means no reflow around a late decode. The export needs the full source, so the image itself cannot be smaller. |
 
 ## Acceptance criteria
@@ -56,8 +61,9 @@ Three changes, all paint-side:
 4. Every part of the stamp is zero-padded, so the length never varies.
 5. Two exports a second apart produce different filenames.
 6. The PDF's metadata still carries no party name.
-7. The preview frame declares `contain`, and the scaled sheet declares `will-change:
-   transform`.
+7. The preview frame declares `contain`. The sheet declares no `will-change`: it was
+   tried, could not be justified, and was removed.
+7a. An accented recipient folds to base letters: `Peña` gives `pena`.
 8. Item thumbnails declare an explicit width and height and `decoding="async"`.
 9. `npm run build`, `npm run lint` and `npm test` exit 0.
 

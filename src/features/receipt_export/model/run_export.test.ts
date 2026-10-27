@@ -151,9 +151,6 @@ describe('the PDF export', () => {
     expect(JSON.stringify(options)).not.toMatch(/Juan|Mabini/)
     expect(ports.save).toHaveBeenCalledWith(expect.any(Blob), expect.stringMatching(new RegExp(String.raw`^juan_dela_cruz_receipt_\d{14}\.pdf$`)))
     expect(outcome.filename).toMatch(new RegExp(String.raw`^juan_dela_cruz_receipt_\d{14}\.pdf$`))
-    // The PDF's own metadata still carries no party name - only the filename does, which
-    // is the deliberate trade the author asked for.
-    expect(JSON.stringify(options)).not.toMatch(/Juan|Mabini/)
   })
 
   it('rasterises each page at 3x, white, at the page size', async () => {

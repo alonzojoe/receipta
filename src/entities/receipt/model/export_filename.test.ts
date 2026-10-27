@@ -29,8 +29,23 @@ describe('build_export_filename', () => {
     ['Store #7 & Co', 'store_7_co'],
     ['  padded  ', 'padded'],
     ['O’Brien', 'o_brien'],
-    ['Ana   María', 'ana_mar_a'],
+    ['Ana   María', 'ana_maria'],
   ])('makes %s safe as %s', (name, expected) => {
+    expect(build_export_filename(name, 'pdf', now)).toBe(`${expected}_receipt_10272026102045.pdf`)
+  })
+
+  /**
+   * An accent must fold to its base letter, not read as a separator. `Peña` becoming
+   * `pe_a` is safe and wrong-looking, and ñ is ordinary in Filipino surnames - this is the
+   * common case here, not an edge one.
+   */
+  it.each([
+    ['Peña', 'pena'],
+    ['José Ñandú', 'jose_nandu'],
+    ['Dela Peña Jr.', 'dela_pena_jr'],
+    ['Ｆｕｌｌｗｉｄｔｈ', 'fullwidth'],
+    ['İstanbul', 'istanbul'],
+  ])('folds %s to %s rather than cutting it at the accent', (name, expected) => {
     expect(build_export_filename(name, 'pdf', now)).toBe(`${expected}_receipt_10272026102045.pdf`)
   })
 

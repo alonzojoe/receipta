@@ -34,6 +34,12 @@ function stamp(now: Date) {
  */
 function snake(name: string) {
   return name
+    // NFKD splits an accented letter into its base and a combining mark, and the mark is
+    // then dropped: `Peña` becomes `pena`, not `pe_a`. Without this an accent reads as a
+    // separator and cuts the name in half, which matters here - ñ is ordinary in Filipino
+    // surnames. It also folds fullwidth and other compatibility forms to plain letters.
+    .normalize('NFKD')
+    .replace(/\p{M}+/gu, '')
     .toLowerCase()
     .replace(unsafe, '_')
     .replace(/^_+|_+$/g, '')
