@@ -12,10 +12,14 @@ describe('build_export_filename', () => {
     expect(build_export_filename('Joe', 'png', now)).toBe('joe_receipt_10272026102045.png')
   })
 
-  it('reduces a full name to one snake_case word', () => {
-    expect(build_export_filename('Juan Dela Cruz', 'pdf', now)).toBe(
-      'juan_dela_cruz_receipt_10272026102045.pdf',
-    )
+  /** However many words the name has: each becomes a part, none are dropped. */
+  it.each([
+    ['Joe', 'joe'],
+    ['Mary Jane Doe', 'mary_jane_doe'],
+    ['Juan Dela Cruz', 'juan_dela_cruz'],
+    ['Maria Clara de los Santos', 'maria_clara_de_los_santos'],
+  ])('joins every word of %s as %s', (name, expected) => {
+    expect(build_export_filename(name, 'pdf', now)).toBe(`${expected}_receipt_10272026102045.pdf`)
   })
 
   /**
