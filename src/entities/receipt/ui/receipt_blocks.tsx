@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 
 import logo_mark_src from '@/shared/assets/logo_mark.webp'
+import { site } from '@/shared/config/site'
 import wordmark_light_src from '@/shared/assets/wordmark_light.webp'
 
 import { thumbnail_size } from '../model/type_scale'
@@ -277,7 +278,22 @@ function PaidStamp() {
 function Footer({ label }: { label?: string }) {
   return (
     <div className="receipt-footer">
-      <div className="receipt-footer-credit">
+      {/*
+        * A real link, so the preview and anyone reading the HTML can follow it. It is NOT
+        * clickable in the PDF or the PNG: both are rasterised, so the anchor becomes
+        * pixels. A live PDF link needs a jsPDF annotation placed over this element's
+        * measured rect, which is its own piece of work and cannot be verified without
+        * opening a real PDF.
+        *
+        * rel: the receipt is a file that gets forwarded, so the link opens away from
+        * whatever page is showing it and is given no referrer.
+        */}
+      <a
+        className="receipt-footer-credit"
+        href={site.url}
+        target="_blank"
+        rel="noreferrer noopener"
+      >
         <span className="receipt-label">{receipt_labels.generated_by}</span>
         {/* The mark and the wordmark as one lockup. The mark is the document's only brand
             colour besides the amount, and it sits here rather than in the header so there
@@ -306,7 +322,7 @@ function Footer({ label }: { label?: string }) {
             className="receipt-footer-wordmark"
           />
         </span>
-      </div>
+      </a>
       {label !== undefined && <p className="receipt-label receipt-page-label">{label}</p>}
     </div>
   )
