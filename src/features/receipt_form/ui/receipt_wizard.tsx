@@ -148,10 +148,10 @@ export function ReceiptWizard({ render_review }: ReceiptWizardProps) {
             <StartNewDialog
               open={start_new_open}
               on_open_change={set_start_new_open}
-              on_confirm={() => {
-                clear_draft()
-                go_to(1)
-              }}
+              // clear_draft alone, exactly as the Clear draft button does: its `reset`
+              // already returns to step 1. Calling go_to too marked the step as navigated,
+              // animating it in and announcing "Step 1 of 4" over the "Draft cleared" toast.
+              on_confirm={clear_draft}
             />
           </div>
         </div>

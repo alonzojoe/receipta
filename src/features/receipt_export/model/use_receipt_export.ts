@@ -107,6 +107,11 @@ export function useReceiptExport(
     set_announcement('')
 
     void (async () => {
+      // Set in the try and acted on after it. A callback called INSIDE the try would, if it
+      // ever threw, land in the catch and show an error toast and alert for a file that was
+      // saved - the user told their export failed while holding the file.
+      let saved = false
+
       try {
         // The libraries load on the first click and the promise is kept; a failed load is
         // forgotten so the next click tries again.
@@ -119,7 +124,7 @@ export function useReceiptExport(
         const text = success_text(kind, outcome)
         set_announcement(text)
         toast.success(text)
-        on_success?.()
+        saved = true
       } catch (cause) {
         const failure = classify_error(cause)
         // The raw error goes to the console; nothing is sent anywhere.
@@ -137,6 +142,8 @@ export function useReceiptExport(
         running.current = false
         set_busy(null)
       }
+
+      if (saved) on_success?.()
     })()
   }
 

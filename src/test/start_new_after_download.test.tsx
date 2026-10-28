@@ -91,16 +91,28 @@ describe('the offer to start a new receipt', () => {
     expect(localStorage.getItem(draft_storage_key)).toBe(stored_before)
   })
 
-  it('clears the form and returns to the first step when a new receipt is started', async () => {
+  /**
+   * `queryByText` does not see an input's VALUE, so asserting the name is gone from the
+   * document proves almost nothing on a form - it would pass while every field still held
+   * its text. This checks the field, the stored draft and the step.
+   */
+  it('clears the form, the stored draft and the step when a new receipt is started', async () => {
     seed_draft(4, make_valid_values({ recipient_name: 'Maria Santos' }))
     const { user } = render_form(undefined, deps('saved'))
+    expect(localStorage.getItem(draft_storage_key)).not.toBeNull()
 
     await user.click(download('PDF'))
     await waitFor(() => expect(dialog()).toBeInTheDocument())
     await user.click(screen.getByRole('button', { name: /start a new receipt/i }))
-
     await waitFor(() => expect(dialog()).toBeNull())
-    expect(screen.queryByText('Maria Santos')).toBeNull()
+
+    // Back at the first step, with the field itself empty rather than merely absent.
+    // The timeline renders at two widths, so the label appears more than once.
+    await waitFor(() => expect(screen.getAllByText(/step 1 of 4/i).length).toBeGreaterThan(0))
+    const recipient = document.querySelector('input[name="recipient_name"]') as HTMLInputElement
+    expect(recipient, 'no recipient field on step 1').not.toBeNull()
+    expect(recipient.value).toBe('')
+    expect(localStorage.getItem(draft_storage_key)).toBeNull()
   })
 
   it('is an alert dialog carrying its own title and description', async () => {
