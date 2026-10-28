@@ -32,7 +32,7 @@ headers are set.
 | `/create` indexing | **Indexed**, with its own title and description | It is the product. Someone searching "free receipt maker Philippines" should land on it. |
 | The legal pages | Indexed, not hidden | They are short, honest, and are the pages that answer "does this upload my data" - which is the question that decides whether someone uses this. |
 | Canonical | On every route, built from `site.url` | One source of truth for the address; the receipt footer already uses it. |
-| Structured data | One `WebApplication` JSON-LD block, on the home page only | It describes the app, and the app has one home. Repeating it on every route is how a site ends up claiming to be five applications. |
+| Structured data | One `WebApplication` JSON-LD block, on the home page only, through the router's `script:ld+json` meta key | It describes the app, and the app has one home. The router's key escapes the JSON, so a future value containing `</script>` cannot break out of the tag - cheap to get right while every value is still a constant. |
 | `robots.txt` and `sitemap.xml` | Static files in `public/`, with the five routes | No generator: five routes, written once, and a test that fails when a route is added without being listed. |
 | Prerendering | **Not done** | The real ceiling on this app's SEO is that it is a client-rendered SPA. Netlify can prerender, and that is a bigger change with its own verification; it is recorded in Deferred rather than half-done here. |
 
@@ -53,10 +53,19 @@ headers are set.
 8. `public/robots.txt` allows everything and names the sitemap.
 9. `public/sitemap.xml` lists exactly the five routes, each as an absolute URL under
    `site.url`.
-10. **A test fails when a route exists that the sitemap does not list**, so adding a route
-    without listing it cannot pass review.
+10. **A test fails when a route exists in the ROUTER that the sitemap does not list**, and
+    another fails when a router route has no metadata. Reading the router rather than the
+    metadata table is the point: the first version compared the sitemap to the same list it
+    was generated from, so a route added to the router and to neither would have passed.
 11. `index.html` keeps a title and description, so a crawler that runs no JavaScript still
     sees something true rather than an empty shell.
+11a. **Every URL in the static shell is absolute** - `og:image`, `twitter:image`, `og:url`
+    and the canonical. A scraper has no page to resolve a relative path against, so the
+    relative `/logo_lockup.png` that shipped before produced a card with **no image at
+    all**. Found in review, and the cheapest large win in this change.
+11b. The shell's description matches the home route's, pinned by a test. Both exist on
+    purpose - the shell is what a scraper sees - so the risk is drift, and they had already
+    drifted.
 12. `npm run build`, `npm run lint` and `npm test` exit 0.
 
 ## Verification

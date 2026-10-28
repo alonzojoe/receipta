@@ -5,6 +5,7 @@ import robots_txt from '../../public/robots.txt?raw'
 import sitemap_xml from '../../public/sitemap.xml?raw'
 import { app_structured_data, canonical_url, head_for, page_meta } from '@/shared/config/page_meta'
 import { site } from '@/shared/config/site'
+import { router } from '@/app/router'
 
 const paths = Object.keys(page_meta)
 const sitemap_locations = [...sitemap_xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1])
@@ -90,6 +91,25 @@ describe('robots.txt and sitemap.xml', () => {
     expect([...sitemap_locations].sort()).toEqual(expected)
   })
 
+  /**
+   * The previous version compared the sitemap to `page_meta`, which is the same list the
+   * sitemap was generated from - so a route added to the ROUTER and to neither would have
+   * passed. This reads the router itself, which is the only source that cannot be
+   * forgotten, because a route that is not in it does not exist.
+   */
+  it('matches the router, not just the metadata table', () => {
+    const router_paths = Object.keys(router.routesByPath).filter((path) => path !== '__root__')
+
+    expect(new Set(router_paths)).toEqual(new Set(paths))
+    expect([...sitemap_locations].sort()).toEqual(router_paths.map(canonical_url).sort())
+  })
+
+  it('gives every router route its own metadata', () => {
+    for (const path of Object.keys(router.routesByPath).filter((p) => p !== '__root__')) {
+      expect(page_meta[path], `${path} has no title or description`).toBeDefined()
+    }
+  })
+
   it('is valid sitemap XML with a lastmod on every entry', () => {
     expect(sitemap_xml).toMatch(/^<\?xml version="1\.0" encoding="UTF-8"\?>/)
     expect(sitemap_xml).toContain('http://www.sitemaps.org/schemas/sitemap/0.9')
@@ -111,5 +131,31 @@ describe('the static shell', () => {
     expect(index_html).toMatch(/<title>[^<]{10,}<\/title>/)
     expect(index_html).toMatch(/<meta\s+name="description"/)
     expect(index_html).toContain('Receipta')
+  })
+})
+
+describe('the static shell and the home route agree', () => {
+  /**
+   * Both exist on purpose - the shell is what a scraper sees, the route is what a browser
+   * and Google see - so the risk is not duplication but DRIFT. They had already drifted:
+   * the shell still said "MariBank" and omitted "Free", which the home route leads with.
+   */
+  it('uses the same description in index.html as the home route', () => {
+    const shell = index_html.match(/<meta\s+name="description"\s+content="([^"]+)"/s)
+      ?? index_html.match(/name="description"[\s\S]*?content="([^"]+)"/)
+    expect(shell?.[1]).toBe(page_meta['/'].description)
+  })
+
+  it('makes every shared-card URL absolute, since a scraper has no page to resolve against', () => {
+    const urls = [...index_html.matchAll(/(?:og:image|twitter:image|og:url)"\s+content="([^"]+)"/g)]
+      .map((match) => match[1])
+
+    expect(urls.length).toBeGreaterThanOrEqual(3)
+    for (const url of urls) expect(url.startsWith('https://')).toBe(true)
+  })
+
+  it('names the site and canonicalises the shell', () => {
+    expect(index_html).toMatch(/property="og:site_name"/)
+    expect(index_html).toMatch(/rel="canonical"/)
   })
 })

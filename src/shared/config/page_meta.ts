@@ -47,6 +47,17 @@ export const page_meta: Record<string, PageMeta> = {
   },
 }
 
+/**
+ * The shape TanStack Router's `head` accepts. Annotated rather than inferred: an array of
+ * differing object literals widens to a union carrying `title?: undefined` and the like,
+ * which the router's own union then rejects. `Record<string, unknown>` is one of its
+ * accepted members, so this is the router's contract rather than a way around it.
+ */
+type HeadConfig = {
+  meta: Record<string, unknown>[]
+  links: Record<string, unknown>[]
+}
+
 /** `https://receipta-app.netlify.app/create`, and the bare origin for the home page. */
 export function canonical_url(path: string) {
   return path === '/' ? site.url : `${site.url}${path}`
@@ -57,7 +68,7 @@ export function canonical_url(path: string) {
  * them. A page whose card says something different from its title is the kind of mismatch
  * nobody notices until a link is shared.
  */
-export function head_for(path: string) {
+export function head_for(path: string): HeadConfig {
   const meta = page_meta[path]
   const url = canonical_url(path)
 
