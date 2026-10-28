@@ -4,12 +4,15 @@ The four images the project README shows. Capture them from
 [receipta-app.netlify.app](https://receipta-app.netlify.app) and put them here under these
 exact names — the README already points at them.
 
-| File | What | In a phone frame? |
+| File | What | Source |
 | --- | --- | --- |
-| `desktop-home.png` | The home page, hero visible, including the receipt sheet | No — it is a browser window |
-| `mobile-builder.png` | `/create`, mid-build, a couple of items filled in | **Yes** |
-| `mobile-preview.png` | The Review step showing the receipt preview | **Yes** |
-| `receipt.png` | An exported receipt itself | No — it is a document, not a screen |
+| `desktop-home.png` | The home page, hero and receipt sheet | MacBook frame |
+| `mobile-builder.png` | `/create`, the Payment step, filled in | iPhone frame |
+| `mobile-preview.png` | The Review step showing the receipt preview | iPhone frame |
+
+The three in the repository were captured with a device-mockup browser extension, which
+frames them as a MacBook and an iPhone. That is why they are not run through
+`scripts/phone_mockup.sh` — they arrive framed already.
 
 ## Capturing
 

@@ -15,9 +15,8 @@ Everything happens in your browser. There is no account, no server, and nothing 
 </p>
 
 <p align="center">
-  <img src="docs/screenshots/mobile-builder.png" alt="Building a receipt on a phone" width="32%">
-  <img src="docs/screenshots/mobile-preview.png" alt="The receipt preview on a phone" width="32%">
-  <img src="docs/screenshots/receipt.png" alt="An exported receipt" width="32%">
+  <img src="docs/screenshots/mobile-builder.png" alt="Building a receipt on a phone" width="45%">
+  <img src="docs/screenshots/mobile-preview.png" alt="The receipt preview on a phone" width="45%">
 </p>
 
 ---
