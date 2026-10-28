@@ -12,6 +12,8 @@ const real_dependencies: ExportDependencies = { load_ports }
 
 type ReceiptExportPanelProps = {
   values: ReceiptInput
+  /** Called once a file has been saved. Never on a failed export. */
+  on_exported?: () => void
   /** Replaces the dynamic import and the DOM steps, for tests. */
   dependencies?: ExportDependencies
 }
@@ -20,9 +22,9 @@ type ReceiptExportPanelProps = {
  * The preview of the receipt and the two downloads. The view is built once and handed to
  * both the preview and the export, so the file is made from exactly what is on screen.
  */
-export function ReceiptExportPanel({ values, dependencies = real_dependencies }: ReceiptExportPanelProps) {
+export function ReceiptExportPanel({ values, on_exported, dependencies = real_dependencies }: ReceiptExportPanelProps) {
   const view = useMemo(() => build_receipt_view(values), [values])
-  const { busy, error, announcement, start } = useReceiptExport(view, dependencies)
+  const { busy, error, announcement, start } = useReceiptExport(view, dependencies, on_exported)
 
   return (
     <div className="flex flex-col gap-4">

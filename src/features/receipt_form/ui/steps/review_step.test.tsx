@@ -122,6 +122,11 @@ describe('Review step', () => {
     const { user } = render_form(undefined, dependencies)
     await user.click(screen.getByRole('button', { name: 'Download PDF' }))
     await vi.waitFor(() => expect(dependencies.run).toHaveBeenCalledTimes(1))
+    // A saved file offers a fresh start, and that dialog makes the page behind it inert.
+    // Dismiss it before reading the preview.
+    await user.click(await screen.findByRole('button', { name: /keep this receipt/i }))
+    await vi.waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+
     const [kind, view] = dependencies.run.mock.calls[0]
     expect(kind).toBe('pdf')
     // The view the export gets is the view the preview shows.

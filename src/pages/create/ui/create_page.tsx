@@ -15,7 +15,11 @@ export function CreatePage() {
     <div className="flex min-h-svh w-full flex-col">
       <SiteHeader />
       <main className="flex w-full flex-1 flex-col">
-        <ReceiptForm render_review={(values) => <ReceiptExportPanel values={values} />} />
+        <ReceiptForm
+          render_review={(values, on_exported) => (
+            <ReceiptExportPanel values={values} on_exported={on_exported} />
+          )}
+        />
       </main>
     </div>
   )

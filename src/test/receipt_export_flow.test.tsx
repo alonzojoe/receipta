@@ -109,6 +109,12 @@ describe('the whole export flow', () => {
       await waitFor(() => expect(ports.save).toHaveBeenCalledTimes(1))
       expect(vi.mocked(ports.save).mock.calls[0][1]).toMatch(new RegExp(String.raw`_receipt_\d{14}\.pdf$`))
       expect(vi.mocked(ports.save).mock.calls[0][0]).toBeInstanceOf(Blob)
+
+      // A saved file offers a fresh start, and that dialog locks the page behind it, so it
+      // is dismissed before anything else is read. Keeping the receipt changes nothing.
+      await user.click(await screen.findByRole('button', { name: /keep this receipt/i }))
+      await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+
       await waitFor(() => expect(button('Download PDF')).toBeEnabled())
       expect(toast.success).toHaveBeenCalledWith('PDF created')
       expect(screen.getAllByRole('status').some((node) => node.textContent === 'PDF created')).toBe(true)
@@ -118,6 +124,11 @@ describe('the whole export flow', () => {
       await waitFor(() => expect(ports.save).toHaveBeenCalledTimes(2))
       expect(vi.mocked(ports.save).mock.calls[1][1]).toMatch(new RegExp(String.raw`_receipt_\d{14}\.png$`))
       await waitFor(() => expect(toast.success).toHaveBeenLastCalledWith('Image created'))
+
+      // A saved file offers a fresh start; that dialog locks the page behind it, so it is
+      // dismissed before carrying on. Keeping the receipt changes nothing.
+      await user.click(await screen.findByRole('button', { name: /keep this receipt/i }))
+      await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
 
       // Exporting changed nothing: the same step, the same document text (receipt number
       // included), and the stored draft still holds exactly the values that were entered.
