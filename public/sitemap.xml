@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The five routes of the app. The home page and the builder carry the weight; the legal
+  pages are listed because they answer the question that decides whether someone uses this
+  - whether it uploads their data - and that answer should be findable.
+
+  `netlify_seo.test.ts` fails if a route exists in page_meta.ts that is not listed here, so
+  adding a route without listing it cannot pass review.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://receipta-app.netlify.app</loc>
+    <lastmod>2026-10-28</lastmod>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://receipta-app.netlify.app/create</loc>
+    <lastmod>2026-10-28</lastmod>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://receipta-app.netlify.app/privacy</loc>
+    <lastmod>2026-10-28</lastmod>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://receipta-app.netlify.app/terms</loc>
+    <lastmod>2026-10-28</lastmod>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://receipta-app.netlify.app/cookies</loc>
+    <lastmod>2026-10-28</lastmod>
+    <priority>0.3</priority>
+  </url>
+</urlset>

@@ -7,7 +7,7 @@
     <title>Receipta — Send receipts, not screenshots</title>
     <meta
       name="description"
-      content="Turn a GCash, Maya, MariBank, or bank transfer payment into a clean receipt you can send in seconds. No signup, and nothing leaves your device."
+      content="Turn a GCash, Maya, or bank transfer into a clean receipt you can send in seconds. Free, no signup, and nothing leaves your device."
     />
 
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
@@ -19,14 +19,27 @@
     <link rel="manifest" href="/site.webmanifest" />
     <meta name="theme-color" content="#6c3aed" />
 
+    <!--
+      This block is what SHARE-CARD SCRAPERS see, and nothing else. Messenger, Viber and
+      Facebook run no JavaScript, so the per-route tags the router writes never reach them.
+      Every URL here is absolute for the same reason: a scraper has no page to resolve a
+      relative path against, so `/logo_lockup.png` produced a card with no image at all.
+
+      `seo.test.ts` pins these against page_meta['/'] so the shell and the home route
+      cannot drift apart.
+    -->
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Receipta" />
+    <meta property="og:url" content="https://receipta-app.netlify.app" />
     <meta property="og:title" content="Receipta — Send receipts, not screenshots" />
     <meta
       property="og:description"
-      content="Turn a GCash, Maya, MariBank, or bank transfer payment into a clean receipt you can send in seconds."
+      content="Turn a GCash, Maya, or bank transfer into a clean receipt you can send in seconds. Free, no signup, and nothing leaves your device."
     />
-    <meta property="og:image" content="/logo_lockup.png" />
+    <meta property="og:image" content="https://receipta-app.netlify.app/logo_lockup.png" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="https://receipta-app.netlify.app/logo_lockup.png" />
+    <link rel="canonical" href="https://receipta-app.netlify.app" />
   </head>
   <body>
     <script>

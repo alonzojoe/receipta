@@ -1,0 +1,7 @@
+# Receipta is a static, client-rendered app with nothing private behind a path: the
+# receipt lives in the visitor's own browser and never reaches a server. There is nothing
+# to disallow.
+User-agent: *
+Allow: /
+
+Sitemap: https://receipta-app.netlify.app/sitemap.xml
