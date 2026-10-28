@@ -31,7 +31,13 @@ export function render_form(advance_timers?: (ms: number) => void, export_depend
     user,
     ...render(
       <ReceiptForm
-        render_review={(values) => <ReceiptExportPanel values={values} dependencies={export_dependencies} />}
+        render_review={(values, on_exported) => (
+          <ReceiptExportPanel
+            values={values}
+            on_exported={on_exported}
+            dependencies={export_dependencies}
+          />
+        )}
       />,
     ),
   }

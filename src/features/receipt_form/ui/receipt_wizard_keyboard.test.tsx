@@ -74,10 +74,21 @@ describe('keyboard only', () => {
     // Both downloads are reachable by Tab and work with Enter, and Back is reachable after.
     await tab_to(user, button_named('Download PDF'))
     await user.keyboard('{Enter}')
+
+    // A saved file offers a fresh start. The offer is keyboard-reachable too: it opens with
+    // the keep action focused, so Enter alone dismisses it without touching the receipt.
+    const keep = await screen.findByRole('button', { name: /keep this receipt/i })
+    await waitFor(() => expect(keep).toHaveFocus())
+    await user.keyboard('{Enter}')
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
+
     await waitFor(() => expect(screen.getByRole('button', { name: 'Download image' })).toBeEnabled())
     await tab_to(user, button_named('Download image'))
     await user.keyboard('{Enter}')
     expect(export_dependencies.run.mock.calls.map(([kind]) => kind)).toEqual(['pdf', 'png'])
+
+    await user.keyboard('{Escape}')
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull())
     await tab_to(user, button_named('Back'))
   }, whole_flow_timeout)
 })

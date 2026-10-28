@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import toast from 'react-hot-toast'
 
@@ -12,6 +13,7 @@ import { useDraftAutosave } from '../model/use_draft_autosave'
 import { useReceiptForm } from '../model/use_receipt_form'
 import { useReceiptWizard } from '../model/use_receipt_wizard'
 import { ClearDraftButton } from './clear_draft_button'
+import { StartNewDialog } from './start_new_dialog'
 import { DraftStatus } from './draft_status'
 import { ItemsStep } from './steps/items_step'
 import { PartiesStep } from './steps/parties_step'
@@ -29,7 +31,8 @@ const step_descriptions = {
 
 type ReceiptWizardProps = {
   /** Renders the preview and the downloads on the Review step. Required: see `ReviewStep`. */
-  render_review: (values: ReceiptInput) => ReactNode
+  /** The second argument is called once a file has been saved, never on a failure. */
+  render_review: (values: ReceiptInput, on_exported: () => void) => ReactNode
 }
 
 /**
@@ -57,6 +60,14 @@ export function ReceiptWizard({ render_review }: ReceiptWizardProps) {
     event.preventDefault()
     void next()
   }
+
+  /**
+   * Offered after every saved file, on the author's instruction - including the second of a
+   * PDF and a PNG downloaded back to back. Keeping it simple and predictable was preferred
+   * over suppressing the repeat, and the keep action is always one click and always the
+   * default, so the cost of an unwanted offer is low.
+   */
+  const [start_new_open, set_start_new_open] = useState(false)
 
   function clear_draft() {
     // keepDefaultValues: without it `reset` swaps the form's defaultValues for the fresh
@@ -119,7 +130,9 @@ export function ReceiptWizard({ render_review }: ReceiptWizardProps) {
               {step_name === 'parties' && <PartiesStep form={form} />}
               {step_name === 'items' && <ItemsStep form={form} />}
               {step_name === 'payment' && <PaymentStep form={form} />}
-              {step_name === 'review' && <ReviewStep form={form} go_to={go_to} render_review={render_review} />}
+              {step_name === 'review' && (
+                <ReviewStep form={form} go_to={go_to} render_review={(values) => render_review(values, () => set_start_new_open(true))} />
+              )}
             </div>
 
             <StepNav
@@ -131,6 +144,15 @@ export function ReceiptWizard({ render_review }: ReceiptWizardProps) {
 
           <div className="flex justify-end">
             <ClearDraftButton on_confirm={clear_draft} />
+
+            <StartNewDialog
+              open={start_new_open}
+              on_open_change={set_start_new_open}
+              on_confirm={() => {
+                clear_draft()
+                go_to(1)
+              }}
+            />
           </div>
         </div>
       </div>

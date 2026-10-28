@@ -83,7 +83,16 @@ export type ReceiptExport = {
  *
  * Failure is never silent: every path ends in a saved file or in `error` plus a toast.
  */
-export function useReceiptExport(view: ReceiptView, dependencies: ExportDependencies): ReceiptExport {
+/**
+ * `on_success` fires only after a file has actually been saved. The caller uses it to offer
+ * a fresh start, and offering that after a FAILED export - when the user has nothing - is
+ * the worst possible timing, which is why this is not simply "after start finishes".
+ */
+export function useReceiptExport(
+  view: ReceiptView,
+  dependencies: ExportDependencies,
+  on_success?: () => void,
+): ReceiptExport {
   const [busy, set_busy] = useState<ExportKind | null>(null)
   const [error, set_error] = useState<string | null>(null)
   const [announcement, set_announcement] = useState('')
@@ -110,6 +119,7 @@ export function useReceiptExport(view: ReceiptView, dependencies: ExportDependen
         const text = success_text(kind, outcome)
         set_announcement(text)
         toast.success(text)
+        on_success?.()
       } catch (cause) {
         const failure = classify_error(cause)
         // The raw error goes to the console; nothing is sent anywhere.
